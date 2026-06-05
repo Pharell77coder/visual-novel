@@ -18,7 +18,7 @@ class DialogueBox:
         self.text = ""
         self.name = ""
         self.visible_chars = 0
-        self.speed = 1.5          # chars per frame
+        self.speed = 1        # chars per frame
         self._accum = 0.0
         self.done = False
         self.choices = []
@@ -57,16 +57,38 @@ class DialogueBox:
 
     def update(self):
         if not self.done:
+            # 1. On mémorise le nombre ENTIER de lettres avant la mise à jour
+            old_chars = int(self.visible_chars)
+            
+            # 2. Progression de l'affichage
             self._accum += self.speed
-            if self._accum >= 1:
-                n = int(self._accum)
-                self._accum -= n
-                self.visible_chars = min(self.visible_chars + n, len(self.text))
-                if self.visible_chars >= len(self.text):
-                    self.done = True
-                    if self.choices:
-                        self.show_choices = True
+            self.visible_chars = min(len(self.text), int(self._accum))
+            
+            # 3. Calcul du nombre précis de nouvelles lettres apparues
+            new_chars_count = int(self.visible_chars) - old_chars
+            
+            if new_chars_count > 0:
+                # On isole le texte ajouté à cette frame
+                added_text = self.text[old_chars:int(self.visible_chars)]
+                
+                # S'il y a du vrai texte (pas juste des espaces)
+                if added_text.strip():
+                    if self.assets.snd_click:
+                        # ── LA CORRECTION : On utilise un canal pour forcer la répétition ──
+                        # On trouve un canal audio libre
+                        channel = pygame.mixer.find_channel()
+                        if channel:
+                            # stop() coupe immédiatement le clic précédent s'il tournait encore
+                            channel.stop() 
+                            # play() relance le son instantanément au millième de seconde près
+                            channel.play(self.assets.snd_click)
 
+            # 4. Fin du texte atteint
+            if self.visible_chars >= len(self.text):
+                self.done = True
+                if self.choices:
+                    self.show_choices = True
+                    
     def select_choice(self, direction):
         if self.show_choices and self.choices:
             self.choice_idx = (self.choice_idx + direction) % len(self.choices)

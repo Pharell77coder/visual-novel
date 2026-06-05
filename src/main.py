@@ -12,6 +12,7 @@ from script import SCRIPT
 # ── Moteur principal ────────────────────────────────────────────────────────────
 class VNEngine:
     def __init__(self):
+        pygame.mixer.pre_init(44100, -16, 2, 512)
         pygame.init()
         pygame.mixer.init()
         pygame.display.set_caption(TITLE)
@@ -244,9 +245,15 @@ class VNEngine:
             else:
                 cx = SCREEN_W - cw - 60
             # Ombre du personnage
-            sh = pygame.Surface((cw, ch), pygame.SRCALPHA)
-            sh.fill((0, 0, 0, 80))
-            self.screen.blit(sh, (cx + 4, cy + 4))
+            # sh = pygame.Surface((cw, ch), pygame.SRCALPHA)
+            # sh.fill((0, 0, 0, 80))
+            # self.screen.blit(sh, (cx + 4, cy + 4))
+            # Une vraie ombre silhouette qui respecte la transparence (Alpha) du sprite
+            shadow_surf = self.char_surf.copy()
+            # On remplit la silhouette avec du noir translucide
+            shadow_surf.fill((0, 0, 0, 80), special_flags=pygame.BLEND_RGBA_MULT)
+            # On l'affiche légèrement décalée vers le bas et la droite
+            self.screen.blit(shadow_surf, (cx + 4, cy + 4))
             # Léger breathing
             breath_y = int(math.sin(self.t * 1.2) * 3)
             self.screen.blit(self.char_surf, (cx, cy + breath_y))

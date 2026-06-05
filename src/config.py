@@ -34,7 +34,9 @@ class Expr(Enum):
     TRISTE   = 4
     REGARD   = 5
     SMIRK    = 6
-    SHOCKED  = 7   # detective7 (index ≥ 7 → fallback to 0)
+    SHOCKED  = 7
+    SMUG     = 8 
+    TIRED    = 9
 
 POLICIERE_EXPR = {
     "neutre":   0,
@@ -45,3 +47,4 @@ POLICIERE_EXPR = {
 
 # ── Configuration Audio ────────────────────────────────────────────────────────
 DEFAULT_MUSIC = "jazz.mp3"
+DIALOGUE_CLICK = "click.wav" #convertir en wav pour une meilleure compatibilité avec pygame

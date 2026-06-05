@@ -1,7 +1,7 @@
 import pygame
 import os
 
-from config import ASSETS, SCREEN_W, SCREEN_H, DEFAULT_MUSIC
+from config import ASSETS, DIALOGUE_CLICK, SCREEN_W, SCREEN_H, DEFAULT_MUSIC
 
 # ── Utilitaires ────────────────────────────────────────────────────────────────
 def load_img(path, size=None, colorkey=None):
@@ -19,7 +19,7 @@ def load_alpha(path, size=None):
         img = pygame.transform.smoothscale(img, size)
     return img
 
-def remove_checker(surf, tol=40):
+def remove_checker(surf, tol=0):
     """Supprime le damier de fond en partant des bords, sans toucher à l'intérieur du personnage."""
     out = surf.copy().convert_alpha()
     w, h = out.get_size()
@@ -100,10 +100,10 @@ class Assets:
                 self.bg[name] = load_img(path, (SCREEN_W, SCREEN_H))
 
     def _load_characters(self):
-        # Detective : 8 expressions (0-7)
+        # Detective : 10 expressions (0-9)
         det_dir = os.path.join(ASSETS, "characters", "detective")
         CH = 320  # hauteur portrait
-        for i in range(8):
+        for i in range(10):
             path = os.path.join(det_dir, f"detective{i}.png")
             if os.path.exists(path):
                 raw = load_alpha(path)
@@ -131,12 +131,20 @@ class Assets:
                 self.ui[name] = pygame.image.load(path).convert()
 
     def _load_audio(self):
-            """Vérifie et configure le chemin absolu de la musique de fond."""
-            # Jointure propre : racine/assets/audio/jazz.mp3
-            music_path = os.path.join(ASSETS, "audio", DEFAULT_MUSIC)
-            
-            if os.path.exists(music_path):
-                self.bg_music = music_path
-            else:
-                self.bg_music = None
-                print(f"[!] Attention : Fichier audio introuvable à l'adresse : {music_path}")
+        """Vérifie et configure le chemin absolu de la musique de fond."""
+        # Jointure propre : racine/assets/audio/jazz.mp3
+        music_path = os.path.join(ASSETS, "audio", DEFAULT_MUSIC)
+        
+        if os.path.exists(music_path):
+            self.bg_music = music_path
+        else:
+            self.bg_music = None
+            print(f"[!] Attention : Fichier audio introuvable à l'adresse : {music_path}")
+        # ── AJOUT : Chargement du bruitage de clic ────────────────────────────
+        click_path = os.path.join(ASSETS, "audio", DIALOGUE_CLICK)
+        if os.path.exists(click_path):
+            self.snd_click = pygame.mixer.Sound(click_path)
+            self.snd_click.set_volume(0.2)  # Baisser un peu le volume pour que ce ne soit pas agressif
+        else:
+            self.snd_click = None
+            print(f"[!] Attention : Bruitage de dialogue introuvable à : {click_path}")
