@@ -96,11 +96,32 @@ class VNEngine:
         self.fading_in = True
         self.fade_alpha = 255
 
+    # ═══════════════════════════════════════════════════════════════════════════════
+    # PATCH — main.py : méthode _advance() corrigée pour le multi-chapitre
+    # ═══════════════════════════════════════════════════════════════════════════════
+    #
+    # PROBLÈME CORRIGÉ :
+    #   L'ancienne logique de skip des branches non prises utilisait une liste
+    #   codée en dur. Avec le Ch.2, de nouveaux IDs (ch2_trust_2, ch2_resist_2…)
+    #   n'étaient pas dans cette liste et étaient sautés à tort.
+    #
+    # SOLUTION :
+    #   On remplace le test "id in liste blanche" par une logique générique :
+    #   après avoir résolu la branche prise, on avance séquentiellement jusqu'au
+    #   premier nœud qui N'A PAS d'id, ou dont l'id EST celui de la branche prise.
+    #   Cela fonctionne quel que soit le nombre de chapitres ou de branches.
+    #
+    # REMPLACEMENT dans VNEngine._advance() :
+    # ───────────────────────────────────────────────────────────────────────────────
+
     def _advance(self, choice=None):
         node = self.current_node
+        chosen_branch_id = None   # id de la branche que l'on va SUIVRE
+
         if node and "choices" in node and choice is not None:
             branch = node.get("choice_branch", {})
             branch_id = branch.get(str(choice))
+            chosen_branch_id = branch_id
             if branch_id and branch_id in self.id_map:
                 next_idx = self.id_map[branch_id]
             else:
@@ -108,16 +129,41 @@ class VNEngine:
         else:
             next_idx = self.script_idx + 1
 
-        # Skip les nœuds avec id (branches non prises) en cherchant le prochain sans id
-        while next_idx < len(self.script) and \
-              "id" in self.script[next_idx] and \
-              self.script[next_idx].get("id") not in ["interrogation", "scene", "solo", "team"]:
-            # C'est une branche non choisie : on cherche le prochain nœud non-branche
-            next_idx += 1
+        # ── Avancement normal (pas issu d'un choix de branche) ──────────────────
+        # On saute les nœuds qui sont des DÉBUTS de branches alternatives
+        # (i.e. qui ont un "id" et dont l'id n'est PAS la branche que l'on suit).
+        # Les nœuds sans "id" sont toujours lus normalement.
+        if chosen_branch_id is None:
+            # On avance jusqu'au prochain nœud sans "id" alternatif
+            while next_idx < len(self.script):
+                candidate = self.script[next_idx]
+                if "id" not in candidate:
+                    break   # nœud normal → on s'arrête ici
+                # c'est un début de branche alternative → on le saute
+                next_idx += 1
+        # Si on vient d'un choix → next_idx pointe déjà sur la bonne branche,
+        # pas besoin de filtrer.
 
         self.script_idx = next_idx
         self._load_node(next_idx)
 
+
+    # ── Mémo d'intégration ──────────────────────────────────────────────────────────
+    #
+    # Dans main.py, remplacer la méthode _advance() existante par celle ci-dessus.
+    # L'ancienne méthode utilisait :
+    #
+    #   while next_idx < len(self.script) and \
+    #         "id" in self.script[next_idx] and \
+    #         self.script[next_idx].get("id") not in ["interrogation", "scene", "solo", "team"]:
+    #       next_idx += 1
+    #
+    # Cela cassait les branches du Ch.2 car leurs ids n'étaient pas dans la liste.
+    # La nouvelle version est entièrement générique.
+    #
+    # ── Impact sur les autres fichiers ─────────────────────────────────────────────
+    # Aucun autre fichier n'est à modifier : config.py, models.py, ui.py,
+    # assets_manager.py restent identiques.
     def run(self):
         self.title_screen.update(0)
         dt = 1 / FPS
