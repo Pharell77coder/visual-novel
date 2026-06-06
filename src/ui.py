@@ -34,8 +34,9 @@ class DialogueBox:
         # fond sombre semi-transparent avec bord cyan
         pygame.draw.rect(s, (*DIALOGUE_BG, 230), (0, 0, self.W, self.H), border_radius=6)
         pygame.draw.rect(s, (*CYAN, 200),         (0, 0, self.W, self.H), width=2, border_radius=6)
-        # ligne décorative du nom
-        pygame.draw.line(s, (*CYAN, 120), (self.MARGIN, 40), (200, 40), 1)
+        # NOTE : la ligne décorative du nom a été retirée d'ici (elle était figée
+        # dans la surface et s'affichait même sans nom). Elle est désormais
+        # dessinée dynamiquement dans draw() seulement quand self.name est défini.
         return s
 
     def set_text(self, text, name="", choices=None):
@@ -123,14 +124,27 @@ class DialogueBox:
 
         # Nom du personnage
         if self.name:
-            # Badge de nom
+            # Badge de nom — positionné ENTIÈREMENT au-dessus de la boîte
+            # Badge height = 26px, on le place à -32 => bord bas à -32+26 = -6 (6px d'air)
+            BADGE_H   = 26
+            BADGE_OFF = -(BADGE_H + 6)   # 6px de marge entre badge et boîte
+
             name_surf = f.render(self.name, True, TEXT_NAME)
             nw = name_surf.get_width() + 20
-            badge = pygame.Surface((nw, 26), pygame.SRCALPHA)
-            pygame.draw.rect(badge, (*CYAN, 40), (0, 0, nw, 26), border_radius=4)
-            pygame.draw.rect(badge, (*CYAN, 180), (0, 0, nw, 26), width=1, border_radius=4)
-            screen.blit(badge, (self.x + self.MARGIN, self.y + y_off - 18))
-            screen.blit(name_surf, (self.x + self.MARGIN + 10, self.y + y_off - 15))
+            badge = pygame.Surface((nw, BADGE_H), pygame.SRCALPHA)
+            pygame.draw.rect(badge, (*CYAN, 40),  (0, 0, nw, BADGE_H), border_radius=4)
+            pygame.draw.rect(badge, (*CYAN, 180), (0, 0, nw, BADGE_H), width=1, border_radius=4)
+            bx = self.x + self.MARGIN
+            by = self.y + y_off + BADGE_OFF
+            screen.blit(badge, (bx, by))
+            screen.blit(name_surf, (bx + 10, by + (BADGE_H - name_surf.get_height()) // 2))
+
+            # Ligne décorative sous le badge (seulement si un nom est présent)
+            pygame.draw.line(screen,
+                             (*CYAN, 90),
+                             (self.x + self.MARGIN, self.y + y_off + 2),
+                             (self.x + self.MARGIN + nw, self.y + y_off + 2),
+                             1)
 
         # Texte principal (avec typewriter)
         visible = self.text[:int(self.visible_chars)]

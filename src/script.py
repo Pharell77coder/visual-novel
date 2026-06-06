@@ -1,39 +1,38 @@
 # ═══════════════════════════════════════════════════════════════════════════════
-# NUIT SANS TÉMOIN — script.py complet (Chapitres I & II)
+# NUIT SANS TÉMOIN — script.py complet (Chapitres I, II & III)
 # ═══════════════════════════════════════════════════════════════════════════════
 #
-# CONVENTION DES IDs DE BRANCHE :
-#   Chapitre I  → pas de préfixe  (ex: "scene", "interrogation", "solo", "team")
-#   Chapitre II → préfixe "ch2_" (ex: "ch2_trust", "ch2_resist", ...)
+# PERSONNAGES :
+#   detective  — 10 expressions (0=neutre 1=sourire 2=large 3=colère 4=triste
+#                                5=regard  6=smirk   7=shocked 8=smug  9=tired)
+#   policiere  — 4 expressions  (0=neutre 1=serieux 2=sourire 3=shocked)
+#   ferriere   — 4 expressions  (0=neutre 1=serieux 2=sourire 3=shocked)
+#   natasha    — 4 expressions  (0=neutre 1=serieux 2=sourire 3=shocked)
+#   taro       — 4 expressions  (0=neutre 1=serieux 2=sourire 3=shocked)
+#   architect  — 4 expressions  (0=neutre 1=serieux 2=sourire 3=shocked)
 #
-# Cela évite toute collision dans le dict id_map du VNEngine.
+# BACKGROUNDS :
+#   Ch1 : bureau, rue, salle_interrogatoire, scene_de_crime, toit
+#   Ch2 : (mêmes) + aeroport_jetpack, geneve
+#   Ch3 : geneve, aeroport_jetpack, bureau, salle_interrogatoire, toit
 #
 # ARBRE DE DÉCISIONS :
+#   Ch1 : Choix 1 → interrogation / scene
+#         Choix 2 → solo / team
+#   Ch2 : Choix A → ch2_trust / ch2_resist
+#         Choix B → ch2_infiltrate / ch2_press
+#         Choix C → ch2_betray / ch2_protect
+#   Ch3 : Choix D → ch3_confront / ch3_shadow
+#         Choix E → ch3_expose / ch3_negotiate
+#         Choix F → ch3_sacrifice / ch3_escape
 #
-#   ┌── CHAPITRE I ──────────────────────────────────────────────────────┐
-#   │  CHOIX 1 : "Interroger" → [interrogation]                         │
-#   │          / "Examiner"   → [scene]                                 │
-#   │  CHOIX 2 : "Agir seul"  → [solo]                                  │
-#   │          / "Faire confiance à Sato" → [team]                      │
-#   └────────────────────────────────────────────────────────────────────┘
-#                         ↓
-#   ┌── CHAPITRE II ─────────────────────────────────────────────────────┐
-#   │  CHOIX A : "Faire confiance" → [ch2_trust]                        │
-#   │          / "Garder ses distances" → [ch2_resist]                  │
-#   │  CHOIX B : "Infiltrer" → [ch2_infiltrate]                         │
-#   │          / "Contacter la presse" → [ch2_press]                    │
-#   │  CHOIX C : "Exposer Ferrière seul" → [ch2_betray]                 │
-#   │          / "Protéger Sato" → [ch2_protect]                        │
-#   └────────────────────────────────────────────────────────────────────┘
-#
-# PREUVES (9 au total sur les deux chapitres) :
+# PREUVES (14 au total) :
 #   Ch1 : Dossier Vane, Clé USB, Trace de pneus, Fichiers Synarchie
 #   Ch2 : Registre Offshore, Photo du Fantôme, Enregistrement Taro,
 #          Clé du Loft 7, Rapport interne
+#   Ch3 : Passeport Fantôme, Schéma du Réseau, Accord Secret,
+#          Enregistrement final, Identité de l'Architecte
 #
-# EXPRESSIONS detective : 0=neutre 1=sourire 2=large 3=colère 4=triste
-#                         5=regard 6=smirk  7=shocked 8=smug  9=tired
-# EXPRESSIONS policiere : 0=neutre 1=sérieux 2=sourire 3=shocked
 # ═══════════════════════════════════════════════════════════════════════════════
 
 SCRIPT = [
@@ -154,7 +153,7 @@ SCRIPT = [
      "name": "OFF. LEILA SATO",
      "text": "On fait équipe, alors. Je couvre vos arrières, vous couvrez les miens."},
 
-    # ── ACTE FINAL : Le toit ───────────────────────────────────────────────────
+    # ── ACTE FINAL Ch1 : Le toit ───────────────────────────────────────────────
     {"bg": "toit", "rain": False,
      "char": "detective", "expr": 0, "side": "left",
      "name": "DÉTECTIVE RAVEN",
@@ -165,7 +164,6 @@ SCRIPT = [
      "name": "DÉTECTIVE RAVEN",
      "text": "Et moi, je la trouverai. C'est ma promesse à Marcus Vane. À tous les Marcus de ce monde."},
 
-    # Interlude chapitres ──────────────────────────────────────────────────────
     {"bg": "toit", "rain": False,
      "char": None, "side": "left",
      "name": "", "text": "─── FIN DU CHAPITRE I ───"},
@@ -174,7 +172,6 @@ SCRIPT = [
     # ████  CHAPITRE II — "Le Prix de la Vérité"  ████
     # ══════════════════════════════════════════════════════════════════════════
 
-    # ── ACTE 1 : Transition & découverte du Registre ───────────────────────────
     {"bg": "toit", "rain": False,
      "char": None, "side": "left",
      "name": "", "text": "CHAPITRE II — Le Prix de la Vérité"},
@@ -201,6 +198,11 @@ SCRIPT = [
      "text": "Raven. Mon chef vient de me convoquer. Il veut qu'on rende la clé USB. Motif : 'preuves saisies illégalement'."},
 
     {"bg": "bureau", "rain": True,
+     "char": "ferriere", "expr": 1, "side": "right",
+     "name": "CDT. FERRIÈRE",
+     "text": "Officier Sato. Cette enquête est terminée. Remettez-moi tout ce que vous avez sur l'affaire Vane. Ce soir."},
+
+    {"bg": "bureau", "rain": True,
      "char": "detective", "expr": 3, "side": "left",
      "name": "DÉTECTIVE RAVEN",
      "text": "Illégalement. Bien sûr. Quelqu'un là-haut a peur, Sato. Et la peur rend les gens dangereux."},
@@ -215,7 +217,7 @@ SCRIPT = [
      "name": "DÉTECTIVE RAVEN",
      "text": "Un informateur qui sort du néant au moment où l'enquête devient dangereuse. Soit c'est une chance, soit c'est un piège."},
 
-    # ── ACTE 2 : La rencontre avec Taro ────────────────────────────────────────
+    # ── ACTE 2 Ch2 : La rencontre avec Taro ───────────────────────────────────
     {"bg": "rue", "rain": True,
      "char": None, "side": "left",
      "name": "", "text": "Le lieu de rendez-vous : une ruelle derrière le marché couvert de Chinatown. 23h00."},
@@ -226,9 +228,9 @@ SCRIPT = [
      "text": "Je prends position vingt minutes en avance. Les pièges se voient mieux quand on arrive le premier."},
 
     {"bg": "rue", "rain": True,
-     "char": None, "side": "left",
-     "name": "INCONNU",
-     "text": "Détective Raven... J'espérais que vous viendriez seul. Je m'appelle Taro. J'étais le comptable de Vane."},
+     "char": "taro", "expr": 0, "side": "right",
+     "name": "TARO",
+     "text": "Détective Raven... J'espérais que vous viendriez seul. Je m'appelle Taro. J'étais l'assistant comptable de Vane."},
 
     {"bg": "rue", "rain": True,
      "char": "detective", "expr": 5, "side": "left",
@@ -236,12 +238,12 @@ SCRIPT = [
      "text": "Le comptable du comptable. Pratique. Qu'est-ce qui vous retient encore en vie, Taro ?"},
 
     {"bg": "rue", "rain": True,
-     "char": None, "side": "left",
+     "char": "taro", "expr": 1, "side": "right",
      "name": "TARO",
      "text": "Eux ne savent pas que j'existe. Marcus gardait mes noms hors des registres. Mais j'ai tout vu. Tout entendu."},
 
     {"bg": "rue", "rain": True,
-     "char": None, "side": "left",
+     "char": "taro", "expr": 1, "side": "right",
      "name": "TARO",
      "text": "La nuit de sa mort, Marcus avait rendez-vous avec un homme qui portait un badge de la police.",
      "evidence": ("Photo du Fantôme", "Silhouette avec badge policier")},
@@ -252,7 +254,7 @@ SCRIPT = [
      "text": "Un flic. Il y a un flic dans la Synarchie."},
 
     {"bg": "rue", "rain": True,
-     "char": None, "side": "left",
+     "char": "taro", "expr": 0, "side": "right",
      "name": "TARO",
      "text": "Pas juste un flic. Quelqu'un de haut placé. J'ai un enregistrement. La voix... vous la reconnaîtrez."},
 
@@ -275,7 +277,7 @@ SCRIPT = [
      "bg": "rue", "rain": True,
      "char": "detective", "expr": 7, "side": "left",
      "name": "DÉTECTIVE RAVEN",
-     "text": "Je connais cette voix. Je l'ai entendue ce matin même dans les couloirs du commissariat central."},
+     "text": "Je connais cette voix. Je l'ai entendue ce matin même dans les couloirs du commissariat central. Ferrière."},
 
     # ── Branche : Garder ses distances ────────────────────────────────────────
     {"id": "ch2_resist",
@@ -286,7 +288,7 @@ SCRIPT = [
 
     {"id": "ch2_resist_2",
      "bg": "rue", "rain": True,
-     "char": None, "side": "left",
+     "char": "taro", "expr": 0, "side": "right",
      "name": "TARO",
      "text": "Je comprends la prudence. Alors je vais juste vous dire le nom. Commandant Ferrière. Brigade criminelle."},
 
@@ -297,7 +299,12 @@ SCRIPT = [
      "text": "Ferrière. Le supérieur direct de Sato. Mon sang se glace.",
      "evidence": ("Enregistrement Taro", "Ferrière impliqué — Synarchie")},
 
-    # ── ACTE 3 : La révélation — Ferrière ─────────────────────────────────────
+    # ── ACTE 3 Ch2 : La révélation — Ferrière ─────────────────────────────────
+    {"bg": "salle_interrogatoire", "rain": False,
+     "char": "ferriere", "expr": 1, "side": "right",
+     "name": "CDT. FERRIÈRE",
+     "text": "Raven. Je savais que vous ne lâcheriez pas. Vous êtes prévisible, comme tous les idéalistes."},
+
     {"bg": "salle_interrogatoire", "rain": False,
      "char": "detective", "expr": 3, "side": "left",
      "name": "DÉTECTIVE RAVEN",
@@ -323,11 +330,6 @@ SCRIPT = [
      "name": "DÉTECTIVE RAVEN",
      "text": "Sato. Écoutez-moi. Il faut agir vite, mais sans se précipiter. Si on rate notre coup, on est morts."},
 
-    {"bg": "salle_interrogatoire", "rain": False,
-     "char": None, "side": "left",
-     "name": "",
-     "text": "Taro avait mentionné un endroit. Le Loft 7, dans les anciens docks. Le QG opérationnel de la Synarchie."},
-
     {"bg": "bureau", "rain": False,
      "char": "detective", "expr": 5, "side": "left",
      "name": "DÉTECTIVE RAVEN",
@@ -337,7 +339,7 @@ SCRIPT = [
     # CHOIX B ──────────────────────────────────────────────────────────────────
     {"bg": "bureau", "rain": False,
      "char": "detective", "expr": 0, "side": "left",
-     "name": "", "text": "On a 48 heures avant que Ferrière réalise qu'on sait. Comment frapper ?",
+     "name": "", "text": "On a 48h avant que Ferrière réalise qu'on sait. Comment frapper ?",
      "choices": ["Infiltrer le Loft 7", "Contacter la presse"],
      "choice_branch": {"0": "ch2_infiltrate", "1": "ch2_press"}},
 
@@ -369,28 +371,34 @@ SCRIPT = [
 
     {"id": "ch2_infiltrate_5",
      "bg": "rue", "rain": True,
+     "char": "ferriere", "expr": 3, "side": "right",
+     "name": "CDT. FERRIÈRE",
+     "text": "Raven. Je savais que vous viendriez ici. Saisissez-le."},
+
+    {"id": "ch2_infiltrate_6",
+     "bg": "rue", "rain": True,
      "char": "detective", "expr": 3, "side": "left",
      "name": "DÉTECTIVE RAVEN",
-     "text": "Ferrière. Il est ici. Il savait que je viendrais."},
+     "text": "Ferrière. Il est ici. Il savait que je viendrais. Sato... j'espère que tu as le plan B."},
 
     # ── Branche : Presse ──────────────────────────────────────────────────────
     {"id": "ch2_press",
      "bg": "bureau", "rain": False,
-     "char": "detective", "expr": 4, "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Natasha Mori. Journaliste d'investigation au Tribune. On s'est rencontrés sur l'affaire Colombe, il y a trois ans."},
+     "char": "natasha", "expr": 0, "side": "right",
+     "name": "NATASHA MORI",
+     "text": "Raven. Ça fait longtemps. Vous avez quelque chose de solide ?"},
 
     {"id": "ch2_press_2",
      "bg": "bureau", "rain": False,
-     "char": "detective", "expr": 0, "side": "left",
+     "char": "detective", "expr": 4, "side": "left",
      "name": "DÉTECTIVE RAVEN",
      "text": "Je lui envoie une copie cryptée des fichiers Synarchie. Et j'attends. Vingt minutes plus tard, elle rappelle."},
 
     {"id": "ch2_press_3",
      "bg": "bureau", "rain": False,
-     "char": None, "side": "left",
-     "name": "NATASHA MORI (téléphone)",
-     "text": "Raven... C'est énorme. On publie demain matin. Mais mon rédac' chef vient d'être convoqué par la préfecture. Ils savent déjà."},
+     "char": "natasha", "expr": 3, "side": "right",
+     "name": "NATASHA MORI",
+     "text": "C'est énorme. On publie demain matin. Mais mon rédac' chef vient d'être convoqué par la préfecture. Ils savent déjà."},
 
     {"id": "ch2_press_4",
      "bg": "bureau", "rain": False,
@@ -399,7 +407,7 @@ SCRIPT = [
      "text": "Ils ont des oreilles partout. Il faut les forcer à agir avant qu'ils musèlent le Tribune.",
      "evidence": ("Rapport interne", "Fuite détectée — fenêtre courte")},
 
-    # ── ACTE 4 : La confrontation ──────────────────────────────────────────────
+    # ── ACTE 4 Ch2 : La confrontation ─────────────────────────────────────────
     {"bg": "salle_interrogatoire", "rain": False,
      "char": None, "side": "left",
      "name": "",
@@ -414,6 +422,11 @@ SCRIPT = [
      "char": "detective", "expr": 8, "side": "left",
      "name": "DÉTECTIVE RAVEN",
      "text": "Bien sûr. Parce que si je tombe, les preuves tombent avec moi. C'est son dernier recours."},
+
+    {"bg": "salle_interrogatoire", "rain": False,
+     "char": "ferriere", "expr": 2, "side": "right",
+     "name": "CDT. FERRIÈRE",
+     "text": "Je vous ai sous-estimé, Raven. Dommage. J'aurais pu vous utiliser. Vous êtes exactement le genre de chien qu'on dresse bien."},
 
     {"bg": "salle_interrogatoire", "rain": False,
      "char": "policiere", "expr": 3, "side": "right",
@@ -497,7 +510,7 @@ SCRIPT = [
      "name": "DÉTECTIVE RAVEN",
      "text": "Exactement. On fait ça dans les règles, Sato. Pour une fois, on fait ça bien."},
 
-    # ── ÉPILOGUE DU CHAPITRE II ────────────────────────────────────────────────
+    # ── ÉPILOGUE CH2 ──────────────────────────────────────────────────────────
     {"bg": "toit", "rain": False,
      "char": "detective", "expr": 0, "side": "left",
      "name": "DÉTECTIVE RAVEN",
@@ -525,6 +538,384 @@ SCRIPT = [
 
     {"bg": "toit", "rain": False,
      "char": None, "side": "left",
+     "name": "", "text": "─── FIN DU CHAPITRE II ───"},
+
+    # ══════════════════════════════════════════════════════════════════════════
+    # ████  CHAPITRE III — "L'Architecte"  ████
+    # ══════════════════════════════════════════════════════════════════════════
+
+    {"bg": "aeroport_jetpack", "rain": False,
+     "char": None, "side": "left",
+     "name": "", "text": "CHAPITRE III — L'Architecte"},
+
+    {"bg": "aeroport_jetpack", "rain": False,
+     "char": None, "side": "left",
      "name": "",
-     "text": "─── FIN DU CHAPITRE II ───\n\nCHAPITRE III : 'L'Architecte' — À venir"},
+     "text": "Aéroport. 4h du matin. Un jet privé en attente sur le tarmac. Natasha Mori a arrangé l'embarquement."},
+
+    {"bg": "aeroport_jetpack", "rain": False,
+     "char": "natasha", "expr": 1, "side": "right",
+     "name": "NATASHA MORI",
+     "text": "Raven. Passeport propre. Alias : Thomas Renard. Durée du séjour : 72h. Après ça, Genève devient trop dangereuse."},
+
+    {"bg": "aeroport_jetpack", "rain": False,
+     "char": "detective", "expr": 5, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "72 heures pour trouver l'Architecte. Identifier un fantôme qui contrôle douze pays. Dans une ville qu'il possède probablement."},
+
+    {"bg": "aeroport_jetpack", "rain": False,
+     "char": "natasha", "expr": 0, "side": "right",
+     "name": "NATASHA MORI",
+     "text": "J'ai fait des recherches. L'adresse laissée par Taro correspond à une fondation philanthropique. Façade classique."},
+
+    {"bg": "aeroport_jetpack", "rain": False,
+     "char": "detective", "expr": 6, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Une fondation. Bien sûr. L'argent sale adore les bonnes causes."},
+
+    {"bg": "aeroport_jetpack", "rain": False,
+     "char": "policiere", "expr": 1, "side": "right",
+     "name": "OFF. LEILA SATO",
+     "text": "Je vous rejoins dans six heures. J'ai un contact à Interpol qui peut nous couvrir. Officiellement."},
+
+    {"bg": "aeroport_jetpack", "rain": False,
+     "char": "detective", "expr": 0, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Non. Sato reste. Si je disparais à Genève, il faut quelqu'un pour porter les preuves en lieu sûr."},
+
+    {"bg": "aeroport_jetpack", "rain": False,
+     "char": "policiere", "expr": 3, "side": "right",
+     "name": "OFF. LEILA SATO",
+     "text": "Raven... ne faites pas l'idiot. Ces gens-là ne jouent pas."},
+
+    {"bg": "aeroport_jetpack", "rain": False,
+     "char": "detective", "expr": 1, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Moi non plus."},
+
+    # ── ACTE 2 Ch3 : Arrivée à Genève ─────────────────────────────────────────
+    {"bg": "geneve", "rain": True,
+     "char": None, "side": "left",
+     "name": "", "text": "Genève. Il pleut. Bien sûr. Il pleut toujours quand les choses sérieuses commencent."},
+
+    {"bg": "geneve", "rain": True,
+     "char": "detective", "expr": 5, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "La Fondation Meridian. Façade en pierre du XVIIIe. Discret. Respectable. Parfait pour cacher l'irrespectable."},
+
+    {"bg": "geneve", "rain": True,
+     "char": "detective", "expr": 9, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Je surveille l'entrée depuis une heure. Deux gardes. Rotation toutes les trente minutes. Caméras aux angles."},
+
+    {"bg": "geneve", "rain": True,
+     "char": None, "side": "left",
+     "name": "",
+     "text": "Un homme sort. Costume gris. Cravate sombre. Il lève les yeux vers moi depuis la rue, comme s'il savait."},
+
+    {"bg": "geneve", "rain": True,
+     "char": "detective", "expr": 7, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Il sait. Il m'attendait."},
+
+    {"bg": "geneve", "rain": True,
+     "char": "architect", "expr": 2, "side": "right",
+     "name": "L'ARCHITECTE",
+     "text": "Détective Raven. Vous avez mis plus de temps que prévu. Entrez donc. J'ai du thé."},
+
+    {"bg": "geneve", "rain": True,
+     "char": "detective", "expr": 3, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Il m'invite. Comme si j'étais un visiteur attendu. Comme si toute cette enquête... était prévue."},
+
+    {"bg": "geneve", "rain": True,
+     "char": "architect", "expr": 1, "side": "right",
+     "name": "L'ARCHITECTE",
+     "text": "Parce qu'elle l'était, Raven. Vane devait mourir. Ferrière devait tomber. Et vous deviez venir jusqu'ici."},
+
+    {"bg": "geneve", "rain": True,
+     "char": "detective", "expr": 7, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Vous avez tout orchestré. Depuis le début. Même l'enquête."},
+
+    {"bg": "geneve", "rain": True,
+     "char": "architect", "expr": 0, "side": "right",
+     "name": "L'ARCHITECTE",
+     "text": "Ferrière était devenu incontrôlable. Trop gourmand. Trop visible. Il me fallait quelqu'un d'honnête pour le nettoyer proprement.",
+     "evidence": ("Passeport Fantôme", "Identité multiple — fondation Meridian")},
+
+    {"bg": "geneve", "rain": True,
+     "char": "detective", "expr": 3, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Vous m'avez utilisé. Comme un outil de nettoyage."},
+
+    {"bg": "geneve", "rain": True,
+     "char": "architect", "expr": 1, "side": "right",
+     "name": "L'ARCHITECTE",
+     "text": "Je préfère 'instrument de précision'. Vous avez du talent, Raven. C'est rare. Et les gens de talent m'intéressent.",
+     "evidence": ("Schéma du Réseau", "Organigramme Synarchie — 12 nations")},
+
+    # CHOIX D ──────────────────────────────────────────────────────────────────
+    {"bg": "geneve", "rain": True,
+     "char": "detective", "expr": 0, "side": "left",
+     "name": "", "text": "L'Architecte propose... un accord. Comment répondre à cette manipulation ?",
+     "choices": ["Affronter directement", "Jouer le jeu — l'observer"],
+     "choice_branch": {"0": "ch3_confront", "1": "ch3_shadow"}},
+
+    # ── Branche : Affronter ────────────────────────────────────────────────────
+    {"id": "ch3_confront",
+     "bg": "geneve", "rain": True,
+     "char": "detective", "expr": 3, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Assez. Je ne suis l'instrument de personne. Pas même d'un homme qui se croit au-dessus des lois."},
+
+    {"id": "ch3_confront_2",
+     "bg": "geneve", "rain": True,
+     "char": "architect", "expr": 3, "side": "right",
+     "name": "L'ARCHITECTE",
+     "text": "Décevant. Vraiment. J'espérais mieux de vous."},
+
+    {"id": "ch3_confront_3",
+     "bg": "geneve", "rain": True,
+     "char": "detective", "expr": 5, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Pendant qu'il parle, je transmets sa position en temps réel à Natasha. Et j'enregistre tout."},
+
+    # ── Branche : Observer ─────────────────────────────────────────────────────
+    {"id": "ch3_shadow",
+     "bg": "geneve", "rain": True,
+     "char": "detective", "expr": 1, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Je souris. Je joue le jeu. Laisser un homme parler, c'est lui donner une corde pour se pendre."},
+
+    {"id": "ch3_shadow_2",
+     "bg": "geneve", "rain": True,
+     "char": "architect", "expr": 2, "side": "right",
+     "name": "L'ARCHITECTE",
+     "text": "Excellent choix. Laissez-moi vous montrer quelque chose. L'accord que j'ai préparé. Pour vous. Et pour Sato."},
+
+    {"id": "ch3_shadow_3",
+     "bg": "geneve", "rain": True,
+     "char": "detective", "expr": 5, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Il sort un dossier. Je mémorise chaque détail. Chaque chiffre. Chaque nom.",
+     "evidence": ("Accord Secret", "Contrat de corruption — 6 gouvernements")},
+
+    # ── ACTE 3 Ch3 : La vérité sur le réseau ──────────────────────────────────
+    {"bg": "geneve", "rain": True,
+     "char": "architect", "expr": 0, "side": "right",
+     "name": "L'ARCHITECTE",
+     "text": "La Synarchie n'est pas un réseau criminel, Raven. C'est un système de stabilité. Nous maintenons l'ordre là où les États ont échoué."},
+
+    {"bg": "geneve", "rain": True,
+     "char": "detective", "expr": 4, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "En tuant des comptables. En corrompant des juges. En achetant des commandants de police."},
+
+    {"bg": "geneve", "rain": True,
+     "char": "architect", "expr": 1, "side": "right",
+     "name": "L'ARCHITECTE",
+     "text": "En faisant des choix difficiles. Ceux que les démocraties sont trop lâches pour faire."},
+
+    {"bg": "geneve", "rain": True,
+     "char": "natasha", "expr": 3, "side": "right",
+     "name": "NATASHA MORI",
+     "text": "Raven. Je suis en ligne. J'ai tout reçu. L'enregistrement tourne déjà sur cinq serveurs miroirs."},
+
+    {"bg": "geneve", "rain": True,
+     "char": "detective", "expr": 6, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Vous avez entendu, Architecte ? La presse a tout. Dans quatre heures, votre nom sera sur tous les écrans du monde."},
+
+    {"bg": "geneve", "rain": True,
+     "char": "architect", "expr": 3, "side": "right",
+     "name": "L'ARCHITECTE",
+     "text": "Mon nom... Vous croyez vraiment que vous avez trouvé mon vrai nom ?",
+     "evidence": ("Enregistrement final", "Aveux de l'Architecte — diffusion mondiale")},
+
+    # CHOIX E ──────────────────────────────────────────────────────────────────
+    {"bg": "geneve", "rain": True,
+     "char": "detective", "expr": 0, "side": "left",
+     "name": "", "text": "L'Architecte semble... amusé. Trop calme. Quelque chose ne va pas. Quelle est la bonne décision ?",
+     "choices": ["Exposer maintenant — tout publier", "Négocier — obtenir les noms restants"],
+     "choice_branch": {"0": "ch3_expose", "1": "ch3_negotiate"}},
+
+    # ── Branche : Exposer ─────────────────────────────────────────────────────
+    {"id": "ch3_expose",
+     "bg": "geneve", "rain": True,
+     "char": "detective", "expr": 5, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Natasha, publie. Tout. Maintenant. On ne négocie pas avec les architectes du crime."},
+
+    {"id": "ch3_expose_2",
+     "bg": "geneve", "rain": True,
+     "char": "natasha", "expr": 2, "side": "right",
+     "name": "NATASHA MORI",
+     "text": "C'est parti. Le Tribune, Le Monde, The Guardian... simultané. Dans deux minutes, c'est mondial."},
+
+    {"id": "ch3_expose_3",
+     "bg": "geneve", "rain": True,
+     "char": "architect", "expr": 3, "side": "right",
+     "name": "L'ARCHITECTE",
+     "text": "Vous venez de déstabiliser douze gouvernements en même temps, Raven. Êtes-vous certain d'être le héros de cette histoire ?"},
+
+    # ── Branche : Négocier ────────────────────────────────────────────────────
+    {"id": "ch3_negotiate",
+     "bg": "geneve", "rain": True,
+     "char": "detective", "expr": 6, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Attendez, Natasha. Pas encore. Architecte... il y a d'autres noms dans ce registre. Donnez-les moi. Tous."},
+
+    {"id": "ch3_negotiate_2",
+     "bg": "geneve", "rain": True,
+     "char": "architect", "expr": 0, "side": "right",
+     "name": "L'ARCHITECTE",
+     "text": "Intéressant. Vous avez plus de finesse que je ne le pensais. Voilà qui change tout."},
+
+    {"id": "ch3_negotiate_3",
+     "bg": "geneve", "rain": True,
+     "char": "detective", "expr": 5, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Il fait glisser un autre dossier sur la table. Plus épais. Beaucoup plus épais.",
+     "evidence": ("Identité de l'Architecte", "Nom réel + liste complète Synarchie")},
+
+    # ── ACTE FINAL Ch3 : Le choix ultime ──────────────────────────────────────
+    {"bg": "geneve", "rain": True,
+     "char": None, "side": "left",
+     "name": "",
+     "text": "La situation a basculé. Des sirènes au loin. Interpol. Quelqu'un a donné la position. Mais qui ?"},
+
+    {"bg": "geneve", "rain": True,
+     "char": "policiere", "expr": 1, "side": "right",
+     "name": "OFF. LEILA SATO",
+     "text": "Raven. C'est moi. J'ai contacté Interpol directement. Ils arrivent. Mais la Synarchie aussi."},
+
+    {"bg": "geneve", "rain": True,
+     "char": "detective", "expr": 3, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Sato... vous n'étiez pas censée venir."},
+
+    {"bg": "geneve", "rain": True,
+     "char": "policiere", "expr": 2, "side": "right",
+     "name": "OFF. LEILA SATO",
+     "text": "Non. Mais on fait équipe, Raven. Vous l'aviez oublié ?"},
+
+    {"bg": "geneve", "rain": True,
+     "char": "architect", "expr": 3, "side": "right",
+     "name": "L'ARCHITECTE",
+     "text": "Touchant. Vraiment. Mais vous comprenez que ni l'un ni l'autre ne peut quitter cette pièce vivant."},
+
+    {"bg": "geneve", "rain": True,
+     "char": "detective", "expr": 0, "side": "left",
+     "name": "", "text": "Deux gardes bloquent la sortie. L'Architecte garde son calme. Le temps se fige.",
+     "choices": ["Se sacrifier pour couvrir Sato", "Fuir avec les preuves"],
+     "choice_branch": {"0": "ch3_sacrifice", "1": "ch3_escape"}},
+
+    # ── Branche : Sacrifice ────────────────────────────────────────────────────
+    {"id": "ch3_sacrifice",
+     "bg": "geneve", "rain": True,
+     "char": "detective", "expr": 9, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Sato. Prenez le dossier. Sortez par l'arrière. Ne vous retournez pas."},
+
+    {"id": "ch3_sacrifice_2",
+     "bg": "geneve", "rain": True,
+     "char": "policiere", "expr": 3, "side": "right",
+     "name": "OFF. LEILA SATO",
+     "text": "Raven... Non. Je ne vous laisse pas ici."},
+
+    {"id": "ch3_sacrifice_3",
+     "bg": "geneve", "rain": True,
+     "char": "detective", "expr": 4, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "C'est un ordre, Officier Sato. Allez."},
+
+    {"id": "ch3_sacrifice_4",
+     "bg": "geneve", "rain": True,
+     "char": None, "side": "left",
+     "name": "",
+     "text": "Elle part. Je retourne me placer face aux gardes. Face à l'Architecte. Pour la dernière fois peut-être."},
+
+    {"id": "ch3_sacrifice_5",
+     "bg": "geneve", "rain": True,
+     "char": "architect", "expr": 1, "side": "right",
+     "name": "L'ARCHITECTE",
+     "text": "Vous mourrez pour une femme que vous connaissez depuis trois semaines."},
+
+    {"id": "ch3_sacrifice_6",
+     "bg": "geneve", "rain": True,
+     "char": "detective", "expr": 6, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Non. Je meurs pour que quelqu'un d'honnête continue d'exister dans ce monde que vous avez pourri."},
+
+    # ── Branche : Fuite ───────────────────────────────────────────────────────
+    {"id": "ch3_escape",
+     "bg": "geneve", "rain": True,
+     "char": "detective", "expr": 5, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Les preuves d'abord. Toujours les preuves. Je plonge vers la fenêtre latérale. Sato comprend et suit."},
+
+    {"id": "ch3_escape_2",
+     "bg": "geneve", "rain": True,
+     "char": None, "side": "left",
+     "name": "",
+     "text": "Le verre éclate. La pluie nous accueille. Les coups de feu dans notre dos. On court."},
+
+    {"id": "ch3_escape_3",
+     "bg": "geneve", "rain": True,
+     "char": "policiere", "expr": 2, "side": "right",
+     "name": "OFF. LEILA SATO",
+     "text": "La voiture d'Interpol ! Là, à droite !"},
+
+    {"id": "ch3_escape_4",
+     "bg": "geneve", "rain": True,
+     "char": "detective", "expr": 7, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "On s'engouffre dedans. Les portières claquent. Les pneus crissent. On a les preuves. On a survécu."},
+
+    # ── ÉPILOGUE FINAL ─────────────────────────────────────────────────────────
+    {"bg": "toit", "rain": False,
+     "char": "detective", "expr": 9, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Deux semaines plus tard. Les premières arrestations ont commencé. Trois ministres. Un juge de la Cour internationale."},
+
+    {"bg": "toit", "rain": False,
+     "char": "natasha", "expr": 2, "side": "right",
+     "name": "NATASHA MORI",
+     "text": "Le Pulitzer, Raven. Ils parlent du Pulitzer. Et vous ? Où allez-vous, maintenant ?"},
+
+    {"bg": "toit", "rain": False,
+     "char": "detective", "expr": 0, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "L'Architecte s'est volatilisé avant l'arrivée d'Interpol. Il existe d'autres noms dans ce registre. Des plus grands encore."},
+
+    {"bg": "toit", "rain": False,
+     "char": "policiere", "expr": 1, "side": "right",
+     "name": "OFF. LEILA SATO",
+     "text": "Suspension levée. Médaille du mérite. Et une offre d'Interpol. Je leur ai dit que j'avais déjà un partenaire."},
+
+    {"bg": "toit", "rain": False,
+     "char": "detective", "expr": 1, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Sato... vous êtes incorrigible."},
+
+    {"bg": "toit", "rain": False,
+     "char": "policiere", "expr": 2, "side": "right",
+     "name": "OFF. LEILA SATO",
+     "text": "On fait équipe, Raven. C'est vous qui me l'avez appris."},
+
+    {"bg": "toit", "rain": False,
+     "char": "detective", "expr": 5, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Quelque part dans cette ville — ou dans une autre — l'Architecte reconstruit. Il est patient. Il l'a toujours été."},
+
+    {"bg": "toit", "rain": False,
+     "char": "detective", "expr": 6, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Mais moi aussi."},
+
+    {"bg": "toit", "rain": False,
+     "char": None, "side": "left",
+     "name": "",
+     "text": "─── FIN DU CHAPITRE III ───\n\nNUIT SANS TÉMOIN — L'histoire continue..."},
 ]

@@ -40,7 +40,7 @@ class VNEngine:
         self.char_side  = "left"
         self.particles  = []
 
-        # ── Gestion de la Musique Simplifiée ──────────────────────────────────
+        # Musique
         if self.assets.bg_music:
             pygame.mixer.music.load(self.assets.bg_music)
             pygame.mixer.music.set_volume(0.5)
@@ -68,14 +68,13 @@ class VNEngine:
         # Pluie
         self.show_rain = node.get("rain", False)
 
-        # Personnage
+        # Personnage — compatible avec tous les chars (detective, policiere,
+        # ferriere, natasha, taro, architect)
         char = node.get("char")
         expr = node.get("expr", 0)
         self.char_side = node.get("side", "left")
-        if char == "detective":
-            self.char_surf = self.assets.detective.get(expr, self.assets.detective.get(0))
-        elif char == "policiere":
-            self.char_surf = self.assets.policiere.get(expr, self.assets.policiere.get(0))
+        if char:
+            self.char_surf = self.assets.get_char(char, expr)
         else:
             self.char_surf = None
 
@@ -88,7 +87,6 @@ class VNEngine:
         if ev:
             if not any(e[0] == ev[0] for e in self.evidence.items):
                 self.evidence.add(*ev)
-                # Particules pour notif
                 for _ in range(20):
                     self.particles.append(Particle(SCREEN_W - 50, 80, PINK_ACCENT))
 
@@ -96,27 +94,10 @@ class VNEngine:
         self.fading_in = True
         self.fade_alpha = 255
 
-    # ═══════════════════════════════════════════════════════════════════════════════
-    # PATCH — main.py : méthode _advance() corrigée pour le multi-chapitre
-    # ═══════════════════════════════════════════════════════════════════════════════
-    #
-    # PROBLÈME CORRIGÉ :
-    #   L'ancienne logique de skip des branches non prises utilisait une liste
-    #   codée en dur. Avec le Ch.2, de nouveaux IDs (ch2_trust_2, ch2_resist_2…)
-    #   n'étaient pas dans cette liste et étaient sautés à tort.
-    #
-    # SOLUTION :
-    #   On remplace le test "id in liste blanche" par une logique générique :
-    #   après avoir résolu la branche prise, on avance séquentiellement jusqu'au
-    #   premier nœud qui N'A PAS d'id, ou dont l'id EST celui de la branche prise.
-    #   Cela fonctionne quel que soit le nombre de chapitres ou de branches.
-    #
-    # REMPLACEMENT dans VNEngine._advance() :
-    # ───────────────────────────────────────────────────────────────────────────────
-
     def _advance(self, choice=None):
+        """Avance dans le script. Gère les branches et saute les IDs alternatifs."""
         node = self.current_node
-        chosen_branch_id = None   # id de la branche que l'on va SUIVRE
+        chosen_branch_id = None
 
         if node and "choices" in node and choice is not None:
             branch = node.get("choice_branch", {})
@@ -129,41 +110,18 @@ class VNEngine:
         else:
             next_idx = self.script_idx + 1
 
-        # ── Avancement normal (pas issu d'un choix de branche) ──────────────────
-        # On saute les nœuds qui sont des DÉBUTS de branches alternatives
-        # (i.e. qui ont un "id" et dont l'id n'est PAS la branche que l'on suit).
-        # Les nœuds sans "id" sont toujours lus normalement.
+        # Si on n'est pas en train de suivre une branche, on saute les nœuds
+        # qui ont un "id" (= débuts de branches alternatives non prises).
         if chosen_branch_id is None:
-            # On avance jusqu'au prochain nœud sans "id" alternatif
             while next_idx < len(self.script):
                 candidate = self.script[next_idx]
                 if "id" not in candidate:
-                    break   # nœud normal → on s'arrête ici
-                # c'est un début de branche alternative → on le saute
+                    break
                 next_idx += 1
-        # Si on vient d'un choix → next_idx pointe déjà sur la bonne branche,
-        # pas besoin de filtrer.
 
         self.script_idx = next_idx
         self._load_node(next_idx)
 
-
-    # ── Mémo d'intégration ──────────────────────────────────────────────────────────
-    #
-    # Dans main.py, remplacer la méthode _advance() existante par celle ci-dessus.
-    # L'ancienne méthode utilisait :
-    #
-    #   while next_idx < len(self.script) and \
-    #         "id" in self.script[next_idx] and \
-    #         self.script[next_idx].get("id") not in ["interrogation", "scene", "solo", "team"]:
-    #       next_idx += 1
-    #
-    # Cela cassait les branches du Ch.2 car leurs ids n'étaient pas dans la liste.
-    # La nouvelle version est entièrement générique.
-    #
-    # ── Impact sur les autres fichiers ─────────────────────────────────────────────
-    # Aucun autre fichier n'est à modifier : config.py, models.py, ui.py,
-    # assets_manager.py restent identiques.
     def run(self):
         self.title_screen.update(0)
         dt = 1 / FPS
@@ -212,7 +170,6 @@ class VNEngine:
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mx, my = event.pos
-                # Zone du dialogue box
                 dlg_rect = pygame.Rect(self.dlg.x, self.dlg.y, self.dlg.W, self.dlg.H)
                 if self.dlg.show_choices:
                     choice = self._check_choice_click(mx, my)
@@ -228,8 +185,7 @@ class VNEngine:
         choices = self.dlg.choices
         if not choices:
             return None
-        # On s'aligne sur la nouvelle position cy modifiée dans DialogueBox
-        cy = self.dlg.y + self.dlg.H - 50 
+        cy = self.dlg.y + self.dlg.H - 50
         for i, _ in enumerate(choices):
             cw = (self.dlg.W - (self.dlg.MARGIN * 2)) // len(choices) - 10
             cx = self.dlg.x + self.dlg.MARGIN + i * (cw + 10)
@@ -247,10 +203,8 @@ class VNEngine:
             self.dlg.update()
             if self.show_rain:
                 self.rain.update()
-            # Fade
             if self.fading_in:
                 self.fade_alpha = max(0, self.fade_alpha - 8)
-            # Particles
             self.particles = [p for p in self.particles if p.alive]
             for p in self.particles:
                 p.update(dt)
@@ -259,30 +213,24 @@ class VNEngine:
         if self.state == "title":
             self.title_screen.draw(self.screen)
             return
-
         if self.state == "end":
             self._draw_end()
             return
-
         if self.state == "game":
             self._draw_game()
 
     def _draw_game(self):
         self.screen.fill(DARK_BG)
 
-        # Background
         if self.bg_surf:
             self.screen.blit(self.bg_surf, (0, 0))
-        # Overlay sombre pour lisibilité
         overlay = pygame.Surface((SCREEN_W, SCREEN_H), pygame.SRCALPHA)
         overlay.fill((0, 0, 0, 80))
         self.screen.blit(overlay, (0, 0))
 
-        # Pluie
         if self.show_rain:
             self.rain.draw(self.screen)
 
-        # Personnage
         if self.char_surf:
             cw, ch = self.char_surf.get_size()
             cy = SCREEN_H - self.dlg.H - ch - 24
@@ -290,35 +238,20 @@ class VNEngine:
                 cx = 60
             else:
                 cx = SCREEN_W - cw - 60
-            # Ombre du personnage
-            # sh = pygame.Surface((cw, ch), pygame.SRCALPHA)
-            # sh.fill((0, 0, 0, 80))
-            # self.screen.blit(sh, (cx + 4, cy + 4))
-            # Une vraie ombre silhouette qui respecte la transparence (Alpha) du sprite
             shadow_surf = self.char_surf.copy()
-            # On remplit la silhouette avec du noir translucide
             shadow_surf.fill((0, 0, 0, 80), special_flags=pygame.BLEND_RGBA_MULT)
-            # On l'affiche légèrement décalée vers le bas et la droite
             self.screen.blit(shadow_surf, (cx + 4, cy + 4))
-            # Léger breathing
             breath_y = int(math.sin(self.t * 1.2) * 3)
             self.screen.blit(self.char_surf, (cx, cy + breath_y))
 
-        # UI panels
         self.evidence.draw(self.screen, self.t)
         self.inventory.draw(self.screen, self.t)
-
-        # HUD en haut
         self._draw_hud()
-
-        # Dialogue
         self.dlg.draw(self.screen, self.t)
 
-        # Particles
         for p in self.particles:
             p.draw(self.screen)
 
-        # Fade overlay
         if self.fade_alpha > 0:
             ov = pygame.Surface((SCREEN_W, SCREEN_H))
             ov.fill(BLACK)
@@ -327,7 +260,6 @@ class VNEngine:
 
     def _draw_hud(self):
         f = self.assets.font_small
-        # Barre en haut
         hud = pygame.Surface((SCREEN_W, 28), pygame.SRCALPHA)
         pygame.draw.rect(hud, (*DARK_BG, 200), (0, 0, SCREEN_W, 28))
         pygame.draw.line(hud, (*CYAN, 80), (0, 27), (SCREEN_W, 27))
@@ -339,14 +271,12 @@ class VNEngine:
         hud.blit(t1, (10, 7))
         hud.blit(t2, (SCREEN_W // 2 - t2.get_width() // 2, 7))
         hud.blit(t3, (SCREEN_W - t3.get_width() - 10, 7))
-
         self.screen.blit(hud, (0, 0))
 
     def _draw_end(self):
         self.screen.fill(DARK_BG)
         f = self.assets.font_big
         fs = self.assets.font_med
-        # Étoiles en fond
         for i in range(80):
             r = (i * 137 + 17) % SCREEN_W
             s = (i * 97  + 31) % SCREEN_H
@@ -354,7 +284,7 @@ class VNEngine:
             pygame.draw.circle(self.screen, (a, a, min(255, a + 60)), (r, s), 1)
 
         msgs = [
-            ("FIN DU CHAPITRE I", CYAN),
+            ("FIN DU CHAPITRE III", CYAN),
             ("Merci d'avoir joué à NUIT SANS TÉMOIN", TEXT_MAIN),
             ("", WHITE),
             (f"Preuves collectées : {len(self.evidence.items)}", GOLD),

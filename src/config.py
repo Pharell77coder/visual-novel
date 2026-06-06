@@ -23,9 +23,8 @@ RED_ACCENT   = (220, 50,  50 )
 SRC_DIR = os.path.dirname(os.path.abspath(__file__))
 BASE = os.path.dirname(SRC_DIR)
 ASSETS = os.path.join(BASE, "assets")
-# print(f"Assets path: {ASSETS}")
 
-# ── Expressions ────────────────────────────────────────────────────────────────
+# ── Expressions detective ──────────────────────────────────────────────────────
 class Expr(Enum):
     NEUTRE   = 0
     SOURIRE  = 1
@@ -38,6 +37,15 @@ class Expr(Enum):
     SMUG     = 8 
     TIRED    = 9
 
+# ── Expressions des nouveaux personnages (4 expressions : 0-3) ─────────────────
+# Convention partagée par : ferriere, natasha, taro, architect
+CHAR_EXPR = {
+    "neutre":   0,
+    "serieux":  1,
+    "sourire":  2,
+    "shocked":  3,
+}
+
 POLICIERE_EXPR = {
     "neutre":   0,
     "serieux":  1,
@@ -47,4 +55,4 @@ POLICIERE_EXPR = {
 
 # ── Configuration Audio ────────────────────────────────────────────────────────
 DEFAULT_MUSIC = "jazz.mp3"
-DIALOGUE_CLICK = "click.wav" #convertir en wav pour une meilleure compatibilité avec pygame
+DIALOGUE_CLICK = "click.wav"
