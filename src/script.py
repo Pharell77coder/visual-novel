@@ -90,13 +90,13 @@ SCRIPT = [
 
     # Branche : interroger ─────────────────────────────────────────────────────
     {"id": "interrogation",
-     "bg": "salle_interrogatoire", "rain": False,
+     "bg": "salle_interrogatoire", "rain": False, "transition": "iris",
      "char": "policiere", "expr": 1, "side": "right",
      "name": "OFF. LEILA SATO",
      "text": "On a un témoin. Il refuse de parler, mais il a vu quelque chose cette nuit-là."},
 
     # ── ACTE 2 : La rue ────────────────────────────────────────────────────────
-    {"bg": "rue", "rain": True,
+    {"bg": "rue", "rain": True, "transition": "fade_black",
      "char": "detective", "expr": 4, "side": "left",
      "name": "DÉTECTIVE RAVEN",
      "text": "Je retourne dans la rue. La pluie efface les traces, mais pas les mensonges."},
@@ -111,7 +111,7 @@ SCRIPT = [
      "text": "Ne fuis pas. J'ai juste quelques questions. Tu seras rentré avant l'aube."},
 
     # ── ACTE 3 : Le bureau ─────────────────────────────────────────────────────
-    {"bg": "bureau", "rain": False,
+    {"bg": "bureau", "rain": False, "transition": "fade_black",
      "char": "detective", "expr": 4, "side": "left",
      "name": "DÉTECTIVE RAVEN",
      "text": "3h du matin. Je décrypte la clé USB. Des noms. Des montants. Des millions planqués offshore."},
@@ -141,14 +141,14 @@ SCRIPT = [
 
     # Branche solo ─────────────────────────────────────────────────────────────
     {"id": "solo",
-     "bg": "toit", "rain": False,
+     "bg": "toit", "rain": False, "transition": "slide_left",
      "char": "detective", "expr": 0, "side": "left",
      "name": "DÉTECTIVE RAVEN",
      "text": "Cette ville. Elle ne dort jamais. Et moi non plus."},
 
     # Branche équipe ───────────────────────────────────────────────────────────
     {"id": "team",
-     "bg": "toit", "rain": False,
+     "bg": "toit", "rain": False, "transition": "slide_left",
      "char": "policiere", "expr": 2, "side": "right",
      "name": "OFF. LEILA SATO",
      "text": "On fait équipe, alors. Je couvre vos arrières, vous couvrez les miens."},
@@ -172,7 +172,7 @@ SCRIPT = [
     # ████  CHAPITRE II — "Le Prix de la Vérité"  ████
     # ══════════════════════════════════════════════════════════════════════════
 
-    {"bg": "toit", "rain": False,
+    {"bg": "toit", "rain": False, "transition": "fade_black",
      "char": None, "side": "left",
      "name": "", "text": "CHAPITRE II — Le Prix de la Vérité"},
 
@@ -181,7 +181,7 @@ SCRIPT = [
      "name": "",
      "text": "Trois jours ont passé. La clé USB de Marcus Vane a ouvert une boîte de Pandore."},
 
-    {"bg": "bureau", "rain": False,
+    {"bg": "bureau", "rain": False, "transition": "fade_black",
      "char": "detective", "expr": 9, "side": "left",
      "name": "DÉTECTIVE RAVEN",
      "text": "72 heures sans dormir. Des noms, des virements, des sociétés écrans... La Synarchie est partout."},
@@ -218,7 +218,7 @@ SCRIPT = [
      "text": "Un informateur qui sort du néant au moment où l'enquête devient dangereuse. Soit c'est une chance, soit c'est un piège."},
 
     # ── ACTE 2 Ch2 : La rencontre avec Taro ───────────────────────────────────
-    {"bg": "rue", "rain": True,
+    {"bg": "rue", "rain": True, "transition": "slide_left",
      "char": None, "side": "left",
      "name": "", "text": "Le lieu de rendez-vous : une ruelle derrière le marché couvert de Chinatown. 23h00."},
 
@@ -300,7 +300,7 @@ SCRIPT = [
      "evidence": ("Enregistrement Taro", "Ferrière impliqué — Synarchie")},
 
     # ── ACTE 3 Ch2 : La révélation — Ferrière ─────────────────────────────────
-    {"bg": "salle_interrogatoire", "rain": False,
+    {"bg": "salle_interrogatoire", "rain": False, "transition": "iris",
      "char": "ferriere", "expr": 1, "side": "right",
      "name": "CDT. FERRIÈRE",
      "text": "Raven. Je savais que vous ne lâcheriez pas. Vous êtes prévisible, comme tous les idéalistes."},
@@ -330,7 +330,7 @@ SCRIPT = [
      "name": "DÉTECTIVE RAVEN",
      "text": "Sato. Écoutez-moi. Il faut agir vite, mais sans se précipiter. Si on rate notre coup, on est morts."},
 
-    {"bg": "bureau", "rain": False,
+    {"bg": "bureau", "rain": False, "transition": "fade_black",
      "char": "detective", "expr": 5, "side": "left",
      "name": "DÉTECTIVE RAVEN",
      "text": "Une clé dans les affaires de Vane. Que la police n'a pas répertoriée. Loft 7.",
@@ -345,7 +345,7 @@ SCRIPT = [
 
     # ── Branche : Infiltrer ────────────────────────────────────────────────────
     {"id": "ch2_infiltrate",
-     "bg": "rue", "rain": True,
+     "bg": "rue", "rain": True, "transition": "slide_left",
      "char": "detective", "expr": 6, "side": "left",
      "name": "DÉTECTIVE RAVEN",
      "text": "Les docks au petit matin. Brume sur l'eau. Le Loft 7 est au troisième niveau d'un entrepôt désaffecté."},
@@ -408,7 +408,7 @@ SCRIPT = [
      "evidence": ("Rapport interne", "Fuite détectée — fenêtre courte")},
 
     # ── ACTE 4 Ch2 : La confrontation ─────────────────────────────────────────
-    {"bg": "salle_interrogatoire", "rain": False,
+    {"bg": "salle_interrogatoire", "rain": False, "transition": "iris",
      "char": None, "side": "left",
      "name": "",
      "text": "Quelle que soit la voie choisie, tout converge vers le même point. Ferrière sait que Raven est sur lui."},
@@ -487,7 +487,7 @@ SCRIPT = [
 
     # ── Branche : Protéger Sato ────────────────────────────────────────────────
     {"id": "ch2_protect",
-     "bg": "bureau", "rain": False,
+     "bg": "bureau", "rain": False, "transition": "fade_black",
      "char": "detective", "expr": 5, "side": "left",
      "name": "DÉTECTIVE RAVEN",
      "text": "On garde l'enregistrement de Sato en réserve. Coup de pression uniquement. On frappe Ferrière autrement."},
@@ -511,7 +511,7 @@ SCRIPT = [
      "text": "Exactement. On fait ça dans les règles, Sato. Pour une fois, on fait ça bien."},
 
     # ── ÉPILOGUE CH2 ──────────────────────────────────────────────────────────
-    {"bg": "toit", "rain": False,
+    {"bg": "toit", "rain": False, "transition": "slide_left",
      "char": "detective", "expr": 0, "side": "left",
      "name": "DÉTECTIVE RAVEN",
      "text": "Le soleil se lève sur la ville. Ferrière sera arrêté d'ici ce soir. Mais le nom effacé au sommet du registre..."},
@@ -544,7 +544,7 @@ SCRIPT = [
     # ████  CHAPITRE III — "L'Architecte"  ████
     # ══════════════════════════════════════════════════════════════════════════
 
-    {"bg": "aeroport_jetpack", "rain": False,
+    {"bg": "aeroport_jetpack", "rain": False, "transition": "fade_black",
      "char": None, "side": "left",
      "name": "", "text": "CHAPITRE III — L'Architecte"},
 
@@ -594,7 +594,7 @@ SCRIPT = [
      "text": "Moi non plus."},
 
     # ── ACTE 2 Ch3 : Arrivée à Genève ─────────────────────────────────────────
-    {"bg": "geneve", "rain": True,
+    {"bg": "geneve", "rain": True, "transition": "slide_left",
      "char": None, "side": "left",
      "name": "", "text": "Genève. Il pleut. Bien sûr. Il pleut toujours quand les choses sérieuses commencent."},
 
@@ -874,7 +874,7 @@ SCRIPT = [
      "text": "On s'engouffre dedans. Les portières claquent. Les pneus crissent. On a les preuves. On a survécu."},
 
     # ── ÉPILOGUE FINAL ─────────────────────────────────────────────────────────
-    {"bg": "toit", "rain": False,
+    {"bg": "toit", "rain": False, "transition": "fade_white",
      "char": "detective", "expr": 9, "side": "left",
      "name": "DÉTECTIVE RAVEN",
      "text": "Deux semaines plus tard. Les premières arrestations ont commencé. Trois ministres. Un juge de la Cour internationale."},
@@ -918,4 +918,43 @@ SCRIPT = [
      "char": None, "side": "left",
      "name": "",
      "text": "─── FIN DU CHAPITRE III ───\n\nNUIT SANS TÉMOIN — L'histoire continue..."},
+]
+
+
+EXAMPLE_SCRIPT_NODES = [
+    {
+        "id": "sc_01",
+        "bg": "bureau_nuit",
+        "char": "vane",
+        "text": "Ce dossier ne tient pas debout.",
+        # Pas de clé "transition" → FadeBlack par défaut (0.7 s)
+    },
+    {
+        "id": "sc_02",
+        "bg": "rue_pluie",
+        "char": "vane",
+        "text": "Dehors, la pluie efface les empreintes.",
+        "transition": "slide_left",     # Déplacement spatial
+    },
+    {
+        "id": "sc_03",
+        "bg": "metro",
+        "char": "narrateur",
+        "text": "Trois heures plus tard…",
+        "transition": "fade_black",     # Ellipse temporelle
+    },
+    {
+        "id": "sc_04",
+        "bg": "flashback_enfance",
+        "char": "vane",
+        "text": "Je me souviens de ce matin-là.",
+        "transition": "fade_white",     # Flashback
+    },
+    {
+        "id": "sc_05",
+        "bg": "salle_interrogatoire",
+        "char": "commissaire",
+        "text": "Asseyez-vous, inspecteur.",
+        "transition": "iris",           # Scène dramatique
+    },
 ]

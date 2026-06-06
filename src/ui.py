@@ -6,6 +6,11 @@ from assets_manager import Assets
 from models import Particle
 from config import *
 
+# ── Vitesse typewriter ─────────────────────────────────────────────────────────
+SPEED_LEVELS = [0.3, 0.7, 1.0, 2.0, 4.0, 999]
+SPEED_LABELS  = ["◂◂ très lent", "◂ lent", "● normal", "rapide ▸", "très rapide ▸▸", "⚡ instantané"]
+SPEED_DEFAULT = 2   # index dans SPEED_LEVELS (= 1.0 char/frame)
+
 # ── Dialogue Box ───────────────────────────────────────────────────────────────
 class DialogueBox:
     W = 860
@@ -18,7 +23,9 @@ class DialogueBox:
         self.text = ""
         self.name = ""
         self.visible_chars = 0
-        self.speed = 1        # chars per frame
+        self.speed_idx = SPEED_DEFAULT
+        self.speed = SPEED_LEVELS[self.speed_idx]
+        self._speed_flash = 0.0   # secondes restantes d'affichage de l'indicateur
         self._accum = 0.0
         self.done = False
         self.choices = []
@@ -56,7 +63,21 @@ class DialogueBox:
         elif self.choices:
             self.show_choices = True
 
-    def update(self):
+    def speed_up(self):
+        self.speed_idx = min(len(SPEED_LEVELS) - 1, self.speed_idx + 1)
+        self.speed = SPEED_LEVELS[self.speed_idx]
+        self._speed_flash = 1.8
+
+    def speed_down(self):
+        self.speed_idx = max(0, self.speed_idx - 1)
+        self.speed = SPEED_LEVELS[self.speed_idx]
+        self._speed_flash = 1.8
+
+    def update(self, dt: float = 0.0):
+        # Décompte du flash indicateur de vitesse
+        if self._speed_flash > 0:
+            self._speed_flash = max(0.0, self._speed_flash - dt)
+
         if not self.done:
             # 1. On mémorise le nombre ENTIER de lettres avant la mise à jour
             old_chars = int(self.visible_chars)
@@ -185,6 +206,26 @@ class DialogueBox:
                 txt = f.render(choice, True, col)
                 screen.blit(txt, (cx + (cw - txt.get_width()) // 2, cy + 8))
 
+        # ── Indicateur de vitesse (flash temporaire) ───────────────────────────
+        if self._speed_flash > 0:
+            alpha = min(255, int(self._speed_flash * 200))
+            label = SPEED_LABELS[self.speed_idx]
+            fs2 = self.assets.font_small
+            txt  = fs2.render(f"Vitesse : {label}", True, CYAN)
+            badge_w = txt.get_width() + 20
+            badge_h = 22
+            bx = self.x + self.W - badge_w - 4
+            by = self.y + y_off - badge_h - 6
+            badge = pygame.Surface((badge_w, badge_h), pygame.SRCALPHA)
+            pygame.draw.rect(badge, (*DARK_BG, min(210, alpha)), (0, 0, badge_w, badge_h), border_radius=4)
+            pygame.draw.rect(badge, (*CYAN, min(200, alpha)), (0, 0, badge_w, badge_h), width=1, border_radius=4)
+            badge.set_alpha(alpha)
+            screen.blit(badge, (bx, by))
+            txt_surf = pygame.Surface(txt.get_size(), pygame.SRCALPHA)
+            txt_surf.blit(txt, (0, 0))
+            txt_surf.set_alpha(alpha)
+            screen.blit(txt_surf, (bx + 10, by + (badge_h - txt.get_height()) // 2))
+
 # ── Panneau Preuves ─────────────────────────────────────────────────────────────
 class EvidencePanel:
     def __init__(self, assets: Assets):
@@ -277,6 +318,160 @@ class InventoryPanel:
             panel.blit(row, (10, y))
 
         screen.blit(panel, (px, py))
+
+# ── Backlog de dialogue ─────────────────────────────────────────────────────────
+class BacklogPanel:
+    """Historique scrollable de tous les dialogues déjà affichés.
+    Touche B pour ouvrir/fermer. Molette ou ↑/↓ pour scroller.
+    """
+    PAD_X   = 55
+    HEADER_H = 68   # hauteur réservée au titre + hint
+    ENTRY_GAP = 5
+
+    def __init__(self, assets: Assets):
+        self.assets  = assets
+        self.visible = False
+        self.entries  = []   # list of {"name": str, "text": str}
+        self.scroll   = 0    # index de la première entrée visible (0 = la plus ancienne)
+
+    # ── API publique ───────────────────────────────────────────────────────────
+
+    def add(self, name: str, text: str) -> None:
+        """Ajoute une entrée au backlog (appelé à chaque chargement de node)."""
+        if text and text.strip():
+            self.entries.append({"name": name or "", "text": text})
+
+    def toggle(self) -> None:
+        self.visible = not self.visible
+        if self.visible:
+            # Ouvre sur les répliques les plus récentes
+            self.scroll = max(0, len(self.entries) - self._page_size())
+
+    def scroll_up(self) -> None:
+        """Remonte vers les répliques plus anciennes."""
+        self.scroll = max(0, self.scroll - 1)
+
+    def scroll_down(self) -> None:
+        """Redescend vers les répliques plus récentes."""
+        self.scroll = min(max(0, len(self.entries) - self._page_size()),
+                          self.scroll + 1)
+
+    # ── Helpers internes ───────────────────────────────────────────────────────
+
+    def _wrap(self, text: str, font, max_w: int) -> list:
+        words = text.split()
+        lines, cur = [], ""
+        for w in words:
+            test = (cur + " " + w).strip()
+            if font.size(test)[0] <= max_w:
+                cur = test
+            else:
+                if cur:
+                    lines.append(cur)
+                cur = w
+        if cur:
+            lines.append(cur)
+        return lines
+
+    def _entry_lines(self, entry: dict, font, max_w: int) -> list:
+        return self._wrap(entry["text"], font, max_w)
+
+    def _entry_height(self, entry: dict, font_name, font_text, max_w: int) -> int:
+        lines = self._entry_lines(entry, font_text, max_w)
+        name_h = (font_name.get_height() + 4) if entry["name"] else 0
+        return name_h + len(lines) * (font_text.get_height() + 2) + 16
+
+    def _page_size(self) -> int:
+        """Nombre approximatif d'entrées visibles (estimation grossière)."""
+        fn = self.assets.font_med
+        fs = self.assets.font_small
+        max_w = SCREEN_W - self.PAD_X * 2 - 28
+        available_h = SCREEN_H - self.HEADER_H - 20
+        # Hauteur minimale d'une entrée (sans nom, 1 ligne)
+        min_h = fs.get_height() + 2 + 16 + self.ENTRY_GAP
+        return max(1, available_h // min_h)
+
+    # ── Dessin ─────────────────────────────────────────────────────────────────
+
+    def draw(self, screen: pygame.Surface, t: float) -> None:
+        if not self.visible:
+            return
+
+        W, H   = SCREEN_W, SCREEN_H
+        fn     = self.assets.font_med      # nom du perso
+        fs     = self.assets.font_small    # corps du texte
+        fb     = self.assets.font_big      # titre
+        max_w  = W - self.PAD_X * 2 - 28  # largeur texte (laisse place scrollbar)
+
+        # ── Fond semi-opaque ──────────────────────────────────────────────────
+        bg = pygame.Surface((W, H), pygame.SRCALPHA)
+        bg.fill((5, 8, 18, 225))
+        screen.blit(bg, (0, 0))
+
+        # ── En-tête ────────────────────────────────────────────────────────────
+        title = fb.render("HISTORIQUE", True, CYAN)
+        screen.blit(title, ((W - title.get_width()) // 2, 10))
+        pygame.draw.line(screen, (*CYAN, 70), (self.PAD_X, 40), (W - self.PAD_X, 40), 1)
+        hint = fs.render(
+            "[B] fermer      [↑] [↓] ou molette pour naviguer", True, TEXT_GRAY)
+        screen.blit(hint, ((W - hint.get_width()) // 2, 46))
+
+        # ── Entrées ────────────────────────────────────────────────────────────
+        y = self.HEADER_H
+        bottom_limit = H - 20
+
+        if not self.entries:
+            msg = fn.render("Aucune réplique pour l'instant.", True, TEXT_GRAY)
+            screen.blit(msg, ((W - msg.get_width()) // 2, H // 2))
+            return
+
+        visible_entries = self.entries[self.scroll:]
+        for entry in visible_entries:
+            eh = self._entry_height(entry, fn, fs, max_w)
+            if y + eh > bottom_limit:
+                break
+
+            # Fond de l'entrée
+            eb = pygame.Surface((max_w + 4, eh), pygame.SRCALPHA)
+            pygame.draw.rect(eb, (12, 18, 40, 200), (0, 0, max_w + 4, eh), border_radius=5)
+            pygame.draw.rect(eb, (*CYAN_DIM, 65), (0, 0, max_w + 4, eh), width=1, border_radius=5)
+            screen.blit(eb, (self.PAD_X, y))
+
+            iy = y + 8
+            if entry["name"]:
+                ns = fn.render(entry["name"], True, TEXT_NAME)
+                screen.blit(ns, (self.PAD_X + 10, iy))
+                iy += fn.get_height() + 4
+
+            for line in self._entry_lines(entry, fs, max_w - 20):
+                ls = fs.render(line, True, TEXT_MAIN)
+                screen.blit(ls, (self.PAD_X + 10, iy))
+                iy += fs.get_height() + 2
+
+            y += eh + self.ENTRY_GAP
+
+        # ── Scrollbar ──────────────────────────────────────────────────────────
+        total = len(self.entries)
+        page  = self._page_size()
+        if total > page:
+            sb_x = W - self.PAD_X - 14
+            sb_y = self.HEADER_H
+            sb_h = H - self.HEADER_H - 20
+            pygame.draw.rect(screen, (*CYAN_DIM, 40),  (sb_x, sb_y, 8, sb_h), border_radius=4)
+            max_s    = total - page
+            thumb_h  = max(22, int(sb_h * page / total))
+            thumb_y  = sb_y + int((sb_h - thumb_h) * self.scroll / max_s) if max_s else sb_y
+            pygame.draw.rect(screen, (*CYAN, 160), (sb_x, thumb_y, 8, thumb_h), border_radius=4)
+
+        # ── Flèches indicatrices ───────────────────────────────────────────────
+        if self.scroll > 0:
+            arr = fs.render("▲  répliques plus anciennes", True, CYAN_DIM)
+            screen.blit(arr, (self.PAD_X, self.HEADER_H - 14))
+        max_s = max(0, len(self.entries) - self._page_size())
+        if self.scroll < max_s:
+            arr = fs.render("▼  répliques plus récentes", True, CYAN_DIM)
+            screen.blit(arr, (self.PAD_X, H - 18))
+
 
 # ── Écran titre ─────────────────────────────────────────────────────────────────
 class TitleScreen:

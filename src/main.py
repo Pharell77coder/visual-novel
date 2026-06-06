@@ -8,6 +8,7 @@ from assets_manager import *
 from models import *
 from ui import DialogueBox, EvidencePanel, InventoryPanel, TitleScreen
 from script import SCRIPT
+from transitions import Transition   
 
 # ── Moteur principal ────────────────────────────────────────────────────────────
 class VNEngine:
@@ -39,12 +40,18 @@ class VNEngine:
         self.char_surf  = None
         self.char_side  = "left"
         self.particles  = []
+        
 
         # Musique
         if self.assets.bg_music:
             pygame.mixer.music.load(self.assets.bg_music)
             pygame.mixer.music.set_volume(0.5)
             pygame.mixer.music.play(-1)
+        
+        self.transition: Transition | None = None
+        # Surface capturée juste avant le changement de scène.
+        # Elle est passée à transition.draw() pour composer l'animation.
+        self._prev_surface: "pygame.Surface | None" = None
 
     def _build_index(self):
         """Construit un dict id → index pour les branches."""
@@ -53,11 +60,15 @@ class VNEngine:
             if "id" in node:
                 self.id_map[node["id"]] = i
 
-    def _load_node(self, idx):
+    def _load_node(self, idx: int) -> None:
         if idx >= len(self.script):
             self.state = "end"
             return
         node = self.script[idx]
+
+        # Capturer la frame courante AVANT de modifier la scène
+        self._prev_surface = self.screen.copy()
+
         self.current_node = node
 
         # Background
@@ -90,9 +101,30 @@ class VNEngine:
                 for _ in range(20):
                     self.particles.append(Particle(SCREEN_W - 50, 80, PINK_ACCENT))
 
-        # Transition fade
-        self.fading_in = True
-        self.fade_alpha = 255
+        # Transition — déclenchée seulement si le bg change OU si "transition" est explicite.
+        # Sans cette condition, chaque ligne de dialogue déclencherait un fondu.
+        bg_changed = bg_name is not None and bg_name != getattr(self, "_current_bg_name", None)
+        has_explicit = "transition" in node
+
+        if bg_changed or has_explicit:
+            tr_name = node.get("transition", "fade_black")
+            tr_kwargs = {}
+            if tr_name == "iris" and "iris_center" in node:
+                tr_kwargs["center"] = tuple(node["iris_center"])
+            try:
+                self.transition = Transition.create(tr_name, self.screen.get_size(), **tr_kwargs)
+            except ValueError as e:
+                print(f"[transitions] Avertissement : {e} — fondu noir utilisé par défaut.")
+                self.transition = Transition.create("fade_black", self.screen.get_size())
+        else:
+            self.transition = None
+
+        if bg_name:
+            self._current_bg_name = bg_name
+
+        # Fade-in de secours (désactivé si une transition gère déjà l'entrée)
+        self.fading_in = False
+        self.fade_alpha = 0
 
     def _advance(self, choice=None):
         """Avance dans le script. Gère les branches et saute les IDs alternatifs."""
@@ -150,6 +182,10 @@ class VNEngine:
             return
 
         if self.state == "game":
+            # Bloquer les inputs pendant une transition pour éviter de sauter une scène
+            if self.transition is not None:
+                return
+
             if event.type == pygame.KEYDOWN:
                 if event.key in (pygame.K_SPACE, pygame.K_RETURN):
                     if self.dlg.show_choices:
@@ -200,6 +236,12 @@ class VNEngine:
             return
 
         if self.state == "game":
+            # Avancer la transition EN PREMIER (avant la logique de jeu)
+            if self.transition is not None:
+                done = self.transition.update(dt)
+                if done:
+                    self.transition = None
+
             self.dlg.update()
             if self.show_rain:
                 self.rain.update()
@@ -257,6 +299,12 @@ class VNEngine:
             ov.fill(BLACK)
             ov.set_alpha(self.fade_alpha)
             self.screen.blit(ov, (0, 0))
+
+        # Transition en dernier (layer le plus haut)
+        if self.transition is not None and self._prev_surface is not None:
+            self.transition.draw(self.screen, self._prev_surface)
+
+
 
     def _draw_hud(self):
         f = self.assets.font_small
