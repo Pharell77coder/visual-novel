@@ -53,7 +53,8 @@ class SaveManager:
         evidence:    list,
         bg_name:     Optional[str] = None,
         scene_name:  str = "",
-        deductions:  Optional[list] = None,   # BUGFIX : paramètre ajouté
+        deductions:  Optional[list] = None,
+        cg_unlocked: Optional[list] = None,   # liste des ids CG débloqués
     ) -> bool:
         """
         Sauvegarde l'état dans le slot donné (0-2).
@@ -64,13 +65,14 @@ class SaveManager:
             return False
 
         data = {
-            "slot":       slot,
-            "script_idx": script_idx,
-            "evidence":   [list(e) for e in evidence],   # sérialise les tuples
-            "deductions": deductions or [],               # BUGFIX : sérialise les déductions
-            "bg_name":    bg_name,
-            "scene_name": scene_name[:60],
-            "saved_at":   datetime.now().strftime("%Y-%m-%d %H:%M"),
+            "slot":        slot,
+            "script_idx":  script_idx,
+            "evidence":    [list(e) for e in evidence],
+            "deductions":  deductions or [],
+            "cg_unlocked": cg_unlocked or [],           # NOUVEAU
+            "bg_name":     bg_name,
+            "scene_name":  scene_name[:60],
+            "saved_at":    datetime.now().strftime("%Y-%m-%d %H:%M"),
         }
         try:
             with open(_slot_path(slot), "w", encoding="utf-8") as f:
@@ -92,9 +94,9 @@ class SaveManager:
             with open(path, "r", encoding="utf-8") as f:
                 data = json.load(f)
             # Reconvertit les listes [nom, desc] en tuples
-            data["evidence"]   = [tuple(e) for e in data.get("evidence", [])]
-            # BUGFIX : assure la rétrocompatibilité des anciennes sauvegardes sans "deductions"
-            data["deductions"] = data.get("deductions", [])
+            data["evidence"]    = [tuple(e) for e in data.get("evidence", [])]
+            data["deductions"]  = data.get("deductions", [])
+            data["cg_unlocked"] = data.get("cg_unlocked", [])   # rétrocompatibilité
             return data
         except (OSError, json.JSONDecodeError) as e:
             print(f"[SaveManager] Erreur lecture slot {slot} : {e}")

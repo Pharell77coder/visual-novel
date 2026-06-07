@@ -221,8 +221,84 @@ COMBINATION_TABLE: dict[frozenset, dict] = {
         ),
         "insight": "💡 Vane — maillon d'une chaîne globale",
     },
+        # Ch4
+    frozenset({"Photo de surveillance", "Badge magnétique"}): {
+        "title":   "Surveillance institutionnelle",
+        "text":    "Quelqu'un avec un accès officiel surveille Raven "
+        "depuis l'intérieur des institutions. Ce n'est pas "
+        "un criminel de rue. C'est quelqu'un qui a un bureau et un badge.",
+        "insight": "💡 Raven surveillé de l'intérieur",
+    },
+    frozenset({"Clé USB #2", "Fichiers Synarchie"}): {
+        "title":   "Le successeur prévu",
+        "text":    "Les données de la clé #2 complètent exactement "
+        "les fichiers de Vane. Ils ont été conçus ensemble. "
+        "La Synarchie avait planifié sa propre chute comme dispositif de survie.",
+        "insight": "💡 Chute planifiée — successeur désigné",
+    },
+    frozenset({"Liste de contacts", "Identité de l'Architecte"}): {
+        "title":   "Réseau survivant",
+        "text":    "Trois des noms codés de la liste correspondent "
+        "aux initiales confirmées dans le dossier de l'Architecte. "
+        "La Synarchie a trois ministres en exercice protégés.",
+        "insight": "💡 3 ministres actifs — réseau vivant",
+    },
+    frozenset({"Dossier Mira", "Photo de surveillance"}): {
+        "title":   "Mira — actif ou double jeu ?",
+        "text":    "Mira a été surveillée en même temps que Raven. "
+        "Soit elle est aussi une cible, soit elle est un vecteur "
+        "conscient utilisé pour attirer Raven dans un périmètre contrôlé.",
+        "insight": "💡 Mira — cible ou leurre ?",
+    },
+    # Ch5
+    frozenset({"Identité du Fantôme", "Accord de Berlin"}): {
+        "title":   "L'architecte adjoint",
+        "text":    "Viktor Selg apparaît dans l'Accord de Berlin de 1994 comme co-signataire. Il n'est pas le successeur de l'Architecte. Il a toujours été son numéro deux. Depuis le début.",
+        "insight": "💡 Selg — numéro 2 depuis 1994",
+    },
+    frozenset({"Serveur miroir", "Clé USB #2"}): {
+        "title":   "Les données ne meurent pas",
+        "text":    "La clé USB #2 et le serveur miroir contiennent des données complémentaires. Vane a délibérément séparé les informations pour qu'aucune capture unique ne donne tout. Il avait prévu qu'on trouverait les deux.",
+        "insight": "💡 Vane — architecture de sécurité en deux parties",
+    },
+    frozenset({"Témoin protégé", "Enregistrement Taro"}): {
+        "title":   "Chaîne de commandement",
+        "text":    "Le témoignage du contact et l'enregistrement de Taro se recoupent sur les mêmes noms dans le même ordre. La hiérarchie de commandement de la Synarchie est désormais complète sur trois niveaux.",
+        "insight": "💡 Hiérarchie Synarchie — 3 niveaux confirmés",
+    },
+    # Ch6
+    frozenset({"Enregistrement parlement", "Accord Secret"}): {
+        "title":   "Corruption au sommet de l'UE",
+        "text":    "L'enregistrement de la commission Arnheim cite mot pour mot des clauses de l'Accord Secret de Genève. Les institutions européennes ne surveillent pas la Synarchie. Elles l'abritent.",
+        "insight": "💡 UE — institution hôte, pas contrôlante",
+    },
+    frozenset({"Compte numéroté", "Registre Offshore"}): {
+        "title":   "Même banque, vingt ans",
+        "text":    "La banque lettone d'Arnheim est la même qui apparaît dans le registre offshore du chapitre I. La Synarchie utilise le même réseau bancaire depuis vingt ans. Invisible parce que légal.",
+        "insight": "💡 Continuité bancaire — 20 ans d'impunité",
+    },
+    frozenset({"Identité du Sénateur", "Liste de contacts"}): {
+        "title":   "Le législateur est la Synarchie",
+        "text":    "Arnheim figure dans la liste de contacts de la clé USB #2. Il ne protège pas la Synarchie depuis le Sénat. Il en est membre depuis dix-huit ans. Les lois qu'il a votées ont protégé le réseau.",
+        "insight": "💡 Arnheim — législateur-criminel depuis 18 ans",
+    },
+    # Ch7
+    frozenset({"Testament de Vane", "Dossier Vane"}): {
+        "title":   "Vane savait depuis le début",
+        "text":    "Le testament croise exactement le dossier Vane du chapitre I. Marcus Vane documentait la Synarchie depuis dix ans. Il attendait quelqu'un d'assez obstiné pour ne pas s'arrêter. Il avait préparé toutes les pièces. Il manquait juste quelqu'un pour les assembler.",
+        "insight": "💡 Vane — préparait ça depuis 10 ans",
+    },
+    frozenset({"Preuve ultime", "Schéma du Réseau"}): {
+        "title":   "L'organigramme complet",
+        "text":    "En combinant la preuve ultime et le schéma du réseau du chapitre III, chaque case de l'organigramme est remplie. De Vane, comptable de ruelle, jusqu'à l'Architecte, conseiller de gouvernements. La chaîne est entière.",
+        "insight": "💡 Synarchie — organigramme intégral Ch1 à Ch7",
+    },
+    frozenset({"Coordonnées bunker", "Passeport Fantôme"}): {
+        "title":   "L'Architecte n'a jamais fui",
+        "text":    "Les coordonnées du bunker correspondent à une propriété liée à l'une des identités du passeport fantôme de Genève. L'Architecte ne s'est jamais enfui. Il s'est replié vers un plan prévu de longue date. Il attendait.",
+        "insight": "💡 L'Architecte — a toujours su qu'on viendrait",
+    },
 }
-
 
 # ── Moteur de déductions ───────────────────────────────────────────────────────
 

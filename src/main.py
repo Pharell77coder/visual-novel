@@ -6,12 +6,13 @@ import math
 from config import *
 from assets_manager import *
 from models import *
-from ui import DialogueBox, EvidencePanel, InventoryPanel, TitleScreen, SaveSlotScreen, DeductionPanel
+from ui import DialogueBox, EvidencePanel, InventoryPanel, TitleScreen, SaveSlotScreen, DeductionPanel, CGGallery, NarrativeMap
 from script import SCRIPT
 from transitions import Transition
 from save_manager import SaveManager
 from deductions import DeductionEngine
 from interrogation import InterrogationMinigame
+from cg_manager import CGManager
 
 # ── Moteur principal ────────────────────────────────────────────────────────────
 class VNEngine:
@@ -30,6 +31,10 @@ class VNEngine:
         self.ded_engine  = DeductionEngine()
         self.ded_panel   = DeductionPanel(self.assets, self.ded_engine)
 
+        # ── Galerie CG ─────────────────────────────────────────────────────────
+        self.cg_mgr   = CGManager(ASSETS)
+        self.cg_gallery = CGGallery(self.assets, self.cg_mgr)
+
         # ── UI ────────────────────────────────────────────────────────────────
         self.dlg         = DialogueBox(self.assets)
         self.evidence    = EvidencePanel(self.assets, self.ded_engine)
@@ -45,7 +50,7 @@ class VNEngine:
         self.interro: "InterrogationMinigame | None" = None
 
         # ── État ──────────────────────────────────────────────────────────────
-        self.state = "title"   # title → game → save_menu → load_menu → end
+        self.state = "title"   # title → game → save_menu → load_menu → gallery → narrative_map → end
 
         self.script_idx      = 0
         self.script          = SCRIPT
@@ -55,10 +60,25 @@ class VNEngine:
         self.fading_in       = True
         self.show_rain       = False
         self.bg_surf         = None
-        self.char_surf       = None
-        self.char_side       = "left"
-        self.particles       = []
         self._current_bg_name = None
+
+        # ── Suivi des choix pris (pour la carte narrative) ─────────────────────
+        self._choices_taken: list[str] = []   # ids des branches choisies
+        self._current_chapter = 1
+
+        # ── Carte narrative ────────────────────────────────────────────────────
+        self.narrative_map = NarrativeMap(self.assets)
+
+        # ── Slots de personnages (persistance inter-nœuds) ─────────────────────
+        # Chaque slot : {"char": str|None, "surf": Surface|None, "side": "left"|"right"}
+        # Le slot est mis à jour uniquement quand le nœud touche ce côté.
+        # Un changement de lieu (bg) vide les deux slots.
+        self._char_slots: dict[str, dict] = {
+            "left":  {"char": None, "surf": None},
+            "right": {"char": None, "surf": None},
+        }
+
+        self.particles       = []
 
         # Musique
         if self.assets.bg_music:
@@ -95,7 +115,6 @@ class VNEngine:
         return text[:50] or f"Scène {self.script_idx}"
 
     def _do_save(self, slot: int) -> None:
-        # BUGFIX : le paramètre 'deductions' est maintenant passé correctement
         ok = self.save_manager.save(
             slot        = slot,
             script_idx  = self.script_idx,
@@ -103,6 +122,7 @@ class VNEngine:
             bg_name     = self._current_bg_name,
             scene_name  = self._scene_label(),
             deductions  = self.ded_engine.to_list(),
+            cg_unlocked = self.cg_mgr.to_list(),
         )
         self._toast(f"Sauvegarde slot {slot + 1} — OK" if ok else "Erreur sauvegarde !", ok)
 
@@ -115,6 +135,9 @@ class VNEngine:
         # Restaurer les déductions
         ded_data = data.get("deductions", [])
         self.ded_engine.from_list(ded_data)
+        # Restaurer les CG débloquées
+        cg_data = data.get("cg_unlocked", [])
+        self.cg_mgr.from_list(cg_data)
         self._load_node(data["script_idx"])
         self._toast(f"Chargement slot {slot + 1} — OK", success=True)
 
@@ -150,13 +173,29 @@ class VNEngine:
 
         self.show_rain = node.get("rain", False)
 
-        char = node.get("char")
-        expr = node.get("expr", 0)
-        self.char_side = node.get("side", "left")
-        if char:
-            self.char_surf = self.assets.get_char(char, expr)
-        else:
-            self.char_surf = None
+        # ── Mise à jour des slots personnages ──────────────────────────────────
+        # Règle : un changement de lieu vide tous les slots.
+        bg_changed = bg_name is not None and bg_name != self._current_bg_name
+        if bg_changed:
+            self._char_slots = {
+                "left":  {"char": None, "surf": None},
+                "right": {"char": None, "surf": None},
+            }
+
+        # Le nœud peut toucher un seul côté (celui spécifié par "side").
+        # Si "char" est absent du nœud → on ne touche pas les slots.
+        # Si "char" vaut None explicitement → on efface ce côté.
+        if "char" in node:
+            char = node["char"]
+            side = node.get("side", "left")
+            expr = node.get("expr", 0)
+
+            if char is None:
+                # Effacer le côté actif
+                self._char_slots[side] = {"char": None, "surf": None}
+            else:
+                surf = self.assets.get_char(char, expr, side)
+                self._char_slots[side] = {"char": char, "surf": surf}
 
         choices = node.get("choices")
         self.dlg.set_text(node.get("text", ""), node.get("name", ""), choices)
@@ -168,7 +207,16 @@ class VNEngine:
                 for _ in range(20):
                     self.particles.append(Particle(SCREEN_W - 50, 80, PINK_ACCENT))
 
-        bg_changed   = bg_name is not None and bg_name != self._current_bg_name
+        # ── Déblocage CG ───────────────────────────────────────────────────────
+        cg_id = node.get("cg")
+        if cg_id:
+            newly = self.cg_mgr.unlock(cg_id)
+            if newly:
+                self.cg_gallery.notify_unlock(cg_id)
+                # Particules dorées pour marquer le déblocage
+                for _ in range(30):
+                    self.particles.append(Particle(SCREEN_W // 2, SCREEN_H // 2, GOLD))
+
         has_explicit = "transition" in node
 
         if bg_changed or has_explicit:
@@ -189,6 +237,17 @@ class VNEngine:
 
         self.fading_in  = False
         self.fade_alpha = 0
+
+    def _show_narrative_map(self, chapter: int) -> None:
+        """Affiche la carte narrative de fin de chapitre."""
+        self._narrative_resume_idx = getattr(self, "_narrative_resume_idx", self.script_idx + 1)
+        self.narrative_map.show(
+            chapter       = chapter,
+            choices_taken = self._choices_taken,
+            evidence      = self.evidence.items,
+            deductions    = self.ded_engine.all_deductions(),
+        )
+        self.state = "narrative_map"
 
     # ── Démarrage du mini-jeu interrogatoire ──────────────────────────────────
 
@@ -236,6 +295,9 @@ class VNEngine:
             branch   = node.get("choice_branch", {})
             branch_id = branch.get(str(choice))
             chosen_branch_id = branch_id
+            # ── Enregistrer le choix pour la carte narrative ───────────────────
+            if branch_id:
+                self._choices_taken.append(branch_id)
             if branch_id and branch_id in self.id_map:
                 next_idx = self.id_map[branch_id]
             else:
@@ -248,6 +310,17 @@ class VNEngine:
                 if "id" not in self.script[next_idx]:
                     break
                 next_idx += 1
+
+        # ── Détecter fin de chapitre via marqueur "chapter_end" ───────────────
+        if next_idx < len(self.script):
+            next_node = self.script[next_idx]
+            ch_end = next_node.get("chapter_end")
+            if ch_end:
+                self._current_chapter = ch_end
+                self._show_narrative_map(ch_end)
+                # Mémoriser l'index pour reprendre après la carte
+                self._narrative_resume_idx = next_idx + 1
+                return
 
         self._load_node(next_idx)
 
@@ -264,11 +337,15 @@ class VNEngine:
                 if event.type == pygame.QUIT:
                     pygame.quit(); sys.exit()
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                    if self.state in ("save_menu", "load_menu"):
-                        self.state = "game"
+                    if self.state in ("save_menu", "load_menu", "load_menu_from_title"):
+                        self.state = "title" if self.state == "load_menu_from_title" else "game"
                         self.save_screen.close()
+                    elif self.state == "gallery":
+                        pass   # géré par CGGallery.handle_event
                     elif self.interro is not None:
                         pass   # ESC ignoré pendant l'interrogatoire
+                    elif self.state == "title":
+                        pass   # pas de quit depuis le titre (menu présent)
                     else:
                         pygame.quit(); sys.exit()
                 self._handle_event(event)
@@ -299,9 +376,18 @@ class VNEngine:
             return
 
         if self.state == "title":
-            if self.title_screen.handle_event(event):
+            action = self.title_screen.handle_event(event)
+            if action == "play":
                 self.state = "game"
                 self._load_node(0)
+            elif action == "gallery":
+                self.state = "gallery"
+                self.cg_gallery.open()
+            elif action == "load":
+                self.save_screen.open(mode="load")
+                self.state = "load_menu_from_title"
+            elif action == "quit":
+                pygame.quit(); sys.exit()
             return
 
         if self.state in ("save_menu", "load_menu"):
@@ -316,6 +402,33 @@ class VNEngine:
                     else:
                         self._do_load(result)
                     self.state = "game"
+            return
+
+        if self.state == "load_menu_from_title":
+            self.save_screen.handle_event(event)
+            result = self.save_screen.pop_result()
+            if result is not None:
+                if result == -1:
+                    self.state = "title"
+                else:
+                    self._do_load(result)
+                    self.state = "game"
+            return
+
+        if self.state == "gallery":
+            consumed = self.cg_gallery.handle_event(event)
+            if not self.cg_gallery.visible:
+                self.state = "title"
+            return
+
+        if self.state == "narrative_map":
+            result = self.narrative_map.handle_event(event)
+            if result == "continue":
+                self.narrative_map.close()
+                resume_idx = getattr(self, "_narrative_resume_idx", self.script_idx + 1)
+                self._choices_taken = []   # réinitialiser pour le prochain chapitre
+                self.state = "game"
+                self._load_node(resume_idx)
             return
 
         if self.state == "game":
@@ -439,11 +552,19 @@ class VNEngine:
             self.title_screen.update(dt)
             return
 
+        if self.state == "gallery":
+            self.cg_gallery.update(dt)
+            return
+
+        if self.state == "narrative_map":
+            self.narrative_map.update(dt)
+            return
+
         # Ne pas faire tourner l'UI normale pendant l'interrogatoire
         if self.interro is not None:
             return
 
-        if self.state in ("game", "save_menu", "load_menu"):
+        if self.state in ("game", "save_menu", "load_menu", "load_menu_from_title"):
             if self.transition is not None:
                 if self.transition.update(dt):
                     self.transition = None
@@ -473,11 +594,20 @@ class VNEngine:
         if self.state == "title":
             self.title_screen.draw(self.screen)
             return
+        if self.state == "gallery":
+            # Fond noir puis galerie par-dessus
+            self.screen.fill(DARK_BG)
+            self.cg_gallery.draw(self.screen, self.t)
+            return
+        if self.state == "narrative_map":
+            self._draw_game()   # fond de jeu visible dessous
+            self.narrative_map.draw(self.screen, self.t)
+            return
         if self.state == "end":
             self._draw_end()
             return
         self._draw_game()
-        if self.state in ("save_menu", "load_menu"):
+        if self.state in ("save_menu", "load_menu", "load_menu_from_title"):
             self.save_screen.draw(self.screen, self.t)
 
     def _draw_game(self):
@@ -492,15 +622,19 @@ class VNEngine:
         if self.show_rain:
             self.rain.draw(self.screen)
 
-        if self.char_surf:
-            cw, ch = self.char_surf.get_size()
+        # ── Rendu des deux slots personnages ───────────────────────────────────
+        for side, slot in self._char_slots.items():
+            surf = slot.get("surf")
+            if surf is None:
+                continue
+            cw, ch = surf.get_size()
             cy = SCREEN_H - self.dlg.H - ch - 24
-            cx = 60 if self.char_side == "left" else SCREEN_W - cw - 60
-            shadow = self.char_surf.copy()
+            cx = 60 if side == "left" else SCREEN_W - cw - 60
+            shadow = surf.copy()
             shadow.fill((0, 0, 0, 80), special_flags=pygame.BLEND_RGBA_MULT)
             self.screen.blit(shadow, (cx + 4, cy + 4))
             breath_y = int(math.sin(self.t * 1.2) * 3)
-            self.screen.blit(self.char_surf, (cx, cy + breath_y))
+            self.screen.blit(surf, (cx, cy + breath_y))
 
         # Panneaux
         self.evidence.draw(self.screen, self.t)

@@ -1034,68 +1034,157 @@ class InventoryPanel:
 
 # ── Écran titre ─────────────────────────────────────────────────────────────────
 class TitleScreen:
+    # Boutons du menu principal
+    MENU_ITEMS = [
+        ("play",    "▶  NOUVELLE PARTIE"),
+        ("load",    "⟳  CHARGER"),
+        ("gallery", "◈  GALERIE CG"),
+        ("quit",    "✕  QUITTER"),
+    ]
+    BTN_W = 280
+    BTN_H = 38
+    BTN_GAP = 10
+
     def __init__(self, assets: Assets):
-        self.assets = assets
-        self.alpha = 0
-        self.phase = "fade_in"
-        self.t = 0.0
+        self.assets   = assets
+        self.alpha    = 0
+        self.phase    = "fade_in"   # "fade_in" → "hold"
+        self.t        = 0.0
         self.particles = []
-        self.star_t = 0.0
+        self.star_t   = 0.0
+        self._sel     = 0           # bouton sélectionné (index)
+        self._hovered = 0           # bouton survolé à la souris
+
+    # ── Géométrie des boutons ──────────────────────────────────────────────────
+
+    def _btn_rect(self, i: int) -> pygame.Rect:
+        total_h = len(self.MENU_ITEMS) * (self.BTN_H + self.BTN_GAP) - self.BTN_GAP
+        start_y = SCREEN_H // 2 + 55
+        x = (SCREEN_W - self.BTN_W) // 2
+        y = start_y + i * (self.BTN_H + self.BTN_GAP)
+        return pygame.Rect(x, y, self.BTN_W, self.BTN_H)
+
+    # ── Mise à jour ────────────────────────────────────────────────────────────
 
     def update(self, dt):
-        self.t += dt
+        self.t      += dt
         self.star_t += dt
         if self.phase == "fade_in":
-            self.alpha = min(255, self.alpha + 3)
+            self.alpha = min(255, self.alpha + 4)
             if self.alpha >= 255:
                 self.phase = "hold"
-        if random.random() < 0.3:
+        # Particules ambiantes
+        if random.random() < 0.25:
             x = random.randint(50, SCREEN_W - 50)
-            y = SCREEN_H // 2 + 80
+            y = random.randint(SCREEN_H // 2 - 20, SCREEN_H // 2 + 20)
             self.particles.append(Particle(x, y, CYAN))
         self.particles = [p for p in self.particles if p.alive]
         for p in self.particles:
             p.update(dt)
 
+    # ── Gestion des événements ─────────────────────────────────────────────────
+
     def handle_event(self, e):
-        if self.phase == "hold":
-            if e.type in (pygame.KEYDOWN, pygame.MOUSEBUTTONDOWN):
-                return True
-        return False
+        """
+        Retourne l'action string si un bouton est activé :
+            "play" | "load" | "gallery" | "quit"
+        Retourne None sinon.
+        """
+        if self.phase != "hold":
+            return None
+
+        if e.type == pygame.KEYDOWN:
+            if e.key in (pygame.K_UP, pygame.K_LEFT):
+                self._sel = (self._sel - 1) % len(self.MENU_ITEMS)
+                return None
+            if e.key in (pygame.K_DOWN, pygame.K_RIGHT, pygame.K_TAB):
+                self._sel = (self._sel + 1) % len(self.MENU_ITEMS)
+                return None
+            if e.key in (pygame.K_RETURN, pygame.K_SPACE):
+                return self.MENU_ITEMS[self._sel][0]
+
+        elif e.type == pygame.MOUSEMOTION:
+            mx, my = e.pos
+            for i in range(len(self.MENU_ITEMS)):
+                if self._btn_rect(i).collidepoint(mx, my):
+                    self._sel = i
+                    break
+
+        elif e.type == pygame.MOUSEBUTTONDOWN and e.button == 1:
+            mx, my = e.pos
+            for i, (action, _) in enumerate(self.MENU_ITEMS):
+                if self._btn_rect(i).collidepoint(mx, my):
+                    return action
+
+        return None
+
+    # ── Rendu ──────────────────────────────────────────────────────────────────
 
     def draw(self, screen):
         screen.fill(DARK_BG)
+
+        # Étoiles décoratives
         for i in range(60):
             r = (i * 137 + 17) % SCREEN_W
             s = (i * 97  + 31) % (SCREEN_H // 2)
             a = int(120 + 100 * math.sin(self.star_t * 0.5 + i))
             pygame.draw.circle(screen, (a, a, min(255, a + 60)), (r, s), 1)
 
+        # Lignes de fond CRT
         for y in range(0, SCREEN_H, 4):
             a = 30 + 10 * math.sin(y * 0.05 + self.t)
-            pygame.draw.line(screen, (0, int(a), int(a*1.5)), (0, y), (SCREEN_W, y))
+            pygame.draw.line(screen, (0, int(a), int(a * 1.5)), (0, y), (SCREEN_W, y))
 
+        # Titre
         title_s = self.assets.font_title.render(TITLE, True, CYAN)
         sub_s   = self.assets.font_med.render("UN THRILLER EN PIXEL ART", True, TEXT_GRAY)
-        press_s = self.assets.font_small.render("APPUYEZ SUR UNE TOUCHE POUR COMMENCER", True, CYAN_DIM)
 
-        glow = pygame.Surface(title_s.get_size(), pygame.SRCALPHA)
         glow_col = (*CYAN, int(30 + 20 * math.sin(self.t * 2)))
+        glow = pygame.Surface(title_s.get_size(), pygame.SRCALPHA)
         glow.fill(glow_col)
-        screen.blit(glow, ((SCREEN_W - title_s.get_width()) // 2 - 4,
-                            SCREEN_H // 2 - title_s.get_height() // 2 - 4))
+        tx = (SCREEN_W - title_s.get_width()) // 2
+        ty = SCREEN_H // 2 - 80
+        screen.blit(glow, (tx - 4, ty - 4))
+        screen.blit(title_s, (tx, ty))
+        screen.blit(sub_s, ((SCREEN_W - sub_s.get_width()) // 2, ty + title_s.get_height() + 6))
 
-        screen.blit(title_s, ((SCREEN_W - title_s.get_width()) // 2,
-                               SCREEN_H // 2 - title_s.get_height() // 2))
-        screen.blit(sub_s,   ((SCREEN_W - sub_s.get_width()) // 2,
-                               SCREEN_H // 2 + 40))
-        if self.phase == "hold" and int(self.t * 2) % 2 == 0:
-            screen.blit(press_s, ((SCREEN_W - press_s.get_width()) // 2,
-                                   SCREEN_H // 2 + 90))
+        # Séparateur
+        sep_y = ty + title_s.get_height() + 34
+        pygame.draw.line(screen, (*CYAN_DIM, 120),
+                         ((SCREEN_W - self.BTN_W) // 2, sep_y),
+                         ((SCREEN_W + self.BTN_W) // 2, sep_y), 1)
 
+        # Boutons du menu
+        if self.phase == "hold":
+            fn = self.assets.font_med
+            for i, (action, label) in enumerate(self.MENU_ITEMS):
+                r = self._btn_rect(i)
+                sel = (i == self._sel)
+
+                btn = pygame.Surface((r.w, r.h), pygame.SRCALPHA)
+                if sel:
+                    pulse = 0.55 + 0.45 * math.sin(self.t * 3.5)
+                    bg_a  = int(50 + 30 * pulse)
+                    bd_a  = int(180 + 60 * pulse)
+                    pygame.draw.rect(btn, (*CYAN, bg_a), (0, 0, r.w, r.h), border_radius=5)
+                    pygame.draw.rect(btn, (*CYAN, bd_a), (0, 0, r.w, r.h), width=2, border_radius=5)
+                    # Flèche de sélection
+                    arr = fn.render("▸", True, CYAN)
+                    btn.blit(arr, (6, (r.h - arr.get_height()) // 2))
+                else:
+                    pygame.draw.rect(btn, (*DARK_BG, 200), (0, 0, r.w, r.h), border_radius=5)
+                    pygame.draw.rect(btn, (*CYAN_DIM, 80), (0, 0, r.w, r.h), width=1, border_radius=5)
+
+                col  = CYAN if sel else TEXT_GRAY
+                lbl  = fn.render(label, True, col)
+                btn.blit(lbl, ((r.w - lbl.get_width()) // 2, (r.h - lbl.get_height()) // 2))
+                screen.blit(btn, (r.x, r.y))
+
+        # Particules
         for p in self.particles:
             p.draw(screen)
 
+        # Fade-in
         if self.alpha < 255:
             ov = pygame.Surface((SCREEN_W, SCREEN_H))
             ov.fill(BLACK)
@@ -1256,3 +1345,991 @@ class SaveSlotScreen:
                      else "[↑↓] Naviguer   [Entrée] Sauvegarder")
         hint = fs.render(hint_text, True, TEXT_GRAY)
         screen.blit(hint, (ox + 20, oy + self.H - 38))
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# ── CGGallery — Galerie d'illustrations CG ────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════════════════
+
+class CGGallery:
+    """
+    Galerie CG plein écran accessible depuis le menu titre.
+
+    Layout :
+        ┌──────────────────────────────────────────────────────────┐
+        │  ── GALERIE CG ──          3 / 13                        │
+        ├──────────────────────────────────────────────────────────┤
+        │  [◀ prev]  [thumbnail]×5  [next ▶]     CHAPITRE I       │
+        │                                                          │
+        │  ┌───────── IMAGE PLEIN ─────────────────────────────┐   │
+        │  │              (vignette sélectionnée)              │   │
+        │  └────────────────────────────────────────────────────┘   │
+        │                                                          │
+        │  Titre CG                       [Entrée] Plein écran    │
+        │  [Échap] Retour menu                                     │
+        └──────────────────────────────────────────────────────────┘
+
+    Touches :
+        ← →         naviguer entre les CG
+        Entrée      afficher en plein écran (fullview)
+        Échap       quitter le fullview / retourner au menu
+    """
+
+    # Dimensions de la grille de vignettes
+    THUMB_W    = 140
+    THUMB_H    = 90
+    THUMB_GAP  = 14
+    THUMBS_ROW = 5            # vignettes par ligne
+    PREVIEW_H  = 270          # hauteur de l'image preview centrale
+
+    # Couleur des slots verrouillés
+    LOCK_BG    = (8, 12, 24)
+    LOCK_BORDER = (30, 40, 70)
+
+    def __init__(self, assets, cg_manager):
+        self.assets     = assets
+        self.cg_mgr     = cg_manager
+        self.visible    = False
+
+        # Navigation
+        self._cursor    = 0        # index dans CG_CATALOGUE
+        self._fullview  = False    # mode plein écran
+
+        # Animation d'entrée / de sélection
+        self._enter_t   = 0.0     # alpha fade-in général
+        self._slide_t   = 0.0     # slide de la preview lors d'un changement
+        self._slide_dir = 0       # -1 gauche, +1 droite
+
+        # Toast de déblocage
+        self._toast_msg   = ""
+        self._toast_timer = 0.0
+
+        # Cache vignettes (petites surfaces)
+        self._thumb_cache: dict[str, pygame.Surface] = {}
+
+        # Import inline pour éviter les imports circulaires
+        from cg_catalogue import CG_CATALOGUE
+        self._catalogue = CG_CATALOGUE
+
+    # ── Ouverture / fermeture ─────────────────────────────────────────────────
+
+    def open(self):
+        self.visible    = True
+        self._fullview  = False
+        self._enter_t   = 0.0
+        self._slide_t   = 0.0
+
+    def close(self):
+        self.visible   = False
+        self._fullview = False
+
+    # ── Notification de déblocage (appelée depuis VNEngine) ───────────────────
+
+    def notify_unlock(self, cg_id: str):
+        """Affiche un toast '✦ Nouvelle illustration débloquée'."""
+        from cg_catalogue import CG_INDEX
+        entry = CG_INDEX.get(cg_id)
+        if entry:
+            self._toast_msg   = f"✦ Illustration débloquée : {entry['title']}"
+            self._toast_timer = 4.0
+
+    # ── Événements ────────────────────────────────────────────────────────────
+
+    def handle_event(self, event) -> bool:
+        """Retourne True si l'événement est consommé."""
+        if not self.visible:
+            return False
+
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                if self._fullview:
+                    self._fullview = False
+                else:
+                    self.close()
+                return True
+
+            if event.key in (pygame.K_RETURN, pygame.K_SPACE):
+                entry = self._catalogue[self._cursor]
+                if self.cg_mgr.is_unlocked(entry["id"]):
+                    self._fullview = not self._fullview
+                return True
+
+            if event.key == pygame.K_LEFT:
+                self._move(-1)
+                return True
+            if event.key == pygame.K_RIGHT:
+                self._move(1)
+                return True
+            if event.key == pygame.K_UP:
+                self._move(-self.THUMBS_ROW)
+                return True
+            if event.key == pygame.K_DOWN:
+                self._move(self.THUMBS_ROW)
+                return True
+
+        elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            if self._fullview:
+                self._fullview = False
+                return True
+            mx, my = event.pos
+            # Clic sur une vignette
+            idx = self._thumb_at(mx, my)
+            if idx is not None:
+                if idx == self._cursor:
+                    entry = self._catalogue[self._cursor]
+                    if self.cg_mgr.is_unlocked(entry["id"]):
+                        self._fullview = True
+                else:
+                    self._move(idx - self._cursor)
+                return True
+
+        elif event.type == pygame.MOUSEWHEEL:
+            self._move(-event.y)
+            return True
+
+        return False
+
+    def _move(self, delta: int):
+        old = self._cursor
+        self._cursor = max(0, min(len(self._catalogue) - 1, self._cursor + delta))
+        if self._cursor != old:
+            self._slide_dir = 1 if delta > 0 else -1
+            self._slide_t   = 0.25   # durée de l'animation slide
+
+    # ── Update ────────────────────────────────────────────────────────────────
+
+    def update(self, dt: float):
+        if not self.visible:
+            return
+        self._enter_t   = min(1.0, self._enter_t + dt * 3.0)
+        self._slide_t   = max(0.0, self._slide_t - dt)
+        if self._toast_timer > 0:
+            self._toast_timer = max(0.0, self._toast_timer - dt)
+
+    # ── Rendu principal ───────────────────────────────────────────────────────
+
+    def draw(self, screen: pygame.Surface, t: float):
+        if not self.visible:
+            return
+
+        alpha_global = int(self._enter_t * 255)
+
+        if self._fullview:
+            self._draw_fullview(screen, alpha_global, t)
+        else:
+            self._draw_gallery(screen, alpha_global, t)
+
+        self._draw_toast(screen)
+
+    # ── Vue galerie (grille + preview) ────────────────────────────────────────
+
+    def _draw_gallery(self, screen: pygame.Surface, alpha: int, t: float):
+        fn = self.assets.font_med
+        fs = self.assets.font_small
+        fb = self.assets.font_big
+
+        # Fond plein noir semi-transparent
+        bg = pygame.Surface((SCREEN_W, SCREEN_H), pygame.SRCALPHA)
+        bg.fill((0, 0, 0, min(230, alpha)))
+        screen.blit(bg, (0, 0))
+
+        # Grille d'étoiles décoratives
+        for i in range(40):
+            rx = (i * 233 + 17) % SCREEN_W
+            ry = (i * 97  + 31) % SCREEN_H
+            a  = int(60 + 40 * math.sin(t * 0.7 + i * 0.3))
+            col = (a // 4, a // 2, min(255, a + 60))
+            pygame.draw.circle(screen, col, (rx, ry), 1)
+
+        # ── En-tête ───────────────────────────────────────────────────────────
+        nb_unlocked = self.cg_mgr.count_unlocked()
+        nb_total    = self.cg_mgr.total()
+
+        header = fb.render("── GALERIE CG ──", True, CYAN)
+        screen.blit(header, ((SCREEN_W - header.get_width()) // 2, 14))
+
+        count_s = fs.render(
+            f"{nb_unlocked} / {nb_total} illustrations débloquées",
+            True, GOLD if nb_unlocked > 0 else TEXT_GRAY
+        )
+        screen.blit(count_s, ((SCREEN_W - count_s.get_width()) // 2, 46))
+        pygame.draw.line(screen, (*CYAN, 80), (40, 68), (SCREEN_W - 40, 68), 1)
+
+        # ── Grille de vignettes ───────────────────────────────────────────────
+        n     = len(self._catalogue)
+        row_w = self.THUMBS_ROW * (self.THUMB_W + self.THUMB_GAP) - self.THUMB_GAP
+        gx    = (SCREEN_W - row_w) // 2
+        gy    = 78
+
+        # Calculer le nombre de rangées et la hauteur totale de la grille
+        n_rows = (n + self.THUMBS_ROW - 1) // self.THUMBS_ROW
+        grid_h = n_rows * (self.THUMB_H + self.THUMB_GAP)
+
+        for idx, entry in enumerate(self._catalogue):
+            col_i = idx % self.THUMBS_ROW
+            row_i = idx // self.THUMBS_ROW
+            tx = gx + col_i * (self.THUMB_W + self.THUMB_GAP)
+            ty = gy + row_i * (self.THUMB_H + self.THUMB_GAP)
+
+            unlocked = self.cg_mgr.is_unlocked(entry["id"])
+            selected = idx == self._cursor
+
+            self._draw_thumb(screen, entry, tx, ty, unlocked, selected, t)
+
+        # ── Preview de l'image sélectionnée ───────────────────────────────────
+        prev_y = gy + grid_h + 16
+        prev_h = SCREEN_H - prev_y - 50
+        prev_h = max(prev_h, 80)
+        prev_w = min(int(prev_h * 16 / 9), SCREEN_W - 80)
+        prev_x = (SCREEN_W - prev_w) // 2
+
+        entry   = self._catalogue[self._cursor]
+        unlocked = self.cg_mgr.is_unlocked(entry["id"])
+
+        # Slide animation
+        slide_ease = self._ease_out(1.0 - (self._slide_t / 0.25)) if self._slide_t > 0 else 1.0
+        slide_off  = int(self._slide_dir * (1.0 - slide_ease) * 40)
+
+        if unlocked:
+            surf = self._get_thumb_large(entry["id"], (prev_w, prev_h))
+        else:
+            surf = self._make_locked_preview(entry, (prev_w, prev_h))
+
+        # Cadre
+        frame_rect = pygame.Rect(prev_x - 3, prev_y - 3, prev_w + 6, prev_h + 6)
+        
+        
+        if unlocked:
+            border_col = (*CYAN, 160)  # SI CYAN est déballable
+        else:
+            if hasattr(self, 'LOCK_BORDER'):
+                border_col = (*self.LOCK_BORDER, 120)
+            else:
+                border_col = (30, 40, 70, 120)
+        
+        
+        pygame.draw.rect(screen, border_col, frame_rect, 2, border_radius=4)
+
+        if surf:
+            s = surf.copy()
+            s.set_alpha(alpha)
+            screen.blit(s, (prev_x + slide_off, prev_y))
+
+        # ── Métadonnées de la CG sélectionnée ────────────────────────────────
+        label_y = prev_y + prev_h + 8
+        if unlocked:
+            title_s = fn.render(entry["title"], True, CYAN)
+            chap_s  = fs.render(entry["chapter"], True, TEXT_GRAY)
+            enter_s = fs.render("[Entrée] Plein écran", True, CYAN_DIM)
+            screen.blit(title_s, (prev_x, label_y))
+            screen.blit(chap_s,  (prev_x, label_y + 22))
+            screen.blit(enter_s, (prev_x + prev_w - enter_s.get_width(), label_y))
+        else:
+            hint_s = fs.render(f"🔒 {entry['hint']}", True, TEXT_GRAY)
+            screen.blit(hint_s, (prev_x, label_y))
+
+        # ── Bas de page ───────────────────────────────────────────────────────
+        esc_s = fs.render("[Échap] Retour au menu", True, TEXT_GRAY)
+        nav_s = fs.render("[← →] Naviguer", True, TEXT_GRAY)
+        screen.blit(esc_s, (20, SCREEN_H - 24))
+        screen.blit(nav_s, (SCREEN_W - nav_s.get_width() - 20, SCREEN_H - 24))
+
+    # ── Vue plein écran ───────────────────────────────────────────────────────
+
+    def _draw_fullview(self, screen: pygame.Surface, alpha: int, t: float):
+        fs = self.assets.font_small
+        fb = self.assets.font_big
+
+        entry = self._catalogue[self._cursor]
+
+        # Fond noir
+        screen.fill((0, 0, 0))
+
+        # Image plein écran (letterboxed)
+        surf = self.cg_mgr.get_surface(entry["id"])
+        if surf:
+            img_w, img_h = surf.get_width(), surf.get_height()
+            scale = min(SCREEN_W / img_w, SCREEN_H / img_h)
+            dw = int(img_w * scale)
+            dh = int(img_h * scale)
+            scaled = pygame.transform.smoothscale(surf, (dw, dh))
+            dx = (SCREEN_W - dw) // 2
+            dy = (SCREEN_H - dh) // 2
+            screen.blit(scaled, (dx, dy))
+
+        # Bandeau de titre en bas
+        band = pygame.Surface((SCREEN_W, 44), pygame.SRCALPHA)
+        band.fill((0, 0, 0, 160))
+        screen.blit(band, (0, SCREEN_H - 44))
+
+        title_s = fb.render(entry["title"], True, CYAN)
+        chap_s  = fs.render(entry["chapter"], True, TEXT_GRAY)
+        esc_s   = fs.render("[Échap] Retour galerie", True, CYAN_DIM)
+
+        screen.blit(title_s, (20, SCREEN_H - 38))
+        screen.blit(chap_s,  (24 + title_s.get_width(), SCREEN_H - 32))
+        screen.blit(esc_s,   (SCREEN_W - esc_s.get_width() - 20, SCREEN_H - 32))
+
+        # Fade-in léger
+        if self._enter_t < 1.0:
+            ov = pygame.Surface((SCREEN_W, SCREEN_H))
+            ov.fill((0, 0, 0))
+            ov.set_alpha(int((1.0 - self._enter_t) * 255))
+            screen.blit(ov, (0, 0))
+
+    # ── Rendu d'une vignette ──────────────────────────────────────────────────
+
+    def _draw_thumb(
+        self,
+        screen: pygame.Surface,
+        entry: dict,
+        x: int, y: int,
+        unlocked: bool,
+        selected: bool,
+        t: float,
+    ):
+        TW, TH = self.THUMB_W, self.THUMB_H
+
+        cell = pygame.Surface((TW, TH), pygame.SRCALPHA)
+
+        if unlocked:
+            thumb = self._get_thumb(entry["id"])
+            if thumb:
+                cell.blit(thumb, (0, 0))
+            else:
+                cell.fill((10, 20, 40))
+
+            # Léger assombrissement si non sélectionné
+            if not selected:
+                dim = pygame.Surface((TW, TH), pygame.SRCALPHA)
+                dim.fill((0, 0, 0, 80))
+                cell.blit(dim, (0, 0))
+        else:
+            # Fond verrouillé
+            cell.fill((8, 12, 24))
+
+            # Motif de fond hachuré discret
+            for i in range(0, TW + TH, 18):
+                pygame.draw.line(cell, (15, 22, 40), (max(0, i - TH), min(TH, i)),
+                                 (min(TW, i), max(0, i - TW)), 1)
+
+            # Icône cadenas
+            cx2, cy2 = TW // 2, TH // 2 - 6
+            pygame.draw.circle(cell, (30, 45, 70), (cx2, cy2), 12)
+            pygame.draw.circle(cell, (50, 70, 110), (cx2, cy2), 12, 1)
+            # Corps du cadenas
+            pygame.draw.rect(cell, (30, 45, 70), (cx2 - 8, cy2 + 4, 16, 11), border_radius=2)
+            pygame.draw.rect(cell, (50, 70, 110), (cx2 - 8, cy2 + 4, 16, 11), width=1, border_radius=2)
+            # Trou de serrure
+            pygame.draw.circle(cell, (15, 25, 50), (cx2, cy2 + 9), 3)
+
+            # Index chapître (bas de la vignette)
+            fs2 = self.assets.font_small
+            ch_s = fs2.render(entry["chapter"][:12], True, (40, 55, 90))
+            cell.blit(ch_s, ((TW - ch_s.get_width()) // 2, TH - 16))
+
+        # Cadre de sélection
+        if selected:
+            pulse = 0.5 + 0.5 * math.sin(t * 4.0)
+            border_alpha = int(180 + 60 * pulse)
+            pygame.draw.rect(cell, (*CYAN, border_alpha), (0, 0, TW, TH), 2, border_radius=3)
+            # Lueur extérieure
+            glow = pygame.Surface((TW + 8, TH + 8), pygame.SRCALPHA)
+            pygame.draw.rect(glow, (*CYAN, int(40 * pulse)), (0, 0, TW + 8, TH + 8), border_radius=5)
+            screen.blit(glow, (x - 4, y - 4))
+        else:
+            border_col = (*CYAN, 60) if unlocked else (30, 40, 70, 120)
+            pygame.draw.rect(cell, border_col, (0, 0, TW, TH), 1, border_radius=3)
+
+        screen.blit(cell, (x, y))
+
+        # Numéro de la CG (en haut à gauche de la vignette, discret)
+        fs3 = self.assets.font_small
+        idx_s = fs3.render(f"#{self._catalogue.index(entry)+1:02d}", True,
+                           (*CYAN, 180) if unlocked else (30, 40, 70))
+        screen.blit(idx_s, (x + 4, y + 3))
+
+    # ── Toast de déblocage ────────────────────────────────────────────────────
+
+    def _draw_toast(self, screen: pygame.Surface):
+        if self._toast_timer <= 0 or not self._toast_msg:
+            return
+        fs = self.assets.font_small
+        alpha = min(255, int(self._toast_timer * 120))
+        txt   = fs.render(self._toast_msg, True, GOLD)
+        tw = txt.get_width() + 28
+        th = txt.get_height() + 14
+        bx = (SCREEN_W - tw) // 2
+        by = SCREEN_H - 70
+
+        badge = pygame.Surface((tw, th), pygame.SRCALPHA)
+        pygame.draw.rect(badge, (*DARK_BG, min(230, alpha)), (0, 0, tw, th), border_radius=6)
+        pygame.draw.rect(badge, (*GOLD, min(220, alpha)),    (0, 0, tw, th), width=1, border_radius=6)
+        badge.set_alpha(alpha)
+
+        ts = pygame.Surface(txt.get_size(), pygame.SRCALPHA)
+        ts.blit(txt, (0, 0))
+        ts.set_alpha(alpha)
+
+        screen.blit(badge, (bx, by))
+        screen.blit(ts,    (bx + 14, by + 7))
+
+    # ── Helpers de cache ──────────────────────────────────────────────────────
+
+    def _get_thumb(self, cg_id: str) -> pygame.Surface | None:
+        """Retourne une vignette mise en cache (THUMB_W × THUMB_H)."""
+        if cg_id not in self._thumb_cache:
+            surf = self.cg_mgr.get_surface(cg_id, (self.THUMB_W, self.THUMB_H))
+            self._thumb_cache[cg_id] = surf
+        return self._thumb_cache.get(cg_id)
+
+    def _get_thumb_large(
+        self, cg_id: str, size: tuple[int, int]
+    ) -> pygame.Surface | None:
+        """Preview de taille arbitraire (non mis en cache pour éviter VRAM)."""
+        return self.cg_mgr.get_surface(cg_id, size)
+
+    def _make_locked_preview(
+        self, entry: dict, size: tuple[int, int]
+    ) -> pygame.Surface:
+        """Preview verrouillée : fond sombre + indice texte."""
+        w, h = size
+        surf = pygame.Surface((w, h))
+        # Dégradé
+        for y in range(h):
+            ratio = y / h
+            r = int(6  + 8  * ratio)
+            g = int(8  + 10 * ratio)
+            b = int(18 + 22 * ratio)
+            pygame.draw.line(surf, (r, g, b), (0, y), (w, y))
+
+        # Motif hachuré
+        for i in range(0, w + h, 30):
+            pygame.draw.line(surf, (12, 18, 35),
+                             (max(0, i - h), min(h, i)),
+                             (min(w, i), max(0, i - w)), 1)
+
+        # Grand cadenas central
+        cx2, cy2 = w // 2, h // 2
+        r2 = min(36, h // 5)
+        pygame.draw.circle(surf, (20, 30, 55), (cx2, cy2 - r2 // 2), r2)
+        pygame.draw.circle(surf, (40, 60, 100), (cx2, cy2 - r2 // 2), r2, 2)
+        body_h = r2 + 10
+        pygame.draw.rect(surf, (20, 30, 55),
+                         (cx2 - r2, cy2 - r2 // 2 + r2 - 4, r2 * 2, body_h),
+                         border_radius=4)
+        pygame.draw.rect(surf, (40, 60, 100),
+                         (cx2 - r2, cy2 - r2 // 2 + r2 - 4, r2 * 2, body_h),
+                         width=2, border_radius=4)
+
+        fn2 = self.assets.font_med
+        fs2 = self.assets.font_small
+        hint_s = fs2.render(entry["hint"], True, (80, 100, 140))
+        surf.blit(hint_s, (w // 2 - hint_s.get_width() // 2,
+                           cy2 + r2 + body_h // 2 + 10))
+
+        return surf
+
+    def _thumb_at(self, mx: int, my: int) -> int | None:
+        """Retourne l'index de la vignette sous le curseur souris, ou None."""
+        n     = len(self._catalogue)
+        row_w = self.THUMBS_ROW * (self.THUMB_W + self.THUMB_GAP) - self.THUMB_GAP
+        gx    = (SCREEN_W - row_w) // 2
+        gy    = 78
+
+        for idx in range(n):
+            col_i = idx % self.THUMBS_ROW
+            row_i = idx // self.THUMBS_ROW
+            tx = gx + col_i * (self.THUMB_W + self.THUMB_GAP)
+            ty = gy + row_i * (self.THUMB_H + self.THUMB_GAP)
+            if pygame.Rect(tx, ty, self.THUMB_W, self.THUMB_H).collidepoint(mx, my):
+                return idx
+        return None
+
+    @staticmethod
+    def _ease_out(t: float) -> float:
+        return 1.0 - (1.0 - t) ** 2
+
+# ══════════════════════════════════════════════════════════════════════════════
+# ── NarrativeMap — Carte narrative de fin de chapitre ─────────────────────────
+# ══════════════════════════════════════════════════════════════════════════════
+
+class NarrativeMap:
+    """
+    Écran "carte narrative" affiché en fin de chapitre.
+
+    Affiche un arbre de décision avec :
+      - les branches choisies  (surlignées en cyan)
+      - les branches ratées    (grisées, avec leur label)
+      - un résumé des preuves & déductions collectées
+
+    API :
+        nm = NarrativeMap(assets)
+        nm.show(chapter=1, choices_taken=["interrogation","team"],
+                evidence=engine.evidence.items, deductions=engine.ded_engine.all_deductions())
+        nm.handle_event(event)  →  "continue" | None
+        nm.draw(screen, t)
+        nm.update(dt)
+    """
+
+    # Définition statique de l'arbre pour chaque chapitre
+    # Format par nœud : {"id": str, "label": str, "children": [...], "type": "choice"|"leaf"|"merge"}
+    CHAPTER_TREES = {
+        1: {
+            "id": "root_ch1",
+            "label": "Scène de crime\n2h37 du matin",
+            "type": "root",
+            "children": [
+                {
+                    "id": "interrogation",
+                    "label": "Interroger\nles témoins",
+                    "type": "choice",
+                    "children": []
+                },
+                {
+                    "id": "scene",
+                    "label": "Examiner\nla scène",
+                    "type": "choice",
+                    "children": []
+                },
+            ],
+        },
+        2: {
+            "id": "root_ch2",
+            "label": "Chapitre II\nLa Taupe",
+            "type": "root",
+            "children": [
+                {
+                    "id": "ch2_trust",
+                    "label": "Faire confiance\nà Natasha",
+                    "type": "choice",
+                    "children": [
+                        {"id": "ch2_infiltrate", "label": "Infiltrer\nle Loft 7", "type": "choice", "children": [
+                            {"id": "ch2_betray",  "label": "Exposer\nFerrière",          "type": "leaf", "children": []},
+                            {"id": "ch2_protect", "label": "Protéger\nSato",             "type": "leaf", "children": []},
+                        ]},
+                        {"id": "ch2_press",      "label": "Contacter\nla presse",       "type": "choice", "children": [
+                            {"id": "ch2_betray",  "label": "Exposer\nFerrière",          "type": "leaf", "children": []},
+                            {"id": "ch2_protect", "label": "Protéger\nSato",             "type": "leaf", "children": []},
+                        ]},
+                    ],
+                },
+                {
+                    "id": "ch2_resist",
+                    "label": "Garder\nses distances",
+                    "type": "choice",
+                    "children": [
+                        {"id": "ch2_infiltrate", "label": "Infiltrer\nle Loft 7", "type": "choice", "children": [
+                            {"id": "ch2_betray",  "label": "Exposer\nFerrière",          "type": "leaf", "children": []},
+                            {"id": "ch2_protect", "label": "Protéger\nSato",             "type": "leaf", "children": []},
+                        ]},
+                        {"id": "ch2_press",      "label": "Contacter\nla presse",       "type": "choice", "children": [
+                            {"id": "ch2_betray",  "label": "Exposer\nFerrière",          "type": "leaf", "children": []},
+                            {"id": "ch2_protect", "label": "Protéger\nSato",             "type": "leaf", "children": []},
+                        ]},
+                    ],
+                },
+            ],
+        },
+        3: {
+            "id": "root_ch3",
+            "label": "Chapitre III\nL'Architecte",
+            "type": "root",
+            "children": [
+                {
+                    "id": "ch3_confront",
+                    "label": "Affronter\ndirectement",
+                    "type": "choice",
+                    "children": [
+                        {"id": "ch3_expose",    "label": "Exposer\nmaintenant",  "type": "choice", "children": [
+                            {"id": "ch3_sacrifice", "label": "Se sacrifier",     "type": "leaf", "children": []},
+                            {"id": "ch3_escape",    "label": "Fuir avec\nles preuves", "type": "leaf", "children": []},
+                        ]},
+                        {"id": "ch3_negotiate", "label": "Négocier",             "type": "choice", "children": [
+                            {"id": "ch3_sacrifice", "label": "Se sacrifier",     "type": "leaf", "children": []},
+                            {"id": "ch3_escape",    "label": "Fuir avec\nles preuves", "type": "leaf", "children": []},
+                        ]},
+                    ],
+                },
+                {
+                    "id": "ch3_shadow",
+                    "label": "Observer\ndans l'ombre",
+                    "type": "choice",
+                    "children": [
+                        {"id": "ch3_expose",    "label": "Exposer\nmaintenant",  "type": "choice", "children": [
+                            {"id": "ch3_sacrifice", "label": "Se sacrifier",     "type": "leaf", "children": []},
+                            {"id": "ch3_escape",    "label": "Fuir avec\nles preuves", "type": "leaf", "children": []},
+                        ]},
+                        {"id": "ch3_negotiate", "label": "Négocier",             "type": "choice", "children": [
+                            {"id": "ch3_sacrifice", "label": "Se sacrifier",     "type": "leaf", "children": []},
+                            {"id": "ch3_escape",    "label": "Fuir avec\nles preuves", "type": "leaf", "children": []},
+                        ]},
+                    ],
+                },
+            ],
+        },
+    }
+
+    # ─── Style des nœuds ───────────────────────────────────────────────────────
+    NODE_W      = 110
+    NODE_H      = 52
+    H_GAP       = 70    # espace horizontal entre colonnes
+    V_GAP       = 18    # espace vertical entre nœuds frères
+
+    def __init__(self, assets: Assets):
+        self.assets        = assets
+        self.visible       = False
+        self._chapter      = 1
+        self._choices_taken: set[str] = set()
+        self._evidence     = []
+        self._deductions   = []
+        self._enter_t      = 0.0
+        self._node_anims: dict[str, float] = {}   # id → timer d'apparition
+        self._t            = 0.0
+        # Layout calculé : {id: (cx, cy)}
+        self._layout: dict[str, tuple[int, int]] = {}
+        self._edges: list[tuple[str, str]] = []   # (parent_id, child_id)
+
+    # ── API publique ───────────────────────────────────────────────────────────
+
+    def show(
+        self,
+        chapter: int,
+        choices_taken: list[str],
+        evidence: list,
+        deductions: list,
+    ):
+        self._chapter       = chapter
+        self._choices_taken = set(choices_taken)
+        self._evidence      = list(evidence)
+        self._deductions    = list(deductions)
+        self.visible        = True
+        self._enter_t       = 0.0
+        self._node_anims    = {}
+        self._t             = 0.0
+        self._compute_layout()
+
+    def close(self):
+        self.visible = False
+
+    def handle_event(self, event) -> str | None:
+        """Retourne "continue" si l'utilisateur veut passer, None sinon."""
+        if not self.visible:
+            return None
+        if event.type == pygame.KEYDOWN:
+            if event.key in (pygame.K_RETURN, pygame.K_SPACE, pygame.K_ESCAPE):
+                return "continue"
+        elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            # Clic sur le bouton "Continuer"
+            br = self._continue_btn_rect()
+            if br.collidepoint(event.pos):
+                return "continue"
+        return None
+
+    def update(self, dt: float):
+        if not self.visible:
+            return
+        self._t       += dt
+        self._enter_t  = min(1.0, self._enter_t + dt * 2.0)
+        # Animer les nœuds progressivement
+        for nid in list(self._layout.keys()):
+            if nid not in self._node_anims:
+                # Délai basé sur la position x du nœud (colonnes de gauche d'abord)
+                cx = self._layout[nid][0]
+                col_index = (cx - 60) // (self.NODE_W + self.H_GAP)
+                delay = col_index * 0.18
+                if self._t >= delay:
+                    self._node_anims[nid] = 0.0
+            if nid in self._node_anims and self._node_anims[nid] < 1.0:
+                self._node_anims[nid] = min(1.0, self._node_anims[nid] + dt * 3.5)
+
+    def draw(self, screen: pygame.Surface, t: float):
+        if not self.visible:
+            return
+
+        alpha_global = int(self._enter_t * 255)
+        fn  = self.assets.font_med
+        fs  = self.assets.font_small
+        fb  = self.assets.font_big
+
+        # Fond
+        bg = pygame.Surface((SCREEN_W, SCREEN_H), pygame.SRCALPHA)
+        bg.fill((4, 6, 16, min(240, alpha_global)))
+        screen.blit(bg, (0, 0))
+
+        # Étoiles
+        for i in range(35):
+            rx = (i * 211 + 53) % SCREEN_W
+            ry = (i * 73  + 17) % SCREEN_H
+            a  = int(50 + 30 * math.sin(t * 0.6 + i * 0.4))
+            pygame.draw.circle(screen, (a // 4, a // 2, min(255, a + 50)), (rx, ry), 1)
+
+        # ── En-tête ────────────────────────────────────────────────────────────
+        chapter_labels = {1: "CHAPITRE I — La Nuit sans Témoin",
+                          2: "CHAPITRE II — La Taupe",
+                          3: "CHAPITRE III — L'Architecte"}
+        header = fb.render(f"── CARTE NARRATIVE ──", True, CYAN)
+        sub    = fs.render(chapter_labels.get(self._chapter, ""), True, GOLD)
+        screen.blit(header, ((SCREEN_W - header.get_width()) // 2, 12))
+        screen.blit(sub,    ((SCREEN_W - sub.get_width()) // 2, 44))
+        pygame.draw.line(screen, (*CYAN, 80), (40, 66), (SCREEN_W - 40, 66), 1)
+
+        # ── Arbre ──────────────────────────────────────────────────────────────
+        self._draw_tree(screen, t, alpha_global)
+
+        # ── Légende ────────────────────────────────────────────────────────────
+        leg_y = SCREEN_H - 92
+        leg_items = [
+            (CYAN,       "Chemin emprunté"),
+            (TEXT_GRAY,  "Branche ratée"),
+            (GOLD,       "Point de décision"),
+        ]
+        lx = 30
+        for col, label in leg_items:
+            dot = pygame.Surface((12, 12), pygame.SRCALPHA)
+            pygame.draw.circle(dot, (*col, 200), (6, 6), 5)
+            screen.blit(dot, (lx, leg_y + 2))
+            ls = fs.render(label, True, col)
+            screen.blit(ls, (lx + 16, leg_y))
+            lx += ls.get_width() + 36
+
+        # ── Stats ──────────────────────────────────────────────────────────────
+        stat_y = SCREEN_H - 70
+        pygame.draw.line(screen, (*CYAN, 40), (30, stat_y - 4), (SCREEN_W - 30, stat_y - 4), 1)
+        n_ev  = len(self._evidence)
+        n_ded = len(self._deductions)
+        stat_txt = fs.render(
+            f"Preuves collectées : {n_ev}   •   Déductions débloquées : {n_ded}",
+            True, TEXT_GRAY
+        )
+        screen.blit(stat_txt, ((SCREEN_W - stat_txt.get_width()) // 2, stat_y))
+
+        # Liste des preuves (jusqu'à 7, sur une ligne)
+        if self._evidence:
+            ev_names = "  ◆  ".join(e[0] for e in self._evidence[:7])
+            if len(self._evidence) > 7:
+                ev_names += f"  …+{len(self._evidence)-7}"
+            ev_s = fs.render(ev_names, True, PINK_ACCENT)
+            screen.blit(ev_s, ((SCREEN_W - ev_s.get_width()) // 2, stat_y + 20))
+
+        # ── Bouton Continuer ───────────────────────────────────────────────────
+        br = self._continue_btn_rect()
+        pulse = 0.5 + 0.5 * math.sin(t * 3.0)
+        btn = pygame.Surface((br.w, br.h), pygame.SRCALPHA)
+        pygame.draw.rect(btn, (*CYAN, int(40 + 30 * pulse)), (0, 0, br.w, br.h), border_radius=6)
+        pygame.draw.rect(btn, (*CYAN, int(180 + 60 * pulse)), (0, 0, br.w, br.h), width=2, border_radius=6)
+        lbl = fn.render("▶  Continuer", True, CYAN)
+        btn.blit(lbl, ((br.w - lbl.get_width()) // 2, (br.h - lbl.get_height()) // 2))
+        screen.blit(btn, (br.x, br.y))
+
+        hint = fs.render("[Espace / Entrée]", True, CYAN_DIM)
+        screen.blit(hint, (br.x + (br.w - hint.get_width()) // 2, br.y - 18))
+
+    # ── Layout ────────────────────────────────────────────────────────────────
+
+    def _compute_layout(self):
+        """Calcule les positions (cx, cy) de chaque nœud."""
+        tree = self.CHAPTER_TREES.get(self._chapter)
+        if not tree:
+            return
+        self._layout = {}
+        self._edges  = []
+        # Zone disponible pour l'arbre
+        TREE_TOP    = 76
+        TREE_BOTTOM = SCREEN_H - 110
+        TREE_LEFT   = 50
+        TREE_RIGHT  = SCREEN_W - 50
+        tree_h = TREE_BOTTOM - TREE_TOP
+        tree_w = TREE_RIGHT - TREE_LEFT
+
+        # BFS pour calculer le nombre de colonnes (profondeur max)
+        max_depth = self._tree_depth(tree)
+        col_w = tree_w // max(1, max_depth)
+
+        # Récursif : positionner chaque nœud
+        self._layout_node(tree, 0, 0.0, 1.0,
+                          TREE_TOP, TREE_BOTTOM,
+                          TREE_LEFT, col_w, max_depth)
+
+    def _tree_depth(self, node: dict) -> int:
+        if not node.get("children"):
+            return 1
+        return 1 + max(self._tree_depth(c) for c in node["children"])
+
+    def _layout_node(
+        self, node: dict, depth: int,
+        y_frac_start: float, y_frac_end: float,
+        tree_top: int, tree_bottom: int,
+        tree_left: int, col_w: int, max_depth: int,
+    ):
+        nid = node["id"]
+        tree_h = tree_bottom - tree_top
+        cy = int(tree_top + tree_h * (y_frac_start + y_frac_end) / 2)
+        cx = tree_left + depth * col_w + col_w // 2
+        self._layout[nid] = (cx, cy)
+
+        children = node.get("children", [])
+        if not children:
+            return
+
+        # Divise l'espace vertical entre les enfants
+        n = len(children)
+        span = y_frac_end - y_frac_start
+        for i, child in enumerate(children):
+            y0 = y_frac_start + i * span / n
+            y1 = y_frac_start + (i + 1) * span / n
+            self._edges.append((nid, child["id"]))
+            self._layout_node(child, depth + 1, y0, y1,
+                              tree_top, tree_bottom,
+                              tree_left, col_w, max_depth)
+
+    # ── Rendu de l'arbre ───────────────────────────────────────────────────────
+
+    def _draw_tree(self, screen: pygame.Surface, t: float, alpha_global: int):
+        fn = self.assets.font_med
+        fs = self.assets.font_small
+
+        # 1. Dessiner les arêtes en premier
+        for (pid, cid) in self._edges:
+            if pid not in self._layout or cid not in self._layout:
+                continue
+            px, py = self._layout[pid]
+            cx2, cy2 = self._layout[cid]
+
+            p_taken = pid.replace("root_ch1","taken").replace("root_ch2","taken").replace("root_ch3","taken")
+            taken   = (cid in self._choices_taken)
+            # Une arête est "prise" si l'enfant est dans les choix pris
+            col   = CYAN if taken else TEXT_GRAY
+            alpha = 200 if taken else 70
+            width = 2 if taken else 1
+
+            # Progression d'animation basée sur l'apparition du nœud enfant
+            anim_c = self._node_anims.get(cid, 0.0)
+            anim_p = self._node_anims.get(pid, 0.0)
+            anim   = min(anim_p, anim_c)
+            if anim <= 0:
+                continue
+
+            # Courbe de Bézier cubique (via segments)
+            steps = 20
+            mx1 = (px + cx2) // 2
+            for step in range(steps):
+                frac0 = step / steps
+                frac1 = (step + 1) / steps
+                # Utiliser frac1 pour la progression
+                if frac1 > anim:
+                    break
+                # Point de Bézier
+                b0x = int(px + (mx1 - px) * frac0)
+                b0y = int(py)
+                b1x = int(mx1 + (cx2 - mx1) * frac0)
+                b1y = int(py + (cy2 - py) * frac0)
+                bx0 = int(b0x + (b1x - b0x) * frac0)
+                by0 = int(b0y + (b1y - b0y) * frac0)
+
+                b0x2 = int(px + (mx1 - px) * frac1)
+                b1x2 = int(mx1 + (cx2 - mx1) * frac1)
+                b1y2 = int(py + (cy2 - py) * frac1)
+                bx1  = int(b0x2 + (b1x2 - b0x2) * frac1)
+                by1  = int(b0y + (b1y2 - b0y) * frac1)
+
+                edge_col = (*col, int(alpha * anim))
+                s = pygame.Surface((abs(bx1-bx0)+width*2+2, abs(by1-by0)+width*2+2), pygame.SRCALPHA)
+                # Simple ligne directe dans l'espace écran
+                pygame.draw.line(screen, (*col, int(alpha * anim)),
+                                 (bx0, by0), (bx1, by1), width)
+
+        # 2. Dessiner les nœuds
+        for nid, (cx, cy) in self._layout.items():
+            anim = self._node_anims.get(nid, 0.0)
+            if anim <= 0:
+                continue
+            self._draw_node(screen, nid, cx, cy, anim, t)
+
+    def _draw_node(
+        self, screen: pygame.Surface,
+        nid: str, cx: int, cy: int,
+        anim: float, t: float,
+    ):
+        fn = self.assets.font_med
+        fs = self.assets.font_small
+
+        is_taken  = (nid in self._choices_taken) or nid.startswith("root_")
+        is_root   = nid.startswith("root_")
+        NW, NH = self.NODE_W, self.NODE_H
+
+        # Scale d'entrée
+        scale = min(1.0, anim * 1.2)
+        sw = int(NW * scale)
+        sh = int(NH * scale)
+        if sw < 4 or sh < 4:
+            return
+
+        node_surf = pygame.Surface((sw, sh), pygame.SRCALPHA)
+        alpha = int(anim * 220)
+
+        if is_root:
+            bg_col     = (*CYAN, int(30 * anim))
+            border_col = (*CYAN, alpha)
+            text_col   = CYAN
+        elif is_taken:
+            pulse = 0.6 + 0.4 * math.sin(t * 2.5 + cx * 0.01)
+            bg_col     = (*CYAN, int(45 * pulse * anim))
+            border_col = (*CYAN, alpha)
+            text_col   = CYAN
+        else:
+            bg_col     = (12, 18, 35, int(180 * anim))
+            border_col = (*TEXT_GRAY, int(80 * anim))
+            text_col   = TEXT_GRAY
+
+        pygame.draw.rect(node_surf, bg_col,     (0, 0, sw, sh), border_radius=5)
+        pygame.draw.rect(node_surf, border_col, (0, 0, sw, sh), width=2 if is_taken else 1, border_radius=5)
+
+        # Texte du nœud (multi-ligne si "\n")
+        # Trouver le label depuis l'arbre
+        label = self._find_label(nid)
+        lines = label.split("\n") if label else [nid]
+        line_h = fs.get_height() + 2
+        total_text_h = len(lines) * line_h
+        ty0 = (sh - total_text_h) // 2
+        for li, line in enumerate(lines):
+            ls = fs.render(line, True, text_col)
+            if ls.get_width() > sw - 8:
+                ls = fs.render(line[:12], True, text_col)
+            ls.set_alpha(int(anim * 255))
+            node_surf.blit(ls, ((sw - ls.get_width()) // 2, ty0 + li * line_h))
+
+        # Marqueur "pris" (coche ou point)
+        if is_taken and not is_root:
+            check_s = fs.render("✔", True, (*CYAN, alpha))
+            node_surf.blit(check_s, (sw - check_s.get_width() - 3, 2))
+
+        # Lueur externe pour nœuds pris
+        if is_taken and not is_root:
+            glow_r = max(sw, sh) // 2 + 6
+            glow = pygame.Surface((glow_r * 2, glow_r * 2), pygame.SRCALPHA)
+            ga = int(25 * anim * (0.5 + 0.5 * math.sin(t * 2.5 + cx * 0.01)))
+            pygame.draw.rect(glow, (*CYAN, ga), (0, 0, glow_r * 2, glow_r * 2), border_radius=8)
+            screen.blit(glow, (cx - glow_r, cy - glow_r))
+
+        screen.blit(node_surf, (cx - sw // 2, cy - sh // 2))
+
+    def _find_label(self, nid: str) -> str:
+        """Cherche récursivement le label d'un nœud par son id."""
+        tree = self.CHAPTER_TREES.get(self._chapter)
+        if not tree:
+            return nid
+        return self._find_label_in(nid, tree) or nid
+
+    def _find_label_in(self, nid: str, node: dict) -> str | None:
+        if node["id"] == nid:
+            return node.get("label", nid)
+        for child in node.get("children", []):
+            res = self._find_label_in(nid, child)
+            if res:
+                return res
+        return None
+
+    def _continue_btn_rect(self) -> pygame.Rect:
+        bw, bh = 180, 40
+        return pygame.Rect((SCREEN_W - bw) // 2, SCREEN_H - 48, bw, bh)

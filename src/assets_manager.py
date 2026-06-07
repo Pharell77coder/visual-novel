@@ -52,7 +52,12 @@ def remove_checker(surf, tol=0):
     return out
 
 def _load_char_sprites(char_dir, char_name, count, ch_height):
-    """Charge N sprites pour un personnage, retourne un dict {index: surface}."""
+    """
+    Charge N sprites depuis char_dir.
+    Retourne un dict {index: surface}.
+    Si un sous-dossier 'left/' ou 'right/' existe, charge depuis là ;
+    sinon charge depuis char_dir directement.
+    """
     sprites = {}
     for i in range(count):
         path = os.path.join(char_dir, f"{char_name}{i}.png")
@@ -64,13 +69,66 @@ def _load_char_sprites(char_dir, char_name, count, ch_height):
             sprites[i] = pygame.transform.smoothscale(raw, (w, ch_height))
     return sprites
 
+
+def _load_char_sprites_sided(char_dir, char_name, count, ch_height):
+    """
+    Charge les variantes directionnelles left/ et right/ d'un personnage.
+
+    Structure attendue dans le repo :
+        characters/<char>/left/<char>0.png … <char>N.png
+        characters/<char>/right/<char>0.png … <char>N.png
+
+    Retourne un dict :
+        {
+            "left":  {0: Surface, 1: Surface, …},
+            "right": {0: Surface, 1: Surface, …},
+            "default": {0: Surface, …},   # racine du dossier (fallback)
+        }
+
+    Logique de fallback :
+        - Si left/ absent  → miroir horizontal de right/ (ou du default)
+        - Si right/ absent → miroir horizontal de left/ (ou du default)
+        - Si aucun sous-dossier → default = racine, left/right = miroirs auto
+    """
+    result = {"left": {}, "right": {}, "default": {}}
+
+    # 1. Charger le dossier racine (toujours)
+    result["default"] = _load_char_sprites(char_dir, char_name, count, ch_height)
+
+    # 2. Charger left/ si présent
+    left_dir = os.path.join(char_dir, "left")
+    if os.path.isdir(left_dir):
+        result["left"] = _load_char_sprites(left_dir, char_name, count, ch_height)
+
+    # 3. Charger right/ si présent
+    right_dir = os.path.join(char_dir, "right")
+    if os.path.isdir(right_dir):
+        result["right"] = _load_char_sprites(right_dir, char_name, count, ch_height)
+
+    # 4. Générer les miroirs manquants
+    source_for_flip = result["right"] or result["left"] or result["default"]
+
+    if not result["left"]:
+        result["left"] = {
+            i: pygame.transform.flip(s, True, False)
+            for i, s in source_for_flip.items()
+        }
+    if not result["right"]:
+        result["right"] = {
+            i: pygame.transform.flip(s, True, False)
+            for i, s in (result["left"] or result["default"]).items()
+        }
+
+    return result
+
 # ── Assets Manager ─────────────────────────────────────────────────────────────
 class Assets:
     def __init__(self):
         self.bg = {}
+        # Sprites avec variantes directionnelles.
+        # Chaque entrée est un dict {"left": {expr: Surface}, "right": {…}, "default": {…}}
         self.detective = {}
         self.policiere = {}
-        # Nouveaux personnages Ch2 & Ch3
         self.ferriere  = {}
         self.natasha   = {}
         self.taro      = {}
@@ -117,41 +175,25 @@ class Assets:
 
         # Detective : 10 expressions (0-9)
         det_dir = os.path.join(ASSETS, "characters", "detective")
-        for i in range(10):
-            path = os.path.join(det_dir, f"detective{i}.png")
-            if os.path.exists(path):
-                raw = load_alpha(path)
-                raw = remove_checker(raw)
-                ratio = raw.get_width() / raw.get_height()
-                w = int(CH * ratio)
-                self.detective[i] = pygame.transform.smoothscale(raw, (w, CH))
+        self.detective = _load_char_sprites_sided(det_dir, "detective", 10, CH)
 
         # Policière : 4 expressions (0-3)
         pol_dir = os.path.join(ASSETS, "characters", "policiere")
-        for i in range(4):
-            path = os.path.join(pol_dir, f"policiere{i}.png")
-            if os.path.exists(path):
-                raw = load_alpha(path)
-                raw = remove_checker(raw)
-                ratio = raw.get_width() / raw.get_height()
-                w = int(CH * ratio)
-                self.policiere[i] = pygame.transform.smoothscale(raw, (w, CH))
+        self.policiere = _load_char_sprites_sided(pol_dir, "policiere", 4, CH)
 
         # Nouveaux personnages : 4 expressions chacun (0-3)
-        # NOTE : le dossier natasha peut être "nathasha" (typo repo) — on essaie les deux.
-        chars_to_load = {
-            "ferriere":  self.ferriere,
-            "natasha":   self.natasha,
-            "taro":      self.taro,
-            "architect": self.architect,
+        chars_cfg = {
+            "ferriere":  ("ferriere",  4),
+            "natasha":   ("natasha",   4),
+            "taro":      ("taro",      4),
+            "architect": ("architect", 4),
         }
-        for char_name, target_dict in chars_to_load.items():
+        for attr, (char_name, count) in chars_cfg.items():
             char_dir = os.path.join(ASSETS, "characters", char_name)
             # BUGFIX : fallback pour le typo "nathasha" dans le dépôt
             if char_name == "natasha" and not os.path.exists(char_dir):
                 char_dir = os.path.join(ASSETS, "characters", "nathasha")
-            loaded = _load_char_sprites(char_dir, char_name, 4, CH)
-            target_dict.update(loaded)
+            setattr(self, attr, _load_char_sprites_sided(char_dir, char_name, count, CH))
 
     def _load_ui(self):
         ui_dir = os.path.join(ASSETS, "ui")
@@ -176,8 +218,19 @@ class Assets:
             self.snd_click = None
             print(f"[!] Attention : Bruitage introuvable à : {click_path}")
 
-    def get_char(self, char_name, expr=0):
-        """Helper centralisé : retourne le sprite d'un personnage à l'expression donnée."""
+    def get_char(self, char_name: str, expr: int = 0, side: str = "left"):
+        """
+        Retourne le sprite d'un personnage à l'expression et la direction données.
+
+        Parameters
+        ----------
+        char_name : str     Nom du personnage ("detective", "policiere", …)
+        expr      : int     Index d'expression (0-9 pour detective, 0-3 pour les autres)
+        side      : str     "left" | "right"  (correspond au sous-dossier d'asset)
+
+        Priorité des fallbacks :
+            side → "default" → autre side → None
+        """
         table = {
             "detective": self.detective,
             "policiere":  self.policiere,
@@ -186,5 +239,15 @@ class Assets:
             "taro":       self.taro,
             "architect":  self.architect,
         }
-        sprites = table.get(char_name, {})
-        return sprites.get(expr, sprites.get(0))
+        sided = table.get(char_name)
+        if sided is None:
+            return None
+
+        # Essayer dans l'ordre : side demandé → default → autre side
+        other = "right" if side == "left" else "left"
+        for key in (side, "default", other):
+            sprites = sided.get(key, {})
+            surf = sprites.get(expr) or sprites.get(0)
+            if surf is not None:
+                return surf
+        return None
