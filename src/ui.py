@@ -18,6 +18,12 @@ class DialogueBox:
     MARGIN = 18
     LINE_H = 28
 
+    # ── Backlog (historique des dialogues) ────────────────────────────────────
+    BACKLOG_MAX    = 80    # entrées maximum conservées
+    BACKLOG_W      = 700
+    BACKLOG_H      = 380
+    BACKLOG_LINE_H = 26
+
     def __init__(self, assets: Assets):
         self.assets = assets
         self.text = ""
@@ -35,6 +41,11 @@ class DialogueBox:
         self.x = (SCREEN_W - self.W) // 2
         self.y = SCREEN_H - self.H - 12
 
+        # Backlog
+        self._backlog: list[tuple[str, str]] = []  # (name, text)
+        self.backlog_open  = False
+        self._backlog_scroll = 0   # index du premier item visible (0 = bas)
+
     def _build_surf(self):
         s = pygame.Surface((self.W, self.H), pygame.SRCALPHA)
         pygame.draw.rect(s, (*DIALOGUE_BG, 230), (0, 0, self.W, self.H), border_radius=6)
@@ -42,6 +53,15 @@ class DialogueBox:
         return s
 
     def set_text(self, text, name="", choices=None):
+        # Ajouter l'entrée courante dans le backlog si elle contient du texte
+        if self.text and self.text.strip():
+            entry = (self.name or "", self.text)
+            self._backlog.append(entry)
+            if len(self._backlog) > self.BACKLOG_MAX:
+                self._backlog.pop(0)
+            # Réinitialiser le scroll pour montrer le bas (le plus récent)
+            self._backlog_scroll = 0
+
         self.text = text
         self.name = name
         self.visible_chars = 0
@@ -67,6 +87,27 @@ class DialogueBox:
         self.speed_idx = max(0, self.speed_idx - 1)
         self.speed = SPEED_LEVELS[self.speed_idx]
         self._speed_flash = 1.8
+
+    # ── Backlog API ────────────────────────────────────────────────────────────
+
+    def toggle_backlog(self):
+        """Ouvre / ferme le panneau backlog."""
+        self.backlog_open = not self.backlog_open
+        if self.backlog_open:
+            self._backlog_scroll = 0   # afficher les lignes les plus récentes
+
+    def backlog_scroll(self, direction: int):
+        """
+        Scrolle dans le backlog.
+        direction > 0 → vers le passé (plus vieux)
+        direction < 0 → vers le présent (plus récent)
+        """
+        if not self.backlog_open:
+            return
+        # Calculer le max scroll (nombre de lignes rendues - lignes visibles)
+        visible_lines = max(1, (self.BACKLOG_H - 60) // self.BACKLOG_LINE_H)
+        max_scroll = max(0, len(self._backlog) - visible_lines)
+        self._backlog_scroll = max(0, min(max_scroll, self._backlog_scroll + direction))
 
     def update(self, dt: float = 0.0):
         if self._speed_flash > 0:
@@ -186,9 +227,116 @@ class DialogueBox:
             txt_surf.set_alpha(alpha)
             screen.blit(txt_surf, (bx + 10, by + (badge_h - txt.get_height()) // 2))
 
+        # ── Backlog overlay ────────────────────────────────────────────────────
+        if self.backlog_open:
+            self._draw_backlog(screen)
 
-# ══════════════════════════════════════════════════════════════════════════════
-# ── EvidencePanel — avec mode combinaison ─────────────────────────────────────
+    # ── Rendu du backlog ───────────────────────────────────────────────────────
+
+    def _draw_backlog(self, screen: pygame.Surface):
+        """Affiche le panneau historique des dialogues (style VN classique)."""
+        fn  = self.assets.font_med
+        fs  = self.assets.font_small
+        fb  = self.assets.font_big
+
+        BW, BH = self.BACKLOG_W, self.BACKLOG_H
+        bx = (SCREEN_W - BW) // 2
+        by = (SCREEN_H - BH) // 2
+
+        # Voile de fond
+        veil = pygame.Surface((SCREEN_W, SCREEN_H), pygame.SRCALPHA)
+        veil.fill((0, 0, 0, 180))
+        screen.blit(veil, (0, 0))
+
+        # Fenêtre
+        win = pygame.Surface((BW, BH), pygame.SRCALPHA)
+        pygame.draw.rect(win, (*DARK_BG, 250), (0, 0, BW, BH), border_radius=10)
+        pygame.draw.rect(win, (*CYAN, 200),    (0, 0, BW, BH), width=2, border_radius=10)
+
+        # En-tête
+        title_s = fb.render("── HISTORIQUE ──", True, CYAN)
+        win.blit(title_s, ((BW - title_s.get_width()) // 2, 10))
+        hint_s  = fs.render("[B] / [Échap] fermer   [↑↓] défiler", True, TEXT_GRAY)
+        win.blit(hint_s,  ((BW - hint_s.get_width()) // 2, 36))
+        pygame.draw.line(win, (*CYAN, 60), (16, 56), (BW - 16, 56), 1)
+
+        screen.blit(win, (bx, by))
+
+        # ── Zone de texte défilable ────────────────────────────────────────────
+        CONTENT_TOP    = by + 62
+        CONTENT_BOTTOM = by + BH - 10
+        CONTENT_H      = CONTENT_BOTTOM - CONTENT_TOP
+        PAD            = 18
+        LINE_H         = self.BACKLOG_LINE_H
+        MAX_TEXT_W     = BW - PAD * 2 - 16   # -16 pour la barre de scroll
+
+        # Préparer toutes les lignes rendues (entrées les plus récentes en bas)
+        all_lines: list[tuple[str, tuple, bool]] = []  # (texte, couleur, is_name)
+        for name, txt in self._backlog:
+            if name:
+                all_lines.append((name, TEXT_NAME, True))
+            # Wrap text
+            words = txt.split()
+            cur = ""
+            wrapped = []
+            for w in words:
+                test = (cur + " " + w).strip()
+                if fn.size(test)[0] <= MAX_TEXT_W:
+                    cur = test
+                else:
+                    if cur:
+                        wrapped.append(cur)
+                    cur = w
+            if cur:
+                wrapped.append(cur)
+            for line in wrapped:
+                all_lines.append((line, TEXT_MAIN, False))
+            all_lines.append(("", TEXT_GRAY, False))   # ligne vide entre entrées
+
+        total_lines = len(all_lines)
+        visible_count = max(1, CONTENT_H // LINE_H)
+
+        # scroll : 0 = afficher les lignes les plus récentes (bas)
+        # _backlog_scroll positif = remonter vers le passé
+        max_scroll = max(0, total_lines - visible_count)
+        scroll = max(0, min(max_scroll, self._backlog_scroll))
+        # On affiche depuis la fin (lignes les plus récentes en bas)
+        start_idx = max(0, total_lines - visible_count - scroll)
+        end_idx   = min(total_lines, start_idx + visible_count)
+
+        # Clip rect pour la zone de texte
+        clip_rect = pygame.Rect(bx + PAD, CONTENT_TOP, BW - PAD * 2, CONTENT_H)
+        old_clip = screen.get_clip()
+        screen.set_clip(clip_rect)
+
+        for i, li in enumerate(all_lines[start_idx:end_idx]):
+            txt, col, is_name = li
+            if not txt:
+                continue
+            font = fs if not is_name else fs
+            col_use = col
+            if is_name:
+                ns = fs.render(txt, True, col_use)
+                screen.blit(ns, (bx + PAD, CONTENT_TOP + i * LINE_H))
+            else:
+                ls = fn.render(txt, True, col_use)
+                screen.blit(ls, (bx + PAD + 8, CONTENT_TOP + i * LINE_H))
+
+        screen.set_clip(old_clip)
+
+        # ── Barre de scroll ────────────────────────────────────────────────────
+        if total_lines > visible_count:
+            sb_x  = bx + BW - 14
+            sb_y  = CONTENT_TOP
+            sb_h  = CONTENT_H
+            # Poignée
+            thumb_h = max(20, int(sb_h * visible_count / total_lines))
+            # Position : scroll 0 = bas → thumb en bas
+            thumb_pos = int((sb_h - thumb_h) * (max_scroll - scroll) / max(1, max_scroll))
+            pygame.draw.rect(screen, (*CYAN_DIM, 60), (sb_x, sb_y, 8, sb_h), border_radius=4)
+            pygame.draw.rect(screen, (*CYAN, 180), (sb_x, sb_y + thumb_pos, 8, thumb_h), border_radius=4)
+
+
 # ══════════════════════════════════════════════════════════════════════════════
 
 # Durées d'animation (secondes)
@@ -436,7 +584,8 @@ class EvidencePanel:
     # ── Rendu ──────────────────────────────────────────────────────────────────
 
     def draw(self, screen: pygame.Surface, t: float):
-        self.update(t * 0 or 0)   # update appelé via moteur, mais on garde la signature
+        # NOTE: update() est appelé séparément par VNEngine._update(dt) avec le vrai dt.
+        # Ne PAS appeler self.update() ici pour éviter un double avancement des timers.
 
         if not self.visible:
             # Afficher le résultat de déduction même panneau fermé

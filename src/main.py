@@ -11,6 +11,7 @@ from script import SCRIPT
 from transitions import Transition
 from save_manager import SaveManager
 from deductions import DeductionEngine
+from interrogation import InterrogationMinigame
 
 # ── Moteur principal ────────────────────────────────────────────────────────────
 class VNEngine:
@@ -40,6 +41,9 @@ class VNEngine:
         self.save_manager = SaveManager()
         self.save_screen  = SaveSlotScreen(self.assets, self.save_manager, mode="save")
 
+        # ── Mini-jeu interrogatoire ────────────────────────────────────────────
+        self.interro: "InterrogationMinigame | None" = None
+
         # ── État ──────────────────────────────────────────────────────────────
         self.state = "title"   # title → game → save_menu → load_menu → end
 
@@ -62,7 +66,7 @@ class VNEngine:
             pygame.mixer.music.set_volume(0.5)
             pygame.mixer.music.play(-1)
 
-        self.transition: Transition | None = None
+        self.transition: "Transition | None" = None
         self._prev_surface: "pygame.Surface | None" = None
 
         # Toast
@@ -91,6 +95,7 @@ class VNEngine:
         return text[:50] or f"Scène {self.script_idx}"
 
     def _do_save(self, slot: int) -> None:
+        # BUGFIX : le paramètre 'deductions' est maintenant passé correctement
         ok = self.save_manager.save(
             slot        = slot,
             script_idx  = self.script_idx,
@@ -124,10 +129,20 @@ class VNEngine:
         if idx >= len(self.script):
             self.state = "end"
             return
+
+        # Supporte les idx entiers et les id de chaînes
+        if isinstance(idx, str):
+            idx = self.id_map.get(idx, 0)
+
         node = self.script[idx]
         self._prev_surface = self.screen.copy()
         self.current_node  = node
         self.script_idx    = idx
+
+        # ── Nœud type "interrogation" ──────────────────────────────────────────
+        if node.get("type") == "interrogation":
+            self._start_interrogation(node)
+            return
 
         bg_name = node.get("bg")
         if bg_name and bg_name in self.assets.bg:
@@ -175,6 +190,44 @@ class VNEngine:
         self.fading_in  = False
         self.fade_alpha = 0
 
+    # ── Démarrage du mini-jeu interrogatoire ──────────────────────────────────
+
+    def _start_interrogation(self, node: dict) -> None:
+        suspect_id  = node.get("suspect", "taro")
+        time_limit  = float(node.get("time_limit", 90))
+        success_id  = node.get("on_success")
+        failure_id  = node.get("on_failure")
+
+        def on_success():
+            self.interro = None
+            if success_id:
+                next_idx = self.id_map.get(success_id, self.script_idx + 1)
+            else:
+                next_idx = self.script_idx + 1
+            self._load_node(next_idx)
+
+        def on_failure():
+            self.interro = None
+            if failure_id:
+                next_idx = self.id_map.get(failure_id, self.script_idx + 1)
+            else:
+                next_idx = self.script_idx + 1
+            self._load_node(next_idx)
+
+        try:
+            self.interro = InterrogationMinigame(
+                screen     = self.screen,
+                assets     = self.assets,
+                suspect_id = suspect_id,
+                time_limit = time_limit,
+                on_success = on_success,
+                on_failure = on_failure,
+            )
+        except ValueError as e:
+            print(f"[interrogation] {e}")
+            self.interro = None
+            self._load_node(self.script_idx + 1)
+
     def _advance(self, choice=None):
         node = self.current_node
         chosen_branch_id = None
@@ -206,16 +259,33 @@ class VNEngine:
             dt = self.clock.tick(FPS) / 1000.0
             self.t += dt
 
-            for event in pygame.event.get():
+            events = pygame.event.get()
+            for event in events:
                 if event.type == pygame.QUIT:
                     pygame.quit(); sys.exit()
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                     if self.state in ("save_menu", "load_menu"):
                         self.state = "game"
                         self.save_screen.close()
+                    elif self.interro is not None:
+                        pass   # ESC ignoré pendant l'interrogatoire
                     else:
                         pygame.quit(); sys.exit()
                 self._handle_event(event)
+
+            # ── Mise à jour du mini-jeu interrogatoire ─────────────────────────
+            if self.interro is not None:
+                result = self.interro.update(dt, events)
+                if result == "success":
+                    cb = self.interro.on_success
+                    self.interro = None
+                    if cb:
+                        cb()
+                elif result == "failure":
+                    cb = self.interro.on_failure
+                    self.interro = None
+                    if cb:
+                        cb()
 
             self._update(dt)
             self._draw()
@@ -224,6 +294,10 @@ class VNEngine:
     # ── Gestion des événements ─────────────────────────────────────────────────
 
     def _handle_event(self, event):
+        # Ignorer tous les events pendant l'interrogatoire (géré séparément)
+        if self.interro is not None:
+            return
+
         if self.state == "title":
             if self.title_screen.handle_event(event):
                 self.state = "game"
@@ -277,8 +351,27 @@ class VNEngine:
                     self.inventory.toggle()
                     return
 
+                # ── BACKLOG : touche B ─────────────────────────────────────────
+                # BUGFIX : la touche B déclenche le backlog dans DialogueBox
+                if event.key == pygame.K_b:
+                    self.dlg.toggle_backlog()
+                    return
+
                 # Navigation dialogue (bloquée si le panneau preuves est ouvert)
                 if not self.evidence.visible:
+                    # ── Si le backlog est ouvert ───────────────────────────────
+                    if self.dlg.backlog_open:
+                        if event.key == pygame.K_UP:
+                            self.dlg.backlog_scroll(-1)
+                            return
+                        if event.key == pygame.K_DOWN:
+                            self.dlg.backlog_scroll(1)
+                            return
+                        if event.key in (pygame.K_b, pygame.K_ESCAPE):
+                            self.dlg.toggle_backlog()
+                            return
+                        return  # les autres touches ignorées quand backlog ouvert
+
                     if event.key in (pygame.K_SPACE, pygame.K_RETURN):
                         if self.dlg.show_choices:
                             self._advance(self.dlg.get_choice())
@@ -290,9 +383,32 @@ class VNEngine:
                         self.dlg.select_choice(-1)
                     elif event.key == pygame.K_RIGHT:
                         self.dlg.select_choice(1)
+                    # ── Vitesse typewriter : touches +/- ──────────────────────
+                    elif event.key in (pygame.K_PLUS, pygame.K_EQUALS, pygame.K_KP_PLUS):
+                        self.dlg.speed_up()
+                    elif event.key in (pygame.K_MINUS, pygame.K_KP_MINUS):
+                        self.dlg.speed_down()
+
+            elif event.type == pygame.MOUSEWHEEL:
+                # ── BACKLOG : molette quand le backlog est ouvert ──────────────
+                if self.dlg.backlog_open:
+                    self.dlg.backlog_scroll(-event.y)
+                    return
+                # ── Vitesse typewriter : molette ───────────────────────────────
+                # Molette vers le haut = plus rapide
+                if event.y > 0:
+                    self.dlg.speed_up()
+                else:
+                    self.dlg.speed_down()
 
             elif event.type == pygame.MOUSEBUTTONDOWN and not self.evidence.visible:
                 mx, my = event.pos
+
+                # Clic sur le backlog pour le fermer si ouvert
+                if self.dlg.backlog_open:
+                    self.dlg.toggle_backlog()
+                    return
+
                 dlg_rect = pygame.Rect(self.dlg.x, self.dlg.y, self.dlg.W, self.dlg.H)
                 if self.dlg.show_choices:
                     choice = self._check_choice_click(mx, my)
@@ -323,6 +439,10 @@ class VNEngine:
             self.title_screen.update(dt)
             return
 
+        # Ne pas faire tourner l'UI normale pendant l'interrogatoire
+        if self.interro is not None:
+            return
+
         if self.state in ("game", "save_menu", "load_menu"):
             if self.transition is not None:
                 if self.transition.update(dt):
@@ -344,6 +464,12 @@ class VNEngine:
     # ── Rendu ──────────────────────────────────────────────────────────────────
 
     def _draw(self):
+        # ── Mini-jeu interrogatoire en priorité ────────────────────────────────
+        if self.interro is not None:
+            self.interro.draw(self.screen)
+            pygame.display.flip()
+            return
+
         if self.state == "title":
             self.title_screen.draw(self.screen)
             return
@@ -398,21 +524,48 @@ class VNEngine:
         self._draw_toast()
 
     def _draw_hud(self):
+        """
+        HUD sur DEUX lignes pour éviter tout chevauchement sur 960 px.
+        Ligne 1 (y=0..17)  : TITRE  |  panneaux  |  navigation dialogue
+        Ligne 2 (y=18..35) : sauvegarde/chargement  |  vitesse  |  backlog
+        """
         f   = self.assets.font_small
-        hud = pygame.Surface((SCREEN_W, 28), pygame.SRCALPHA)
-        pygame.draw.rect(hud, (*DARK_BG, 200), (0, 0, SCREEN_W, 28))
-        pygame.draw.line(hud, (*CYAN, 80), (0, 27), (SCREEN_W, 27))
+        HUD_H = 36
+        hud = pygame.Surface((SCREEN_W, HUD_H), pygame.SRCALPHA)
+        pygame.draw.rect(hud, (*DARK_BG, 210), (0, 0, SCREEN_W, HUD_H))
+        pygame.draw.line(hud, (*CYAN, 80), (0, HUD_H - 1), (SCREEN_W, HUD_H - 1))
+        # séparateur inter-lignes
+        pygame.draw.line(hud, (*CYAN, 30), (0, 17), (SCREEN_W, 17))
 
-        t1 = f.render(TITLE, True, CYAN)
-        t2 = f.render(
+        # ── Ligne 1 ──────────────────────────────────────────────────────────
+        # Gauche : titre du jeu
+        t_title = f.render(TITLE, True, CYAN)
+        hud.blit(t_title, (8, 2))
+
+        # Centre : panneaux
+        t_panels = f.render(
             f"[E] Preuves({len(self.evidence.items)})  "
             f"[D] Déductions({self.ded_engine.count()})  [I] Inv.",
             True, TEXT_GRAY)
-        t3 = f.render("[S] Sauver  [L] Charger  [ESPACE] Continuer", True, TEXT_GRAY)
+        hud.blit(t_panels, (SCREEN_W // 2 - t_panels.get_width() // 2, 2))
 
-        hud.blit(t1, (10, 7))
-        hud.blit(t2, (SCREEN_W // 2 - t2.get_width() // 2, 7))
-        hud.blit(t3, (SCREEN_W - t3.get_width() - 10, 7))
+        # Droite : navigation
+        t_nav = f.render("[ESPACE] Avancer", True, TEXT_GRAY)
+        hud.blit(t_nav, (SCREEN_W - t_nav.get_width() - 8, 2))
+
+        # ── Ligne 2 ──────────────────────────────────────────────────────────
+        # Gauche : sauvegarde / chargement
+        t_save = f.render("[S] Sauver  [L] Charger", True, TEXT_GRAY)
+        hud.blit(t_save, (8, 20))
+
+        # Centre : backlog
+        t_back = f.render("[B] Backlog", True, TEXT_GRAY)
+        hud.blit(t_back, (SCREEN_W // 2 - t_back.get_width() // 2, 20))
+
+        # Droite : vitesse typewriter
+        spd_label = f.render("[+/-] Vitesse", True, TEXT_GRAY)
+        hud.blit(spd_label, (SCREEN_W - spd_label.get_width() - 8, 20))
+
         self.screen.blit(hud, (0, 0))
 
     def _draw_toast(self):

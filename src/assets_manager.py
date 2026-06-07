@@ -138,6 +138,7 @@ class Assets:
                 self.policiere[i] = pygame.transform.smoothscale(raw, (w, CH))
 
         # Nouveaux personnages : 4 expressions chacun (0-3)
+        # NOTE : le dossier natasha peut être "nathasha" (typo repo) — on essaie les deux.
         chars_to_load = {
             "ferriere":  self.ferriere,
             "natasha":   self.natasha,
@@ -146,6 +147,9 @@ class Assets:
         }
         for char_name, target_dict in chars_to_load.items():
             char_dir = os.path.join(ASSETS, "characters", char_name)
+            # BUGFIX : fallback pour le typo "nathasha" dans le dépôt
+            if char_name == "natasha" and not os.path.exists(char_dir):
+                char_dir = os.path.join(ASSETS, "characters", "nathasha")
             loaded = _load_char_sprites(char_dir, char_name, 4, CH)
             target_dict.update(loaded)
 

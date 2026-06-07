@@ -7,14 +7,16 @@ Structure d'un slot :
         "slot":        int,           # 0-2
         "script_idx":  int,
         "evidence":    [[nom, desc], ...],
+        "deductions":  [dict, ...],   # liste des déductions débloquées
         "bg_name":     str | None,
         "saved_at":    "YYYY-MM-DD HH:MM",
-        "scene_name":  str            # texte court pour l'UI (nom / début du texte)
+        "scene_name":  str
     }
 
 Utilisation :
     sm = SaveManager()
-    sm.save(slot=0, script_idx=42, evidence=[("Clé USB", "...")], bg_name="bureau", scene_name="...")
+    sm.save(slot=0, script_idx=42, evidence=[("Clé USB", "...")],
+            bg_name="bureau", scene_name="...", deductions=[...])
     data = sm.load(slot=0)   # None si vide
     sm.delete(slot=1)
     slots = sm.all_slots()   # liste de 3 éléments (None si vide)
@@ -46,11 +48,12 @@ class SaveManager:
 
     def save(
         self,
-        slot: int,
-        script_idx: int,
-        evidence: list,
-        bg_name: Optional[str] = None,
-        scene_name: str = "",
+        slot:        int,
+        script_idx:  int,
+        evidence:    list,
+        bg_name:     Optional[str] = None,
+        scene_name:  str = "",
+        deductions:  Optional[list] = None,   # BUGFIX : paramètre ajouté
     ) -> bool:
         """
         Sauvegarde l'état dans le slot donné (0-2).
@@ -64,6 +67,7 @@ class SaveManager:
             "slot":       slot,
             "script_idx": script_idx,
             "evidence":   [list(e) for e in evidence],   # sérialise les tuples
+            "deductions": deductions or [],               # BUGFIX : sérialise les déductions
             "bg_name":    bg_name,
             "scene_name": scene_name[:60],
             "saved_at":   datetime.now().strftime("%Y-%m-%d %H:%M"),
@@ -88,7 +92,9 @@ class SaveManager:
             with open(path, "r", encoding="utf-8") as f:
                 data = json.load(f)
             # Reconvertit les listes [nom, desc] en tuples
-            data["evidence"] = [tuple(e) for e in data.get("evidence", [])]
+            data["evidence"]   = [tuple(e) for e in data.get("evidence", [])]
+            # BUGFIX : assure la rétrocompatibilité des anciennes sauvegardes sans "deductions"
+            data["deductions"] = data.get("deductions", [])
             return data
         except (OSError, json.JSONDecodeError) as e:
             print(f"[SaveManager] Erreur lecture slot {slot} : {e}")
