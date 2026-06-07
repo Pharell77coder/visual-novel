@@ -133,6 +133,9 @@ class Assets:
         self.natasha   = {}
         self.taro      = {}
         self.architect = {}
+        self.mira      = {}
+        self.ghost     = {}
+        self.senator   = {}
         self.ui = {}
         self.font_big   = None
         self.font_med   = None
@@ -159,16 +162,15 @@ class Assets:
 
     def _load_backgrounds(self):
         bg_dir = os.path.join(ASSETS, "backgrounds")
-        # Ch1 backgrounds
-        for name in ["bureau", "rue", "salle_interrogatoire", "scene_de_crime", "toit"]:
-            path = os.path.join(bg_dir, f"{name}.png")
-            if os.path.exists(path):
+        # Chargement automatique de tous les PNG du dossier backgrounds
+        for fname in sorted(os.listdir(bg_dir)):
+            if fname.lower().endswith(".png"):
+                name = fname[:-4]   # "bureau.png" → "bureau"
+                path = os.path.join(bg_dir, fname)
                 self.bg[name] = load_img(path, (SCREEN_W, SCREEN_H))
-        # Ch2 & Ch3 backgrounds
-        for name in ["aeroport_jetpack", "geneve"]:
-            path = os.path.join(bg_dir, f"{name}.png")
-            if os.path.exists(path):
-                self.bg[name] = load_img(path, (SCREEN_W, SCREEN_H))
+        # Alias : le script Ch7 utilise "sous_sol" mais le fichier est data_center.png
+        if "data_center" in self.bg and "sous_sol" not in self.bg:
+            self.bg["sous_sol"] = self.bg["data_center"]
 
     def _load_characters(self):
         CH = 320  # hauteur portrait standard
@@ -187,6 +189,9 @@ class Assets:
             "natasha":   ("natasha",   4),
             "taro":      ("taro",      4),
             "architect": ("architect", 4),
+            "mira":      ("mira",      4),
+            "ghost":     ("ghost",     4),
+            "senator":   ("senator",   4),
         }
         for attr, (char_name, count) in chars_cfg.items():
             char_dir = os.path.join(ASSETS, "characters", char_name)
@@ -238,6 +243,9 @@ class Assets:
             "natasha":    self.natasha,
             "taro":       self.taro,
             "architect":  self.architect,
+            "mira":       self.mira,
+            "ghost":      self.ghost,
+            "senator":    self.senator,
         }
         sided = table.get(char_name)
         if sided is None:

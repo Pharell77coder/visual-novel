@@ -377,6 +377,10 @@ class EvidencePanel:
         self._sel_a: int | None = None
         self._sel_b: int | None = None
 
+        # Indices figés au démarrage de l'animation (évite le crash après _reset_selection)
+        self._anim_sel_a: int | None = None
+        self._anim_sel_b: int | None = None
+
         # Animations
         self._flash_a    = 0.0   # timer flash slot A
         self._flash_b    = 0.0   # timer flash slot B
@@ -498,19 +502,24 @@ class EvidencePanel:
     def _start_combine(self):
         if self._sel_a is None or self._sel_b is None:
             return
+        # Mémoriser les indices AVANT tout reset pour l'animation
+        self._anim_sel_a = self._sel_a
+        self._anim_sel_b = self._sel_b
         self._combining  = True
         self._combine_t  = _COMBINE_DUR
 
     def _finish_combine(self):
         """Appelé quand l'animation de fusion se termine."""
         self._combining = False
-        if self.deduction is None or self._sel_a is None or self._sel_b is None:
+        if self.deduction is None or self._anim_sel_a is None or self._anim_sel_b is None:
             self._show_fail("Aucune déduction disponible.")
+            self._anim_sel_a = None
+            self._anim_sel_b = None
             self._reset_selection()
             return
 
-        name_a = self.items[self._sel_a][0]
-        name_b = self.items[self._sel_b][0]
+        name_a = self.items[self._anim_sel_a][0]
+        name_b = self.items[self._anim_sel_b][0]
         result = self.deduction.try_combine(name_a, name_b)
 
         if result:
@@ -519,6 +528,8 @@ class EvidencePanel:
         else:
             self._show_fail("Ces deux indices ne mènent à rien de nouveau…")
 
+        self._anim_sel_a = None
+        self._anim_sel_b = None
         self._reset_selection()
 
     def _show_fail(self, msg: str):
@@ -688,7 +699,7 @@ class EvidencePanel:
             border_col = (20, 25, 45)
             border_a   = 200
 
-        pygame.draw.rect(row, (20, 25, 45, bg_alpha + 180), (0, 0, rr.w, rr.h), border_radius=4)
+        pygame.draw.rect(row, (20, 25, 45, min(255, bg_alpha + 180)), (0, 0, rr.w, rr.h), border_radius=4)
         pygame.draw.rect(row, (*border_col, border_a), (0, 0, rr.w, rr.h), width=1 + is_tagged, border_radius=4)
 
         # Icône de sélection

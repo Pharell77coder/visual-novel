@@ -1,9 +1,51 @@
 {
   "slot": 0,
-  "script_idx": 0,
-  "evidence": [],
-  "deductions": [],
-  "bg_name": "scene_de_crime",
-  "scene_name": "2h37 du matin. La pluie n'a pas cessé depuis trois",
-  "saved_at": "2026-06-07 15:37"
+  "script_idx": 23,
+  "evidence": [
+    [
+      "Dossier Vane",
+      "Victime : M.Vane, comptable"
+    ],
+    [
+      "Clé USB",
+      "Données cryptées inconnues"
+    ],
+    [
+      "Trace de pneus",
+      "Véhicule lourd, pneus larges"
+    ],
+    [
+      "Fichiers Synarchie",
+      "Réseau criminel financier"
+    ]
+  ],
+  "deductions": [
+    {
+      "title": "Double comptabilité",
+      "text": "Vane tenait deux jeux de comptes : un officiel pour ses clients, un crypté sur la clé USB pour la Synarchie. Il était à la fois complice et témoin gênant.",
+      "insight": "💡 Vane — comptable & otage",
+      "from": [
+        "Dossier Vane",
+        "Clé USB"
+      ]
+    },
+    {
+      "title": "La voiture de l'exécuteur",
+      "text": "Les pneus larges correspondent à un véhicule de fonction policier. Vane a été conduit sur la scène de crime par quelqu'un qui connaissait les rotations de patrouille — un initié.",
+      "insight": "💡 Véhicule de service impliqué",
+      "from": [
+        "Trace de pneus",
+        "Dossier Vane"
+      ]
+    }
+  ],
+  "cg_unlocked": [
+    "cg_01_ruelle",
+    "cg_02_cle_usb",
+    "cg_03_bureau_nuit",
+    "cg_04_toit"
+  ],
+  "bg_name": "toit",
+  "scene_name": "CHAPITRE II — Le Prix de la Vérité",
+  "saved_at": "2026-06-07 21:44"
 }
