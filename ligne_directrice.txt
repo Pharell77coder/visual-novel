@@ -1,0 +1,103 @@
+Bon, j'ai tout lu attentivement. Voici une évaluation honnête et des directives concrètes.
+
+---
+
+## Évaluation actuelle
+
+**En l'état : 5–12 €** (Early Access, itchio ou Steam avec beaucoup de contexte)
+
+Voici pourquoi :
+
+La base technique est solide — transitions, mini-jeu d'interrogatoire, système de déductions, galerie CG, sauvegarde multi-slots, moteur VN custom. C'est du vrai travail. Mais ce qui manque pour justifier un prix commercial, c'est **l'expérience ressentie** : durée de jeu réelle (probablement 1h30–2h), absence de voix, assets de personnages génériques, et surtout **le lore manque d'ancrage** — "la Synarchie" reste floue, l'univers n'a pas de texture.
+
+Pour atteindre **15–25 € sur Steam**, il faut corriger des choses précises. Pour **30–40 €**, c'est un projet de 12–18 mois de travail supplémentaire.
+
+---
+
+## Directives prioritaires
+
+### 1. Ce qui manque le plus : du LORE incarné
+
+Le problème actuel : la Synarchie est un MacGuffin. On entend le mot partout mais on ne la *voit* jamais. Le joueur ne comprend pas vraiment ce qu'il combat.
+
+Concrètement à faire dans `script.py` :
+- Ajouter des scènes de **journal / monologue intérieur** de Raven (sans personnage à l'écran, fond animé, texte plus long) qui donnent de l'épaisseur à l'histoire de la Synarchie — ses origines, ses membres emblématiques, ses "règles"
+- Créer un **codex** accessible depuis le menu : entrées sur chaque personnage, chaque organisation, qui se débloquent au fil du jeu. C'est un ajout d'UI mais à fort impact ressenti
+- Écrire 2–3 **flashbacks jouables** (fond `fade_white`, personnages en silhouette ou expressions différentes) sur les origines de Raven et sa relation avec Vane — ce sont les scènes qui créent l'attachement émotionnel
+
+---
+
+### 2. L'interrogatoire : c'est bon mais trop mécanique
+
+Le système Press/Bluff/Silence fonctionne bien techniquement. Ce qui lui manque :
+
+**Ajouter des "preuves contextuelles"** dans l'interrogatoire : si le joueur a collecté certaines preuves dans le script, des boutons supplémentaires apparaissent ("Montrer la photo", "Citer l'enregistrement") qui débloquent des dialogues uniques et donnent des bonus de pression. Ça crée un lien direct entre l'exploration et le mini-jeu.
+
+Dans `interrogation.py`, chaque `SuspectProfile` pourrait avoir un champ `evidence_hints: dict[str, float]` — nom de preuve → bonus multiplicateur. Exemple pour Ferrière :
+```python
+evidence_hints = {
+    "Enregistrement Taro": 1.8,   # si le joueur a cet indice
+    "Photo du Fantôme":    1.5,
+}
+```
+
+**Ajouter un mode "contre-interrogatoire"** où c'est le suspect qui pose des questions et le joueur doit choisir comment répondre (vrai / mensonge / silence) — ça inverse la dynamique et crée de la tension narrative.
+
+---
+
+### 3. Durée de jeu : le levier le plus rentable
+
+2h de jeu = 5€ max dans la tête des joueurs. Pour justifier 20€+, il faut **4–6h minimum**.
+
+Comment y arriver sans tout réécrire :
+
+**Ajouter 2 chapitres intermédiaires** (entre Ch3 et Ch4 actuels) centrés sur l'enquête de terrain — le joueur se déplace entre des lieux, parle à des témoins mineurs, collecte des micro-indices. Ces chapitres n'ont pas besoin d'être aussi riches en choix, ils servent à **respirer** et à enrichir le lore.
+
+**Étirer les branches existantes** : actuellement les branches `ch2_trust / ch2_resist` etc. convergent très vite. Chaque branche devrait avoir au moins 15–20 nœuds exclusifs avant de rejoindre le tronc commun — c'est ce qui donne envie de rejouer.
+
+**Ajouter des scènes de "repos"** : Raven seul dans son bureau, la nuit, avec des pensées internes — pas de choix, juste de l'ambiance et du character building. Les VN japonais font ça très bien. Ça coûte presque rien à écrire et à implémenter (un fond + du texte) mais ça crée de l'attachement.
+
+---
+
+### 4. Le procès — bonne idée, voici comment le faire
+
+C'est LE ajout qui changerait vraiment la nature du jeu. Voici une architecture concrète :
+
+Un **chapitre "Procès" final** (après Ch7) dans lequel :
+- Le joueur présente ses preuves devant un tribunal (nouveau background `tribunal`)
+- Pour chaque accusé (Architecte, Sénateur, Ferrière…), le jeu vérifie quelles preuves ont été collectées et quelles déductions ont été faites
+- Un **score de conviction** est calculé par accusé — les preuves manquantes = acquittement
+- Des dialogues différents selon le résultat : victoire partielle, totale, ou échec judiciaire
+
+Techniquement c'est une extension du `DeductionEngine` avec une table `CONVICTION_TABLE : dict[str, list[str]]` — chaque accusé nécessite un certain ensemble de preuves pour être condamné. C'est entièrement faisable dans votre architecture actuelle.
+
+Ce chapitre procès serait aussi la **fin "bonne" complète** qui nécessite d'avoir fait les bonnes déductions — ce qui donne une vraie raison de rejouer.
+
+---
+
+### 5. Ce qu'il faut absolument améliorer dans le polish
+
+**La musique** : un seul fichier `jazz.mp3` pour tout le jeu est problématique. Il faut au minimum 3–4 thèmes (tension interrogatoire, calme bureau, action, épilogue) — des compositeurs sur itch.io vendent des packs de licence pour 20–50€.
+
+**Les personnages** : les assets actuels semblent générés (les noms de dossier `Gemini_Generated_Image_*` dans le cache le confirment). Ce n'est pas un défaut fatal pour un jeu indé, mais il faudra être transparent là-dessus sur la page Steam/itch pour éviter les reviews négatives.
+
+**Un prologue jouable** de 5 minutes visible gratuitement (demo) : c'est indispensable pour vendre un VN. La scène de crime du Ch1 est parfaite pour ça.
+
+---
+
+### Feuille de route réaliste
+
+Pour **15–20 € crédibles** (Steam, ~6 mois de travail) :
+- Codex/lore accessible en jeu
+- 2 chapitres supplémentaires (~40 nœuds chacun)
+- Branches étirées à 15+ nœuds exclusifs
+- Preuves contextuelles dans l'interrogatoire
+- 3–4 thèmes musicaux distincts
+- Chapitre procès simplifié (1 accusé principal)
+
+Pour **30–40 €** (18 mois, projet sérieux) :
+- Tout ce qui précède
+- Voix japonaise ou française partielle (au moins les lignes-clés)
+- Chapitre procès complet avec tous les accusés
+- Artworks de personnages professionnels redessinés
+- Fin secrète/true end nécessitant 100% des déductions

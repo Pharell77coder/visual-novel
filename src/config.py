@@ -2,7 +2,7 @@ import os
 from enum import Enum
 
 # ── Configuration ─────────────────────────────────────────────────────────────
-SCREEN_W, SCREEN_H = 960, 540
+SCREEN_W, SCREEN_H = 960, 960 #960, 540
 FPS = 60
 TITLE = "NUIT SANS TÉMOIN"
 

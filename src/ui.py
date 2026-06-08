@@ -191,22 +191,48 @@ class DialogueBox:
                 screen.blit(arrow, (self.x + self.W - 130, self.y + y_off + self.H - 22))
 
         if self.show_choices:
-            cy = self.y + y_off + self.H - 50
-            for i, choice in enumerate(self.choices):
+            # Calcul dynamique de la hauteur des boutons de choix (wrap inclus)
+            n_choices = len(self.choices)
+            cw = (self.W - (self.MARGIN * 2)) // n_choices - 10
+            pad_x = 8
+            max_text_w = cw - pad_x * 2
+
+            # Pré-calculer les lignes wrappées de chaque choix
+            wrapped_choices = []
+            max_lines = 1
+            for choice in self.choices:
+                lines = self.wrap_text(choice, f, max_text_w)
+                if not lines:
+                    lines = [choice[:16]]   # fallback de sécurité
+                wrapped_choices.append(lines)
+                max_lines = max(max_lines, len(lines))
+
+            btn_h   = max(34, 12 + max_lines * self.LINE_H)
+            cy_base = self.y + y_off + self.H - btn_h - 8
+
+            for i, (choice_lines) in enumerate(wrapped_choices):
                 selected = i == self.choice_idx
-                cw = (self.W - (self.MARGIN * 2)) // len(self.choices) - 10
                 cx = self.x + self.MARGIN + i * (cw + 10)
-                cs = pygame.Surface((cw, 34), pygame.SRCALPHA)
+
+                cs = pygame.Surface((cw, btn_h), pygame.SRCALPHA)
                 if selected:
-                    pygame.draw.rect(cs, (*CYAN, 60), (0, 0, cw, 34), border_radius=5)
-                    pygame.draw.rect(cs, (*CYAN, 220), (0, 0, cw, 34), width=2, border_radius=5)
+                    pygame.draw.rect(cs, (*CYAN, 60),  (0, 0, cw, btn_h), border_radius=5)
+                    pygame.draw.rect(cs, (*CYAN, 220), (0, 0, cw, btn_h), width=2, border_radius=5)
                 else:
-                    pygame.draw.rect(cs, (*DARK_BG, 220), (0, 0, cw, 34), border_radius=5)
-                    pygame.draw.rect(cs, (*CYAN_DIM, 120), (0, 0, cw, 34), width=1, border_radius=5)
-                screen.blit(cs, (cx, cy))
+                    pygame.draw.rect(cs, (*DARK_BG, 220),    (0, 0, cw, btn_h), border_radius=5)
+                    pygame.draw.rect(cs, (*CYAN_DIM, 120),   (0, 0, cw, btn_h), width=1, border_radius=5)
+                screen.blit(cs, (cx, cy_base))
+
                 col = CYAN if selected else TEXT_GRAY
-                txt = f.render(choice, True, col)
-                screen.blit(txt, (cx + (cw - txt.get_width()) // 2, cy + 8))
+                # Centrer verticalement le bloc de texte
+                total_text_h = len(choice_lines) * self.LINE_H
+                text_top = cy_base + (btn_h - total_text_h) // 2
+                for li, line in enumerate(choice_lines):
+                    txt = f.render(line, True, col)
+                    # Clamp la position X pour ne jamais déborder du bouton
+                    tx = cx + max(pad_x, (cw - txt.get_width()) // 2)
+                    tx = min(tx, cx + cw - txt.get_width() - pad_x)
+                    screen.blit(txt, (tx, text_top + li * self.LINE_H))
 
         if self._speed_flash > 0:
             alpha = min(255, int(self._speed_flash * 200))
@@ -917,22 +943,64 @@ class DeductionPanel:
     """
     Panneau latéral gauche listant toutes les déductions débloquées.
     Touche D pour ouvrir/fermer.
+
+    Améliorations :
+    - Clic / Entrée sur une déduction ouvre un modal de détail persistant.
+    - Le modal ne se ferme PAS automatiquement (l'utilisateur doit appuyer
+      sur Échap / clic hors-modal / retoucher D ou Entrée).
+    - Un deuxième clic sur la même déduction ferme le modal.
     """
     PW = 340
     ROW_H = 72
+
+    # Dimensions du modal de détail
+    MODAL_W = 560
+    MODAL_H = 260
 
     def __init__(self, assets: Assets, deduction_engine):
         self.assets    = assets
         self.deduction = deduction_engine
         self.visible   = False
         self.selected  = 0
+        # Modal de détail
+        self._modal_idx: int | None = None   # index de la déduction affichée en modal
+        self._modal_item: dict | None = None  # copie du dict de la déduction
 
     def toggle(self):
         self.visible = not self.visible
+        if not self.visible:
+            self._close_modal()
+
+    def _open_modal(self, idx: int):
+        items = self.deduction.all_deductions() if self.deduction else []
+        if 0 <= idx < len(items):
+            self._modal_idx  = idx
+            self._modal_item = items[idx]
+
+    def _close_modal(self):
+        self._modal_idx  = None
+        self._modal_item = None
 
     def handle_event(self, event) -> bool:
         if not self.visible:
             return False
+
+        # Si le modal est ouvert, il capte tous les événements
+        if self._modal_idx is not None:
+            if event.type == pygame.KEYDOWN:
+                if event.key in (pygame.K_ESCAPE, pygame.K_d, pygame.K_RETURN, pygame.K_SPACE):
+                    self._close_modal()
+                    return True
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                # Clic hors modal → fermer le modal
+                mw, mh = self.MODAL_W, self.MODAL_H
+                mx0 = (SCREEN_W - mw) // 2
+                my0 = (SCREEN_H - mh) // 2
+                if not pygame.Rect(mx0, my0, mw, mh).collidepoint(event.pos):
+                    self._close_modal()
+                return True
+            return True  # bloque le reste
+
         if event.type == pygame.KEYDOWN:
             if event.key in (pygame.K_ESCAPE, pygame.K_d):
                 self.toggle()
@@ -944,6 +1012,30 @@ class DeductionPanel:
                 items = self.deduction.all_deductions() if self.deduction else []
                 self.selected = min(len(items) - 1, self.selected + 1)
                 return True
+            if event.key in (pygame.K_RETURN, pygame.K_SPACE):
+                self._open_modal(self.selected)
+                return True
+
+        elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            items = self.deduction.all_deductions() if self.deduction else []
+            ph = min(SCREEN_H - 80, 60 + len(items) * (self.ROW_H + 6) + 20)
+            ph = max(ph, 120)
+            panel_rect = pygame.Rect(10, 60, self.PW, ph)
+            if not panel_rect.collidepoint(event.pos):
+                self.toggle()
+                return True
+            # Clic sur une ligne
+            for i in range(len(items)):
+                row_y = 60 + 60 + i * (self.ROW_H + 6)
+                row_rect = pygame.Rect(18, row_y, self.PW - 16, self.ROW_H)
+                if row_rect.collidepoint(event.pos):
+                    if i == self._modal_idx:
+                        self._close_modal()
+                    else:
+                        self.selected = i
+                        self._open_modal(i)
+                    return True
+
         return False
 
     def draw(self, screen: pygame.Surface, t: float):
@@ -970,33 +1062,108 @@ class DeductionPanel:
             msg = fs.render("Combinez des preuves [E → C]", True, TEXT_GRAY)
             panel.blit(msg, ((self.PW - msg.get_width()) // 2, ph // 2))
         else:
+            hint_s = fs.render("[Entrée/clic] Détails", True, TEXT_GRAY)
+            panel.blit(hint_s, ((self.PW - hint_s.get_width()) // 2, 48))
             for i, d in enumerate(items):
-                y   = 54 + i * (self.ROW_H + 6)
+                y   = 68 + i * (self.ROW_H + 6)
                 sel = i == self.selected
+                is_open = i == self._modal_idx
                 row = pygame.Surface((self.PW - 16, self.ROW_H), pygame.SRCALPHA)
-                bg_col = (*GOLD, 30) if sel else (10, 15, 35, 200)
-                bd_col = (*GOLD, 160) if sel else (*GOLD, 60)
+                bg_col = (*GOLD, 50) if is_open else (*GOLD, 30) if sel else (10, 15, 35, 200)
+                bd_col = (*GOLD, 220) if is_open else (*GOLD, 160) if sel else (*GOLD, 60)
                 pygame.draw.rect(row, bg_col, (0, 0, self.PW - 16, self.ROW_H), border_radius=5)
-                pygame.draw.rect(row, bd_col, (0, 0, self.PW - 16, self.ROW_H), width=1, border_radius=5)
+                pygame.draw.rect(row, bd_col, (0, 0, self.PW - 16, self.ROW_H), width=2 if is_open else 1, border_radius=5)
 
-                # Titre de la déduction
-                dt = fn.render(d.get("title", "?")[:26], True, GOLD if sel else TEXT_MAIN)
-                row.blit(dt, (10, 6))
+                dt_surf = fn.render(d.get("title", "?")[:26], True, GOLD if (sel or is_open) else TEXT_MAIN)
+                row.blit(dt_surf, (10, 6))
 
-                # Insight
-                ins = fs.render(d.get("insight", "")[:36], True, CYAN if sel else TEXT_GRAY)
+                ins = fs.render(d.get("insight", "")[:36], True, CYAN if (sel or is_open) else TEXT_GRAY)
                 row.blit(ins, (10, 30))
 
-                # Sources
                 fr = d.get("from", ())
                 if fr:
                     src_txt = f"{fr[0][:16]} × {fr[1][:16]}"
                     src_s = fs.render(src_txt, True, TEXT_GRAY)
                     row.blit(src_s, (10, 52))
 
+                # Indicateur "modal ouvert"
+                if is_open:
+                    arrow = fs.render("▶", True, GOLD)
+                    row.blit(arrow, (self.PW - 32, (self.ROW_H - arrow.get_height()) // 2))
+
                 panel.blit(row, (8, y))
 
         screen.blit(panel, (10, 60))
+
+        # ── Modal de détail ────────────────────────────────────────────────────
+        if self._modal_idx is not None and self._modal_item is not None:
+            self._draw_detail_modal(screen, t)
+
+    def _draw_detail_modal(self, screen: pygame.Surface, t: float):
+        """Modal persistant affichant le détail complet d'une déduction."""
+        d   = self._modal_item
+        fn  = self.assets.font_med
+        fs  = self.assets.font_small
+        fb  = self.assets.font_big
+
+        mw, mh = self.MODAL_W, self.MODAL_H
+        mx0 = (SCREEN_W - mw) // 2
+        my0 = (SCREEN_H - mh) // 2
+
+        # Voile semi-transparent
+        veil = pygame.Surface((SCREEN_W, SCREEN_H), pygame.SRCALPHA)
+        veil.fill((0, 0, 0, 160))
+        screen.blit(veil, (0, 0))
+
+        # Fenêtre
+        popup = pygame.Surface((mw, mh), pygame.SRCALPHA)
+        pygame.draw.rect(popup, (*DARK_BG, 255), (0, 0, mw, mh), border_radius=12)
+        pygame.draw.rect(popup, (*GOLD, 230), (0, 0, mw, mh), width=2, border_radius=12)
+
+        # En-tête
+        head = fb.render("✦ DÉDUCTION ✦", True, GOLD)
+        popup.blit(head, ((mw - head.get_width()) // 2, 14))
+        pygame.draw.line(popup, (*GOLD, 80), (20, 46), (mw - 20, 46), 1)
+
+        # Titre de la déduction
+        dtitle = fn.render(d.get("title", ""), True, CYAN)
+        popup.blit(dtitle, ((mw - dtitle.get_width()) // 2, 54))
+
+        # Insight
+        ins_s = fs.render(d.get("insight", ""), True, TEXT_MAIN)
+        popup.blit(ins_s, ((mw - ins_s.get_width()) // 2, 80))
+
+        # Texte long — retour à la ligne
+        raw_text = d.get("text", d.get("insight", ""))
+        words = raw_text.split()
+        lines, cur = [], ""
+        max_w = mw - 48
+        for w in words:
+            test = (cur + " " + w).strip()
+            if fs.size(test)[0] <= max_w:
+                cur = test
+            else:
+                if cur:
+                    lines.append(cur)
+                cur = w
+        if cur:
+            lines.append(cur)
+
+        for li, line in enumerate(lines[:5]):
+            ls = fs.render(line, True, TEXT_MAIN)
+            popup.blit(ls, ((mw - ls.get_width()) // 2, 104 + li * 22))
+
+        # Sources
+        fr = d.get("from", ())
+        if fr:
+            src = fs.render(f"[ {fr[0]}  ×  {fr[1]} ]", True, TEXT_GRAY)
+            popup.blit(src, ((mw - src.get_width()) // 2, mh - 50))
+
+        # Instruction fermeture
+        close_hint = fs.render("[Échap / clic hors fenêtre] Fermer", True, CYAN_DIM)
+        popup.blit(close_hint, ((mw - close_hint.get_width()) // 2, mh - 26))
+
+        screen.blit(popup, (mx0, my0))
 
 
 # ── Panneau Preuves (version legacy simple — non utilisée mais gardée) ─────────
@@ -1979,6 +2146,78 @@ class NarrativeMap:
                 },
             ],
         },
+        # ── Chapitres 4-10 : arbres extensibles ──────────────────────────────────
+        # À compléter au fur et à mesure de l'écriture du script.
+        # Chaque clé int correspond au numéro de chapitre.
+        4: {
+            "id": "root_ch4",
+            "label": "Chapitre IV\nL'Appartement",
+            "type": "root",
+            "children": [
+                {"id": "ch4_photo",   "label": "Suivre\nla photo",       "type": "choice", "children": []},
+                {"id": "ch4_mira",    "label": "Rejoindre\nMira",        "type": "choice", "children": []},
+                {"id": "ch4_archive", "label": "Archives\nsecrètes",     "type": "choice", "children": []},
+            ],
+        },
+        5: {
+            "id": "root_ch5",
+            "label": "Chapitre V\nLa Révélation",
+            "type": "root",
+            "children": [
+                {"id": "ch5_trust",   "label": "Faire confiance\nà Mira",  "type": "choice", "children": []},
+                {"id": "ch5_doubt",   "label": "Douter\nde Mira",          "type": "choice", "children": []},
+            ],
+        },
+        6: {
+            "id": "root_ch6",
+            "label": "Chapitre VI\nLe Parlement",
+            "type": "root",
+            "children": [
+                {"id": "ch6_expose",  "label": "Exposer\nle sénateur",    "type": "choice", "children": []},
+                {"id": "ch6_wait",    "label": "Attendre\nle bon moment", "type": "choice", "children": []},
+            ],
+        },
+        7: {
+            "id": "root_ch7",
+            "label": "Chapitre VII\nLe Bunker",
+            "type": "root",
+            "children": [
+                {"id": "ch7_light",  "label": "Fin —\nLa Lumière",       "type": "leaf", "children": []},
+                {"id": "ch7_shadow", "label": "Fin —\nL'Ombre",          "type": "leaf", "children": []},
+            ],
+        },
+        8: {
+            "id": "root_ch8",
+            "label": "Chapitre VIII",
+            "type": "root",
+            "children": [],
+        },
+        9: {
+            "id": "root_ch9",
+            "label": "Chapitre IX",
+            "type": "root",
+            "children": [],
+        },
+        10: {
+            "id": "root_ch10",
+            "label": "Chapitre X",
+            "type": "root",
+            "children": [],
+        },
+    }
+
+    # Labels de chapitre en clair (extensible sans limite)
+    _CHAPTER_LABELS = {
+        1:  "CHAPITRE I — La Nuit sans Témoin",
+        2:  "CHAPITRE II — La Taupe",
+        3:  "CHAPITRE III — L'Architecte",
+        4:  "CHAPITRE IV — L'Appartement",
+        5:  "CHAPITRE V — La Révélation",
+        6:  "CHAPITRE VI — Le Parlement",
+        7:  "CHAPITRE VII — Le Bunker",
+        8:  "CHAPITRE VIII",
+        9:  "CHAPITRE IX",
+        10: "CHAPITRE X",
     }
 
     # ─── Style des nœuds ───────────────────────────────────────────────────────
@@ -2076,11 +2315,14 @@ class NarrativeMap:
             pygame.draw.circle(screen, (a // 4, a // 2, min(255, a + 50)), (rx, ry), 1)
 
         # ── En-tête ────────────────────────────────────────────────────────────
-        chapter_labels = {1: "CHAPITRE I — La Nuit sans Témoin",
-                          2: "CHAPITRE II — La Taupe",
-                          3: "CHAPITRE III — L'Architecte"}
+        # Label dynamique — fonctionne pour tous les chapitres définis dans _CHAPTER_LABELS
+        # Fallback générique pour les chapitres non encore nommés
+        chap_roman = {1:"I",2:"II",3:"III",4:"IV",5:"V",6:"VI",7:"VII",8:"VIII",9:"IX",10:"X"}
+        default_label = f"CHAPITRE {chap_roman.get(self._chapter, str(self._chapter))}"
+        chapter_label = self._CHAPTER_LABELS.get(self._chapter, default_label)
+
         header = fb.render(f"── CARTE NARRATIVE ──", True, CYAN)
-        sub    = fs.render(chapter_labels.get(self._chapter, ""), True, GOLD)
+        sub    = fs.render(chapter_label, True, GOLD)
         screen.blit(header, ((SCREEN_W - header.get_width()) // 2, 12))
         screen.blit(sub,    ((SCREEN_W - sub.get_width()) // 2, 44))
         pygame.draw.line(screen, (*CYAN, 80), (40, 66), (SCREEN_W - 40, 66), 1)
@@ -2142,7 +2384,14 @@ class NarrativeMap:
         """Calcule les positions (cx, cy) de chaque nœud."""
         tree = self.CHAPTER_TREES.get(self._chapter)
         if not tree:
-            return
+            # Chapitre non défini : créer un arbre générique minimal pour ne pas planter
+            chap_roman = {1:"I",2:"II",3:"III",4:"IV",5:"V",6:"VI",7:"VII",8:"VIII",9:"IX",10:"X"}
+            tree = {
+                "id":       f"root_ch{self._chapter}",
+                "label":    f"Chapitre {chap_roman.get(self._chapter, str(self._chapter))}",
+                "type":     "root",
+                "children": [],
+            }
         self._layout = {}
         self._edges  = []
         # Zone disponible pour l'arbre
@@ -2344,3 +2593,378 @@ class NarrativeMap:
     def _continue_btn_rect(self) -> pygame.Rect:
         bw, bh = 180, 40
         return pygame.Rect((SCREEN_W - bw) // 2, SCREEN_H - 48, bw, bh)
+
+# ══════════════════════════════════════════════════════════════════════════════
+# ── InGameMenu — Menu pause en cours de jeu avec onglet Options ───────────────
+# ══════════════════════════════════════════════════════════════════════════════
+
+class InGameMenu:
+    """
+    Menu pause accessible en cours de jeu via la touche M ou Échap.
+
+    Deux onglets :
+        "menu"    → Reprendre / Sauvegarder / Charger / Menu principal / Quitter
+        "options" → Volume musique / Volume SFX / Vitesse du texte
+
+    API :
+        menu.open(music_vol, sfx_vol, text_speed_idx)
+        menu.close()
+        menu.handle_event(event) → action str | None
+        menu.update(dt)
+        menu.draw(screen, t)
+
+    Actions retournées par handle_event :
+        "resume"      fermer le menu et reprendre
+        "save"        ouvrir l'écran de sauvegarde
+        "load"        ouvrir l'écran de chargement
+        "title"       retourner au menu principal
+        "quit"        quitter le jeu
+        "music_vol"   volume musique modifié (lire self.music_vol)
+        "sfx_vol"     volume SFX modifié (lire self.sfx_vol)
+        "text_speed"  vitesse texte modifiée (lire self.text_speed_idx / .text_speed_val)
+        None          rien à faire
+    """
+
+    W  = 500
+    H  = 400
+    BTN_W   = 360
+    BTN_H   = 40
+    BTN_GAP = 10
+
+    # Boutons de l'onglet "menu"
+    MENU_BUTTONS = [
+        ("resume", "▶  Reprendre la partie"),
+        ("save",   "💾  Sauvegarder"),
+        ("load",   "⟳  Charger"),
+        ("title",  "⌂  Menu principal"),
+        ("quit",   "✕  Quitter le jeu"),
+    ]
+
+    def __init__(self, assets: Assets):
+        self.assets   = assets
+        self.visible  = False
+        self._tab     = "menu"     # "menu" | "options"
+        self._sel     = 0          # bouton sélectionné dans l'onglet menu
+        self._enter_t = 0.0        # fade-in
+        self._action  = None       # action en attente (consommée par VNEngine)
+
+        # Valeurs Options (synchronisées avec VNEngine à l'ouverture)
+        self.music_vol      : float = 0.5
+        self.sfx_vol        : float = 0.2
+        self.text_speed_idx : int   = 2
+        self.text_speed_val : float = SPEED_LEVELS[2]
+
+        # Curseurs des sliders (0-10)
+        self._music_cursor = 5
+        self._sfx_cursor   = 2
+        self._opt_sel      = 0    # 0=musique, 1=sfx, 2=vitesse_texte
+
+    # ── Ouverture / fermeture ──────────────────────────────────────────────────
+
+    def open(self, music_vol: float = 0.5, sfx_vol: float = 0.2,
+             text_speed_idx: int = 2):
+        self.visible        = True
+        self._tab           = "menu"
+        self._sel           = 0
+        self._opt_sel       = 0
+        self._enter_t       = 0.0
+        self._action        = None
+        self.music_vol      = music_vol
+        self.sfx_vol        = sfx_vol
+        self.text_speed_idx = text_speed_idx
+        self.text_speed_val = SPEED_LEVELS[text_speed_idx]
+        self._music_cursor  = round(music_vol * 10)
+        self._sfx_cursor    = round(sfx_vol   * 10)
+
+    def close(self):
+        self.visible  = False
+        self._enter_t = 0.0
+
+    # ── Update ─────────────────────────────────────────────────────────────────
+
+    def update(self, dt: float):
+        if not self.visible:
+            return
+        self._enter_t = min(1.0, self._enter_t + dt * 5.0)
+
+    # ── Gestion événements ─────────────────────────────────────────────────────
+
+    def handle_event(self, event) -> "str | None":
+        if not self.visible:
+            return None
+
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                self.close()
+                return "resume"
+
+            # ── Navigation onglets ─────────────────────────────────────────────
+            if event.key == pygame.K_TAB:
+                self._tab = "options" if self._tab == "menu" else "menu"
+                self._sel = 0; self._opt_sel = 0
+                return None
+
+            if self._tab == "menu":
+                return self._key_menu(event.key)
+            else:
+                return self._key_options(event.key)
+
+        elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            return self._mouse_click(event.pos)
+
+        elif event.type == pygame.MOUSEMOTION:
+            self._mouse_hover(event.pos)
+
+        return None
+
+    def _key_menu(self, key) -> "str | None":
+        if key in (pygame.K_UP,):
+            self._sel = (self._sel - 1) % len(self.MENU_BUTTONS)
+        elif key in (pygame.K_DOWN,):
+            self._sel = (self._sel + 1) % len(self.MENU_BUTTONS)
+        elif key in (pygame.K_RETURN, pygame.K_SPACE):
+            action = self.MENU_BUTTONS[self._sel][0]
+            if action == "resume":
+                self.close()
+            return action
+        return None
+
+    def _key_options(self, key) -> "str | None":
+        n_opts = 3  # musique, sfx, vitesse
+        if key in (pygame.K_UP,):
+            self._opt_sel = (self._opt_sel - 1) % n_opts
+        elif key in (pygame.K_DOWN,):
+            self._opt_sel = (self._opt_sel + 1) % n_opts
+        elif key in (pygame.K_LEFT, pygame.K_MINUS, pygame.K_KP_MINUS):
+            return self._opt_change(-1)
+        elif key in (pygame.K_RIGHT, pygame.K_PLUS, pygame.K_EQUALS, pygame.K_KP_PLUS):
+            return self._opt_change(+1)
+        return None
+
+    def _opt_change(self, direction: int) -> "str | None":
+        if self._opt_sel == 0:  # musique
+            self._music_cursor = max(0, min(10, self._music_cursor + direction))
+            self.music_vol     = self._music_cursor / 10.0
+            return "music_vol"
+        elif self._opt_sel == 1:  # sfx
+            self._sfx_cursor = max(0, min(10, self._sfx_cursor + direction))
+            self.sfx_vol     = self._sfx_cursor / 10.0
+            return "sfx_vol"
+        elif self._opt_sel == 2:  # vitesse texte
+            self.text_speed_idx = max(0, min(len(SPEED_LEVELS) - 1,
+                                              self.text_speed_idx + direction))
+            self.text_speed_val = SPEED_LEVELS[self.text_speed_idx]
+            return "text_speed"
+        return None
+
+    def _mouse_hover(self, pos):
+        ox, oy = self._origin()
+        if self._tab == "menu":
+            for i in range(len(self.MENU_BUTTONS)):
+                if self._btn_rect(i, ox, oy).collidepoint(pos):
+                    self._sel = i
+
+    def _mouse_click(self, pos) -> "str | None":
+        ox, oy = self._origin()
+        # Clic hors fenêtre → fermer
+        if not pygame.Rect(ox, oy, self.W, self.H).collidepoint(pos):
+            self.close()
+            return "resume"
+
+        # Onglets
+        tab_menu_r    = pygame.Rect(ox + 20,          oy + 14, (self.W - 54) // 2, 32)
+        tab_options_r = pygame.Rect(ox + 20 + (self.W - 54) // 2 + 14, oy + 14,
+                                    (self.W - 54) // 2, 32)
+        if tab_menu_r.collidepoint(pos):
+            self._tab = "menu"; self._sel = 0; return None
+        if tab_options_r.collidepoint(pos):
+            self._tab = "options"; self._opt_sel = 0; return None
+
+        if self._tab == "menu":
+            for i, (action, _) in enumerate(self.MENU_BUTTONS):
+                if self._btn_rect(i, ox, oy).collidepoint(pos):
+                    if action == "resume":
+                        self.close()
+                    return action
+
+        elif self._tab == "options":
+            # Sliders cliquables
+            slider_rects = self._slider_rects(ox, oy)
+            for opt_i, (track_r, thumb_r) in enumerate(slider_rects):
+                if track_r.collidepoint(pos):
+                    # Calculer la valeur relative
+                    rel = max(0.0, min(1.0, (pos[0] - track_r.x) / track_r.w))
+                    self._opt_sel = opt_i
+                    if opt_i == 0:
+                        self._music_cursor = round(rel * 10)
+                        self.music_vol = self._music_cursor / 10.0
+                        return "music_vol"
+                    elif opt_i == 1:
+                        self._sfx_cursor = round(rel * 10)
+                        self.sfx_vol = self._sfx_cursor / 10.0
+                        return "sfx_vol"
+                    elif opt_i == 2:
+                        self.text_speed_idx = round(rel * (len(SPEED_LEVELS) - 1))
+                        self.text_speed_val = SPEED_LEVELS[self.text_speed_idx]
+                        return "text_speed"
+            # Clic sur les labels options
+            for opt_i in range(3):
+                row_r = self._opt_row_rect(opt_i, ox, oy)
+                if row_r.collidepoint(pos):
+                    self._opt_sel = opt_i
+
+        return None
+
+    # ── Géométrie ─────────────────────────────────────────────────────────────
+
+    def _origin(self):
+        return (SCREEN_W - self.W) // 2, (SCREEN_H - self.H) // 2
+
+    def _btn_rect(self, i: int, ox: int, oy: int) -> pygame.Rect:
+        bx = ox + (self.W - self.BTN_W) // 2
+        by = oy + 80 + i * (self.BTN_H + self.BTN_GAP)
+        return pygame.Rect(bx, by, self.BTN_W, self.BTN_H)
+
+    def _opt_row_rect(self, i: int, ox: int, oy: int) -> pygame.Rect:
+        return pygame.Rect(ox + 20, oy + 80 + i * 80, self.W - 40, 70)
+
+    def _slider_rects(self, ox: int, oy: int):
+        """Retourne [(track_rect, thumb_rect), ...] pour chaque option."""
+        rects = []
+        slider_w  = self.W - 100
+        slider_x  = ox + 50
+        for i in range(3):
+            ry    = oy + 80 + i * 80 + 36
+            track = pygame.Rect(slider_x, ry, slider_w, 8)
+            if i == 0:   val = self._music_cursor / 10.0
+            elif i == 1: val = self._sfx_cursor   / 10.0
+            else:        val = self.text_speed_idx / max(1, len(SPEED_LEVELS) - 1)
+            thumb_x = slider_x + int(val * slider_w) - 8
+            thumb   = pygame.Rect(thumb_x, ry - 4, 16, 16)
+            rects.append((track, thumb))
+        return rects
+
+    # ── Rendu ──────────────────────────────────────────────────────────────────
+
+    def draw(self, screen: pygame.Surface, t: float):
+        if not self.visible:
+            return
+        fn  = self.assets.font_med
+        fs  = self.assets.font_small
+        fb  = self.assets.font_big
+        alpha = int(self._enter_t * 255)
+
+        ox, oy = self._origin()
+
+        # Voile semi-transparent
+        veil = pygame.Surface((SCREEN_W, SCREEN_H), pygame.SRCALPHA)
+        veil.fill((0, 0, 0, min(180, alpha)))
+        screen.blit(veil, (0, 0))
+
+        # Fenêtre
+        win = pygame.Surface((self.W, self.H), pygame.SRCALPHA)
+        pygame.draw.rect(win, (*DARK_BG, min(255, alpha)), (0, 0, self.W, self.H), border_radius=10)
+        pygame.draw.rect(win, (*CYAN, min(220, alpha)),    (0, 0, self.W, self.H), width=2, border_radius=10)
+        win.set_alpha(alpha)
+        screen.blit(win, (ox, oy))
+
+        # Titre
+        title_s = fb.render("── MENU PAUSE ──", True, CYAN)
+        screen.blit(title_s, (ox + (self.W - title_s.get_width()) // 2, oy + 10))
+
+        # ── Onglets ────────────────────────────────────────────────────────────
+        tab_y    = oy + 46
+        half_w   = (self.W - 54) // 2
+        tabs = [("menu", "  Menu  "), ("options", "  Options  ")]
+        for ti, (tkey, tlabel) in enumerate(tabs):
+            tx = ox + 20 + ti * (half_w + 14)
+            tr = pygame.Rect(tx, tab_y, half_w, 28)
+            sel = (self._tab == tkey)
+            ts  = pygame.Surface((half_w, 28), pygame.SRCALPHA)
+            if sel:
+                pygame.draw.rect(ts, (*CYAN, 50),  (0, 0, half_w, 28), border_radius=5)
+                pygame.draw.rect(ts, (*CYAN, 200), (0, 0, half_w, 28), width=2, border_radius=5)
+            else:
+                pygame.draw.rect(ts, (*DARK_BG, 180), (0, 0, half_w, 28), border_radius=5)
+                pygame.draw.rect(ts, (*CYAN_DIM, 80), (0, 0, half_w, 28), width=1, border_radius=5)
+            lbl = fs.render(tlabel, True, CYAN if sel else TEXT_GRAY)
+            ts.blit(lbl, ((half_w - lbl.get_width()) // 2, (28 - lbl.get_height()) // 2))
+            screen.blit(ts, (tx, tab_y))
+
+        pygame.draw.line(screen, (*CYAN, 60), (ox + 10, tab_y + 30),
+                         (ox + self.W - 10, tab_y + 30), 1)
+
+        if self._tab == "menu":
+            self._draw_menu_tab(screen, t, ox, oy, fn, fs)
+        else:
+            self._draw_options_tab(screen, t, ox, oy, fn, fs)
+
+        # Hint tab
+        hint = fs.render("[Tab] Changer d'onglet   [Échap] Reprendre", True, TEXT_GRAY)
+        screen.blit(hint, (ox + (self.W - hint.get_width()) // 2, oy + self.H - 24))
+
+    def _draw_menu_tab(self, screen, t, ox, oy, fn, fs):
+        for i, (action, label) in enumerate(self.MENU_BUTTONS):
+            r   = self._btn_rect(i, ox, oy)
+            sel = (i == self._sel)
+            bs  = pygame.Surface((r.w, r.h), pygame.SRCALPHA)
+            if sel:
+                pulse = 0.55 + 0.45 * math.sin(t * 3.5)
+                pygame.draw.rect(bs, (*CYAN, int(40 + 20 * pulse)), (0, 0, r.w, r.h), border_radius=5)
+                pygame.draw.rect(bs, (*CYAN, int(180 + 60 * pulse)), (0, 0, r.w, r.h), width=2, border_radius=5)
+                arr = fs.render("▸", True, CYAN)
+                bs.blit(arr, (6, (r.h - arr.get_height()) // 2))
+            else:
+                pygame.draw.rect(bs, (*DARK_BG, 200), (0, 0, r.w, r.h), border_radius=5)
+                pygame.draw.rect(bs, (*CYAN_DIM, 70), (0, 0, r.w, r.h), width=1, border_radius=5)
+            col  = CYAN if sel else TEXT_GRAY
+            lbl  = fn.render(label, True, col)
+            bs.blit(lbl, ((r.w - lbl.get_width()) // 2, (r.h - lbl.get_height()) // 2))
+            screen.blit(bs, (r.x, r.y))
+
+    def _draw_options_tab(self, screen, t, ox, oy, fn, fs):
+        slider_rects = self._slider_rects(ox, oy)
+        opt_labels = [
+            ("Volume Musique",   f"{self._music_cursor * 10}%"),
+            ("Volume Effets",    f"{self._sfx_cursor   * 10}%"),
+            ("Vitesse du texte", SPEED_LABELS[self.text_speed_idx]),
+        ]
+
+        for i, ((track_r, thumb_r), (label, value_s)) in enumerate(
+                zip(slider_rects, opt_labels)):
+            sel = (i == self._opt_sel)
+            row_r = self._opt_row_rect(i, ox, oy)
+
+            # Fond de ligne
+            row_surf = pygame.Surface((row_r.w, row_r.h), pygame.SRCALPHA)
+            if sel:
+                pygame.draw.rect(row_surf, (*CYAN, 15), (0, 0, row_r.w, row_r.h), border_radius=6)
+                pygame.draw.rect(row_surf, (*CYAN, 60), (0, 0, row_r.w, row_r.h), width=1, border_radius=6)
+            screen.blit(row_surf, (row_r.x, row_r.y))
+
+            # Label et valeur
+            label_s = fn.render(label, True, CYAN if sel else TEXT_MAIN)
+            val_s   = fs.render(value_s, True, GOLD if sel else TEXT_GRAY)
+            screen.blit(label_s, (row_r.x + 8,  row_r.y + 6))
+            screen.blit(val_s,   (row_r.right - val_s.get_width() - 8, row_r.y + 8))
+
+            # Piste du slider
+            pygame.draw.rect(screen, (*CYAN_DIM, 80),
+                             (track_r.x, track_r.y, track_r.w, track_r.h), border_radius=4)
+            # Remplissage
+            fill_w = thumb_r.centerx - track_r.x
+            if fill_w > 0:
+                pygame.draw.rect(screen, (*CYAN, 180),
+                                 (track_r.x, track_r.y, fill_w, track_r.h), border_radius=4)
+            # Poignée
+            pulse = 0.7 + 0.3 * math.sin(t * 4.0) if sel else 0.8
+            thumb_col = (*CYAN, int(240 * pulse)) if sel else (*CYAN_DIM, 200)
+            pygame.draw.ellipse(screen, thumb_col, thumb_r)
+            if sel:
+                pygame.draw.ellipse(screen, (*CYAN, 255), thumb_r, 2)
+
+            # Hints navigation
+            if sel:
+                hint_s = fs.render("[← →] Ajuster", True, CYAN_DIM)
+                screen.blit(hint_s, (track_r.x + (track_r.w - hint_s.get_width()) // 2,
+                                     track_r.y + 14))

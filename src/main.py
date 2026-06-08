@@ -6,7 +6,7 @@ import math
 from config import *
 from assets_manager import *
 from models import *
-from ui import DialogueBox, EvidencePanel, InventoryPanel, TitleScreen, SaveSlotScreen, DeductionPanel, CGGallery, NarrativeMap
+from ui import DialogueBox, EvidencePanel, InventoryPanel, TitleScreen, SaveSlotScreen, DeductionPanel, CGGallery, NarrativeMap, InGameMenu
 from script import SCRIPT
 from transitions import Transition
 from save_manager import SaveManager
@@ -45,6 +45,9 @@ class VNEngine:
         # ── Sauvegarde ─────────────────────────────────────────────────────────
         self.save_manager = SaveManager()
         self.save_screen  = SaveSlotScreen(self.assets, self.save_manager, mode="save")
+
+        # ── Menu en cours de jeu ───────────────────────────────────────────────
+        self.in_game_menu = InGameMenu(self.assets)
 
         # ── Mini-jeu interrogatoire ────────────────────────────────────────────
         self.interro: "InterrogationMinigame | None" = None
@@ -305,11 +308,8 @@ class VNEngine:
         else:
             next_idx = self.script_idx + 1
 
-        if chosen_branch_id is None:
-            while next_idx < len(self.script):
-                if "id" not in self.script[next_idx]:
-                    break
-                next_idx += 1
+        # NOTE : on ne saute PLUS les nœuds qui ont un "id".
+        # Cette logique faisait disparaître les choix entre versions.
 
         # ── Détecter fin de chapitre via marqueur "chapter_end" ───────────────
         if next_idx < len(self.script):
@@ -346,8 +346,23 @@ class VNEngine:
                         pass   # ESC ignoré pendant l'interrogatoire
                     elif self.state == "title":
                         pass   # pas de quit depuis le titre (menu présent)
-                    else:
+                    elif self.state == "end":
                         pygame.quit(); sys.exit()
+                    else:
+                        # En jeu : ouvrir le menu en jeu
+                        if self.state == "game" and not self.in_game_menu.visible:
+                            self.in_game_menu.open()
+                        elif self.in_game_menu.visible:
+                            self.in_game_menu.close()
+                        else:
+                            pygame.quit(); sys.exit()
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_m:
+                    if self.state == "end":
+                        # Retourner au menu titre depuis la fin
+                        self.state = "title"
+                        self.title_screen.update(0)
+                    elif self.state == "game" and not self.in_game_menu.visible:
+                        self.in_game_menu.open()
                 self._handle_event(event)
 
             # ── Mise à jour du mini-jeu interrogatoire ─────────────────────────
@@ -433,6 +448,44 @@ class VNEngine:
 
         if self.state == "game":
             if self.transition is not None:
+                return
+
+            # ── Menu en jeu (priorité maximale) ───────────────────────────────
+            if self.in_game_menu.visible:
+                action = self.in_game_menu.handle_event(event)
+                if action == "resume":
+                    self.in_game_menu.close()
+                elif action == "save":
+                    self.in_game_menu.close()
+                    self.save_screen.open(mode="save")
+                    self.state = "save_menu"
+                elif action == "load":
+                    self.in_game_menu.close()
+                    self.save_screen.open(mode="load")
+                    self.state = "load_menu"
+                elif action == "title":
+                    self.in_game_menu.close()
+                    self.state = "title"
+                    self.title_screen.update(0)
+                elif action == "quit":
+                    pygame.quit(); sys.exit()
+                elif action == "music_vol":
+                    pygame.mixer.music.set_volume(self.in_game_menu.music_vol)
+                elif action == "sfx_vol":
+                    if self.assets.snd_click:
+                        self.assets.snd_click.set_volume(self.in_game_menu.sfx_vol)
+                elif action == "text_speed":
+                    self.dlg.speed_idx = self.in_game_menu.text_speed_idx
+                    self.dlg.speed     = self.in_game_menu.text_speed_val
+                return
+
+            # Ouverture du menu en jeu via touche M
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_m:
+                self.in_game_menu.open(
+                    music_vol      = pygame.mixer.music.get_volume(),
+                    sfx_vol        = self.assets.snd_click.get_volume() if self.assets.snd_click else 0.2,
+                    text_speed_idx = self.dlg.speed_idx,
+                )
                 return
 
             # Le panneau de preuves consomme l'événement en mode select
@@ -579,6 +632,8 @@ class VNEngine:
             for p in self.particles:
                 p.update(dt)
 
+            self.in_game_menu.update(dt)
+
             if self._toast_timer > 0:
                 self._toast_timer = max(0.0, self._toast_timer - dt)
 
@@ -657,6 +712,10 @@ class VNEngine:
 
         self._draw_toast()
 
+        # Menu en jeu (par-dessus tout le reste)
+        if self.in_game_menu.visible:
+            self.in_game_menu.draw(self.screen, self.t)
+
     def _draw_hud(self):
         """
         HUD sur DEUX lignes pour éviter tout chevauchement sur 960 px.
@@ -689,7 +748,7 @@ class VNEngine:
 
         # ── Ligne 2 ──────────────────────────────────────────────────────────
         # Gauche : sauvegarde / chargement
-        t_save = f.render("[S] Sauver  [L] Charger", True, TEXT_GRAY)
+        t_save = f.render("[S] Sauver  [L] Charger  [M] Menu", True, TEXT_GRAY)
         hud.blit(t_save, (8, 20))
 
         # Centre : backlog
@@ -736,13 +795,18 @@ class VNEngine:
             a = int(80 + 60 * math.sin(self.t * 0.5 + i))
             pygame.draw.circle(self.screen, (a, a, min(255, a + 60)), (r, s), 1)
 
+        # Titre dynamique : utilise le chapitre courant, pas "III" en dur
+        chap_roman = {1:"I",2:"II",3:"III",4:"IV",5:"V",6:"VI",7:"VII",8:"VIII",9:"IX",10:"X"}
+        chap_num   = getattr(self, "_current_chapter", 1)
+        chap_label = chap_roman.get(chap_num, str(chap_num))
+
         msgs = [
-            ("FIN DU CHAPITRE III", CYAN),
+            (f"FIN DU CHAPITRE {chap_label}", CYAN),
             ("Merci d'avoir joué à NUIT SANS TÉMOIN", TEXT_MAIN),
             ("", WHITE),
             (f"Preuves : {len(self.evidence.items)}  •  Déductions : {self.ded_engine.count()}", GOLD),
             ("", WHITE),
-            ("Appuyez sur ECHAP pour quitter", TEXT_GRAY),
+            ("Appuyez sur ECHAP pour quitter  •  [M] Menu principal", TEXT_GRAY),
         ]
         total_h = len(msgs) * 44
         start_y = (SCREEN_H - total_h) // 2
