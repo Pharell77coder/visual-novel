@@ -295,7 +295,7 @@ Le 100% couvre : toutes les preuves (collectées automatiquement en avançant), 
 
 ### CHAPITRE I — La Nuit sans Témoin
 Preuves (4)
-PreuveCommentDossier VaneAutomatique — scène de crimeClé USBAutomatique — fouille de Vane → CG 02Trace de pneusChoix 1 → "Examiner la scène" (branche scene)Témoignage rueChoix 1 → "Interroger les témoins" (branche interrogation)Fichiers SynarchieAutomatique — décryptage bureau nuit → CG 03Enregistrement TaroMini-jeu d'interrogatoire Taro (succès)
+Preuve Comment Dossier Vane Automatique — scène de crime Clé USB Automatique — fouille de Vane → CG 02 Trace de pneus Choix 1 → "Examiner la scène" (branche scene) Témoignage rue Choix 1 → "Interroger les témoins" (branche interrogation) Fichiers Synarchie Automatique — décryptage bureau nuit → CG 03 Enregistrement Taro Mini-jeu d'interrogatoire Taro (succès)
 Note : Trace de pneus et Témoignage rue sont mutuellement exclusifs selon le Choix 1. Prévoir deux runs.
 CG du Chapitre I
 
@@ -315,9 +315,9 @@ Trace de pneus + Fichiers Synarchie → Logistique intégrée
 
 ### CHAPITRE II — Le Prix de la Vérité
 Preuves (5)
-PreuveCommentRegistre OffshoreAutomatique — rencontre NatashaPhoto du FantômeAutomatique (variante selon branche trust/resist)Enregistrement TaroReporté depuis Ch1 si mini-jeu raté — ou re-obtenuClé du Loft 7Branche "S'infiltrer" (ch2_infiltrate)Rapport interneBranche "S'infiltrer" ou "Faire pression" (ch2_press)
+Preuve Comment Registre Off shore Automatique — rencontre Natasha Photo du Fantôme Automatique (variante selon branche trust/resist) Enregistrement Taro Reporté depuis Ch1 si mini-jeu raté — ou re-obtenu Clé du Loft 7 Branche "S'infiltrer" (ch2_infiltrate) Rapport interne Branche "S'infiltrer" ou "Faire pression" (ch2_press)
 Choix du Chapitre II
-ChoixBranchesImpact CGChoix ATrust Natasha / Résister seulAucun sur les CGChoix BS'infiltrer / Faire pressionRapport interne + Clé Loft 7Choix CTrahir / ProtégerAucun CG exclusif
+Choix Branches Impact CG Choix A Trust Natasha / Résister seul Aucun sur les CG Choix B S'infiltrer / Faire pressionRapport interne + Clé Loft 7Choix CTrahir / ProtégerAucun CG exclusif
 CG du Chapitre II
 
 CG 05 — Ferrière dans l'ombre, automatique en début de chapitre
