@@ -2,7 +2,7 @@ import pygame
 import random
 import math
 
-from config import ASSETS, SCREEN_W, SCREEN_H
+from config import SCREEN_W, SCREEN_H
 
 # ── Effet de pluie ──────────────────────────────────────────────────────────────
 class RainEffect:

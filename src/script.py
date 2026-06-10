@@ -364,7 +364,7 @@ SCRIPT_I = [
      "char": "detective", "expr": 0, "side": "left",
      "name": "", "text": "Vingt minutes. Que faire en priorité ?",
      "choices": ["Interroger les témoins de la rue", "Examiner la scène centimètre par centimètre"],
-     "choice_branch": {"0": "interrogation", "1": "scene"}},
+     "choice_branch": {"0": "interro_ext_01", "1": "scene_ext_01"}},
 
     # Branche : examiner la scène ──────────────────────────────────────────────
     {"id": "scene",
@@ -835,7 +835,7 @@ SCRIPT_II = [
      "char": "detective", "expr": 0, "side": "left",
      "name": "", "text": "Natasha propose un partenariat. Quelle posture adopter ?",
      "choices": ["Faire confiance — travailler avec elle", "Résister — garder l'enquête pour soi"],
-     "choice_branch": {"0": "ch2_trust", "1": "ch2_resist"}},
+     "choice_branch": {"0": "ch2_trust_ext_01", "1": "ch2_resist_ext_01"}},
 
     # ── BRANCHE TRUST (étendue) ───────────────────────────────────────────────
     {"id": "ch2_trust",
@@ -1551,708 +1551,11 @@ SCRIPT_III = [
      "char": None, "side": "left",
      "name": "", "text": "─── FIN DU CHAPITRE III ───\n\nNUIT SANS TÉMOIN — L'histoire continue..."},
 
-    {"chapter_end": 3, "bg": "toit", "char": None, "side": "left",
-     "name": "", "text": ""},
-
-
-    {"bg": "toit", "rain": False,
-     "char": None, "side": "left",
-     "name": "",
-     "text": "─── FIN DU CHAPITRE III ───\n\nNUIT SANS TÉMOIN — L'histoire continue..."},
-
     # ── Marqueur fin de chapitre III → carte narrative ───────────────────────
     {"chapter_end": 3, "bg": "toit", "char": None, "side": "left",
      "name": "", "text": ""},
 ]
 
-# ══════════════════════════════════════════════════════════════════════
-# Chapitre III-B — Terrain
-# ══════════════════════════════════════════════════════════════════════
-SCRIPT_IIIb = [
-
-
-
-    # ======================================================================
-    # ████  CHAPITRE III-B — "Terrain"  ████
-    # ======================================================================
-
-    {
-     "bg": "rue",
-     "rain": False,
-     "transition": "fade_black",
-     "char": None,
-     "side": "left",
-     "name": "",
-     "text": "CHAPITRE III-B — Terrain"
-    },
-
-    {
-     "bg": "rue",
-     "rain": False,
-     "char": None,
-     "side": "left",
-     "name": "",
-     "text": "Après Genève, avant que la poussière ne retombe. La Synarchie est officiellement 'démantelée'. Trois membres arrêtés. Sept en fuite. Et quelque chose que personne n'a encore dit tout haut : ce n'est pas fini."
-    },
-
-    {
-     "bg": "rue",
-     "rain": False,
-     "char": "detective",
-     "expr": 5,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Ferrière est en détention préventive. L'Architecte a disparu entre l'arrestation et le transfert. Disparu. Comme si quelqu'un avait ouvert une porte qu'il n'aurait pas dû pouvoir ouvrir."
-    },
-
-    {
-     "bg": "rue",
-     "rain": False,
-     "char": "policiere",
-     "expr": 1,
-     "side": "right",
-     "name": "OFF. LEILA SATO",
-     "text": "Raven. Je sais ce que vous pensez. Arrêtez. La Préfecture a déclenché une alerte internationale. Interpol est dans la boucle. Votre travail ici est terminé."
-    },
-
-    {
-     "bg": "rue",
-     "rain": False,
-     "char": "detective",
-     "expr": 3,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Mon travail n'est jamais terminé quand quelqu'un s'est évadé. Surtout pas celui-là."
-    },
-
-    {
-     "bg": "scene_de_crime",
-     "rain": False,
-     "transition": "slide_left",
-     "char": None,
-     "side": "left",
-     "name": "",
-     "text": "La ruelle de Chinatown. Six semaines après la mort de Vane. Le ruban de sécurité a disparu. Un restaurant a rouvert à l'angle. La ville a déjà recouvert la trace."
-    },
-
-    {
-     "bg": "scene_de_crime",
-     "rain": False,
-     "char": "detective",
-     "expr": 9,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Je reviens toujours sur les scènes de crime. Pas par nostalgie. Par méthode. Les lieux parlent différemment selon le moment de la journée, selon la lumière, selon qu'on est pressé ou non."
-    },
-
-    {
-     "bg": "scene_de_crime",
-     "rain": False,
-     "char": None,
-     "side": "left",
-     "name": "",
-     "text": "Une vieille dame balaye devant son commerce. Elle s'arrête quand elle me voit. Elle me reconnaît — j'étais là la nuit du meurtre. Elle n'a pas été interrogée."
-    },
-
-    {
-     "bg": "scene_de_crime",
-     "rain": False,
-     "char": "policiere",
-     "expr": 0,
-     "side": "right",
-     "name": "MME CHEN",
-     "text": "Vous êtes le type du journal ? Non ? Le flic en civil. J'ai quelque chose pour vous. J'attendais que quelqu'un revienne. Six semaines. Personne n'est revenu."
-    },
-
-    {
-     "bg": "scene_de_crime",
-     "rain": False,
-     "char": "detective",
-     "expr": 0,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Je suis revenu. Qu'est-ce que vous avez vu ?"
-    },
-
-    {
-     "bg": "scene_de_crime",
-     "rain": False,
-     "char": "policiere",
-     "expr": 1,
-     "side": "right",
-     "name": "MME CHEN",
-     "text": "Pas vu. Entendu. Avant le coup de feu — dix minutes avant — une conversation. Dans la ruelle. Deux voix. L'une disait : 'Le Viertes Reich ne tolère pas les hésitants.' L'autre n'a rien répondu.",
-     "evidence": ("Témoignage Chen", "Phrase 'Viertes Reich' entendue 10 min avant le meurtre de Vane")
-    },
-
-    {
-     "bg": "scene_de_crime",
-     "rain": False,
-     "char": "detective",
-     "expr": 7,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Viertes Reich. Le Quatrième Reich. Ils utilisent ce nom en interne. Ce n'est pas une métaphore ou une hyperbole de journaliste. C'est leur terme. C'est ce qu'ils croient être en train de bâtir."
-    },
-
-    {
-     "bg": "scene_de_crime",
-     "rain": False,
-     "char": "detective",
-     "expr": 3,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Vane a hésité. C'est pour ça qu'il est mort. Pas parce qu'il allait parler — parce qu'il a hésité. Pour eux, l'hésitation est la trahison."
-    },
-
-    {
-     "bg": "train",
-     "rain": False,
-     "transition": "slide_left",
-     "char": None,
-     "side": "left",
-     "name": "",
-     "text": "Je reprends la piste du Luxembourg. Le rendez-vous que Vane n'a jamais pu honorer. Quelqu'un l'attendait là-bas. Peut-être quelqu'un qui ne sait pas encore que Vane est mort."
-    },
-
-    {
-     "bg": "train",
-     "rain": False,
-     "char": "detective",
-     "expr": 5,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Thalys. Cinq heures de trajet. Je prends le billet au guichet, en liquide. Je n'utilise pas ma carte depuis trois jours. Vieille habitude."
-    },
-
-    {
-     "bg": "train",
-     "rain": False,
-     "char": None,
-     "side": "left",
-     "name": "",
-     "text": "Dans le wagon-restaurant, un homme lit le Financial Times. Il a l'air de lire mais ses yeux ne bougent pas. Je connais ce regard. C'est le regard de quelqu'un qui surveille."
-    },
-
-    {
-     "bg": "train",
-     "rain": False,
-     "char": "detective",
-     "expr": 6,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Il est seul. Costard, pas de cravate. Cinquante ans environ. Il a un léger accent à Salzbourg si je devais deviner — la façon dont il dit 'merci' à la serveuse. Autrichien."
-    },
-
-    {
-     "bg": "train",
-     "rain": False,
-     "char": "detective",
-     "expr": 5,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Je m'assieds à la table voisine. Je commande un café. Je ne le regarde pas. Je le laisse me regarder. Après six minutes, il se lève et s'en va sans avoir commencé son journal."
-    },
-
-    {
-     "bg": "train",
-     "rain": False,
-     "char": None,
-     "side": "left",
-     "name": "",
-     "text": "Il laisse le journal sur la table. Coincé dans les pages : une carte de visite vierge. Au dos, écrit au stylo bille : 'Arrêtez. Ils ont déjà vos photos.' Rien d'autre."
-    },
-
-    {
-     "bg": "train",
-     "rain": False,
-     "char": "detective",
-     "expr": 3,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Mes photos. Pas mon nom — mes photos. Ce qui signifie qu'ils ont de quoi m'identifier sans document officiel. Ils ont infiltré quelque chose de proche.",
-     "evidence": ("Carte vierge — train", "Avertissement anonyme — 'ils ont vos photos' — auteur inconnu")
-    },
-
-    {
-     "bg": "train",
-     "rain": False,
-     "char": "detective",
-     "expr": 9,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Je pense à Mme Chen. Au coursier Pierre. Au troisième témoin qui n'a pas voulu parler. À tous ceux qui savent quelque chose et qui vivent avec le poids de ce savoir."
-    },
-
-    {
-     "bg": "train",
-     "rain": False,
-     "char": "detective",
-     "expr": 4,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Je n'ai rien fait de courageux. J'ai juste continué. Parfois c'est la même chose. Parfois ce ne l'est pas."
-    },
-
-    {
-     "bg": "archives",
-     "rain": False,
-     "transition": "fade_black",
-     "char": None,
-     "side": "left",
-     "name": "",
-     "text": "Luxembourg-Ville. Les Archives centrales du Parlement Européen. J'entre avec de faux papiers de journaliste que Natasha m'a fait parvenir. Elle est plus utile en alliée qu'en adversaire."
-    },
-
-    {
-     "bg": "archives",
-     "rain": False,
-     "char": "detective",
-     "expr": 5,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Je cherche la Réforme de Lisbonne bis. Clause 77. Elle est là, dans les archives consultables, mais classée 'document de travail non finalisé'. Personne ne la cherche. Personne ne la lit."
-    },
-
-    {
-     "bg": "archives",
-     "rain": False,
-     "char": None,
-     "side": "left",
-     "name": "",
-     "text": "L'archiviste — une femme d'une trentaine d'années, lorgnons, efficace — pose la boîte sur ma table sans commentaire. Quatre cents pages. Technocratie dense."
-    },
-
-    {
-     "bg": "archives",
-     "rain": False,
-     "char": "detective",
-     "expr": 5,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "La clause 77. Alinéa 4. Les mots sont neutres, juridiques, presque ennuyeux. Mais ce qu'ils disent est simple : douze États peuvent décider ensemble de transférer leur souveraineté à un organe central. Sans consultation populaire. Par vote parlementaire simple."
-    },
-
-    {
-     "bg": "archives",
-     "rain": False,
-     "char": "detective",
-     "expr": 7,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Ils n'ont pas besoin d'un coup d'État violent. Ils n'ont pas besoin de tanks. Ils ont besoin de 78 votes dans trois commissions parlementaires et d'un bon avocat. Voss est les deux.",
-     "evidence": ("Clause 77 — Réforme de Lisbonne bis", "Fusion souveraineté 12 États — sans référendum — vote commission")
-    },
-
-    {
-     "bg": "archives",
-     "rain": False,
-     "char": None,
-     "side": "left",
-     "name": "",
-     "text": "Je photographie les pages pertinentes. L'archiviste revient. 'Monsieur, les appareils photo sont interdits dans cette salle.' Je referme le livre. Je souris. 'Je prends des notes mentales.' Elle ne me croit pas. Elle a raison."
-    },
-
-    {
-     "bg": "archives",
-     "rain": False,
-     "char": "detective",
-     "expr": 6,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Je sors avec les photos. Et avec quelque chose que je n'attendais pas : une date tamponnée sur la première page. Ce document a été consulté quatre fois au cours du dernier mois. Par deux personnes différentes. Selon le registre des consultations."
-    },
-
-    {
-     "bg": "archives",
-     "rain": False,
-     "char": "detective",
-     "expr": 5,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "L'une de ces personnes utilisait le badge diplomatique de la délégation allemande. Arnheim. Le Sénateur. Il est venu vérifier que son texte était toujours là. Intact. Attendant."
-    },
-
-    {
-     "bg": "train",
-     "rain": True,
-     "transition": "fade_black",
-     "char": None,
-     "side": "left",
-     "name": "",
-     "text": "─── FIN DU CHAPITRE III-B ───"
-    },
-
-    {
-     "chapter_end": 10,
-     "bg": "train",
-     "char": None,
-     "side": "left",
-     "name": "",
-     "text": ""
-    },
-]
-
-# ══════════════════════════════════════════════════════════════════════
-# Chapitre III-C — Mémoire
-# ══════════════════════════════════════════════════════════════════════
-SCRIPT_IIIc = [
-    {
-     "bg": "bureau",
-     "rain": False,
-     "transition": "fade_white",
-     "char": None,
-     "side": "left",
-     "name": "",
-     "text": "CHAPITRE III-C — Mémoire"
-    },
-
-    {
-     "bg": "bureau",
-     "rain": False,
-     "char": None,
-     "side": "left",
-     "name": "",
-     "text": "Retour à Paris. Mon bureau. Il est 23h14. La fenêtre est ouverte malgré le froid. J'aime entendre la ville — ça me rappelle que le monde continue de tourner même quand j'ai l'impression de tenir le seul fil qui l'empêche de s'effondrer."
-    },
-
-    {
-     "bg": "bureau",
-     "rain": False,
-     "char": "detective",
-     "expr": 9,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Je n'ai pas dormi depuis... Je ne sais plus. Le temps s'est aplati. Il y a des affaires qui font ça — elles absorbent le temps comme du papier buvard absorbe l'encre. Il ne reste plus rien."
-    },
-
-    {
-     "bg": "bureau",
-     "rain": False,
-     "char": "detective",
-     "expr": 4,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Ma mère appelait ça 'être hanté'. Elle disait que mon père était hanté par certaines questions. Que c'est ce qui l'avait rendu capable d'écrire des choses que personne d'autre n'aurait écrites. Et que c'est ce qui l'avait tué."
-    },
-
-    {
-     "bg": "bureau",
-     "rain": False,
-     "char": "detective",
-     "expr": 9,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Je regarde le mur. Le fil rouge. Les punaises. Les photos. Il y a des nœuds que je ne comprends pas encore. Des connexions qui manquent. Ça me dérange moins qu'avant. Les trous font partie de l'image."
-    },
-
-    {
-     "bg": "bureau",
-     "rain": False,
-     "transition": "fade_white",
-     "char": None,
-     "side": "left",
-     "name": "",
-     "text": "Strasbourg. 1987. J'ai huit ans."
-    },
-
-    {
-     "bg": "scene_de_crime",
-     "rain": False,
-     "char": None,
-     "side": "left",
-     "name": "",
-     "text": "Mon père range ses papiers dans une mallette. Vieille, en cuir marron, une fermeture éclair qui grince toujours au même endroit. Je connais ce son par cœur — c'est le son du départ."
-    },
-
-    {
-     "bg": "scene_de_crime",
-     "rain": False,
-     "char": "detective",
-     "expr": 4,
-     "side": "left",
-     "name": "JEUNE ÉLIE (voix intérieure)",
-     "text": "Papa. Tu travailles sur quoi ?"
-    },
-
-    {
-     "bg": "scene_de_crime",
-     "rain": False,
-     "char": None,
-     "side": "left",
-     "name": "",
-     "text": "Il s'arrête. Il pose la mallette. Il s'accroupit à ma hauteur. Il fait ça toujours — se mettre à ma hauteur, ne jamais me parler d'en haut. J'ai mis des années à comprendre que c'était rare."
-    },
-
-    {
-     "bg": "scene_de_crime",
-     "rain": False,
-     "char": "taro",
-     "expr": 1,
-     "side": "right",
-     "name": "PAUL RAVEN (voix souvenir)",
-     "text": "Je travaille sur quelque chose de difficile. Sur de l'argent qui vient de très loin et qui va vers des endroits où il ne devrait pas aller. Tu comprends ?"
-    },
-
-    {
-     "bg": "scene_de_crime",
-     "rain": False,
-     "char": "detective",
-     "expr": 4,
-     "side": "left",
-     "name": "JEUNE ÉLIE (voix intérieure)",
-     "text": "C'est comme de la contrebande ? Comme dans les films ?"
-    },
-
-    {
-     "bg": "scene_de_crime",
-     "rain": False,
-     "char": "taro",
-     "expr": 2,
-     "side": "right",
-     "name": "PAUL RAVEN (voix souvenir)",
-     "text": "Un peu. Mais plus compliqué. Parce que ceux qui font ça sont des gens en costume qui vont dans des dîners. Des gens qui font des discours sur l'avenir de l'Europe."
-    },
-
-    {
-     "bg": "scene_de_crime",
-     "rain": False,
-     "char": "detective",
-     "expr": 0,
-     "side": "left",
-     "name": "JEUNE ÉLIE (voix intérieure)",
-     "text": "Et toi, tu vas les arrêter ?"
-    },
-
-    {
-     "bg": "scene_de_crime",
-     "rain": False,
-     "char": "taro",
-     "expr": 0,
-     "side": "right",
-     "name": "PAUL RAVEN (voix souvenir)",
-     "text": "Je vais écrire la vérité sur eux. Et après, d'autres personnes pourront les arrêter. C'est comme ça que ça marche. Si tu veux changer les choses, tu commences par dire ce qui est vrai."
-    },
-
-    {
-     "bg": "bureau",
-     "rain": False,
-     "transition": "fade_black",
-     "char": "detective",
-     "expr": 4,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Il avait raison. Il avait aussi tort. Écrire la vérité ne suffit pas quand ceux à qui vous l'envoyez ont été achetés avant que vous n'ayez terminé d'écrire."
-    },
-
-    {
-     "bg": "bureau",
-     "rain": False,
-     "char": "detective",
-     "expr": 9,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Mon père a été tué dix mois après cette conversation. Le dossier a disparu. L'article n'a jamais été publié. Et moi, j'ai mis un uniforme et j'ai décidé que j'allais 'arrêter les gens' plutôt qu'écrire sur eux."
-    },
-
-    {
-     "bg": "bureau",
-     "rain": False,
-     "char": "detective",
-     "expr": 3,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Je les ai arrêtés, oui. Pendant seize ans. Des petits criminels, des dealers, des escrocs locaux. Pendant ce temps, ceux en costume continuaient leurs dîners."
-    },
-
-    {
-     "bg": "bureau",
-     "rain": True,
-     "transition": "slide_left",
-     "char": "policiere",
-     "expr": 2,
-     "side": "right",
-     "name": "OFF. LEILA SATO",
-     "text": "Raven. Je sais qu'il est minuit passé. Je sais que vous ne dormez pas. Je sais aussi que vous êtes en train de vous faire du mal tout seul dans votre bureau. Arrêtez."
-    },
-
-    {
-     "bg": "bureau",
-     "rain": True,
-     "char": "detective",
-     "expr": 6,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Vous m'appelez pour me dire d'arrêter. C'est touchant, Sato."
-    },
-
-    {
-     "bg": "bureau",
-     "rain": True,
-     "char": "policiere",
-     "expr": 1,
-     "side": "right",
-     "name": "OFF. LEILA SATO",
-     "text": "Je vous appelle parce que ma fille a demandé qui était le monsieur avec le chapeau qui était venu nous voir. Je lui ai dit que c'était un ami. Elle a dit qu'il avait l'air triste."
-    },
-
-    {
-     "bg": "bureau",
-     "rain": True,
-     "char": "detective",
-     "expr": 4,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Les enfants ont un radar pour ça."
-    },
-
-    {
-     "bg": "bureau",
-     "rain": True,
-     "char": "policiere",
-     "expr": 2,
-     "side": "right",
-     "name": "OFF. LEILA SATO",
-     "text": "Elle m'a aussi demandé si le monsieur triste allait aller mieux. J'ai dit oui. Ne me faites pas mentir à ma fille, Raven."
-    },
-
-    {
-     "bg": "bureau",
-     "rain": True,
-     "char": "detective",
-     "expr": 1,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Je vais faire de mon mieux. C'est tout ce que je peux promettre."
-    },
-
-    {
-     "bg": "bureau",
-     "rain": True,
-     "char": "policiere",
-     "expr": 1,
-     "side": "right",
-     "name": "OFF. LEILA SATO",
-     "text": "Elle m'a aussi demandé si le monsieur avec le chapeau était un héros. Je lui ai dit que les héros ça n'existe pas dans la vraie vie. Elle m'a dit que je me trompais."
-    },
-
-    {
-     "bg": "bureau",
-     "rain": True,
-     "char": "detective",
-     "expr": 6,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Votre fille est plus intelligente que nous deux réunis."
-    },
-
-    {
-     "bg": "bureau",
-     "rain": True,
-     "char": "policiere",
-     "expr": 2,
-     "side": "right",
-     "name": "OFF. LEILA SATO",
-     "text": "Oui. C'est ce qui m'inquiète le plus pour son avenir. Bonne nuit, Raven. Et dormez."
-    },
-
-    {
-     "bg": "bureau",
-     "rain": False,
-     "char": None,
-     "side": "left",
-     "name": "",
-     "text": "5h23. La pluie s'est arrêtée. La fenêtre est toujours ouverte. Quelque chose s'est changé dans l'air — cette légèreté particulière qui précède l'aube, comme si la nuit reprenait son souffle."
-    },
-
-    {
-     "bg": "bureau",
-     "rain": False,
-     "char": "detective",
-     "expr": 0,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Mon père disait que la vérité n'a pas besoin d'être défendue. Elle a besoin d'être dite. Si tu la dis assez fort, assez souvent, à assez de personnes, elle finit par tenir debout toute seule."
-    },
-
-    {
-     "bg": "bureau",
-     "rain": False,
-     "char": "detective",
-     "expr": 4,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Je pense qu'il avait tort. La vérité ne tient debout que si quelqu'un la soutient. Et parfois, ce quelqu'un paie pour ça. Il l'a payé. Marcus Vane l'a payé."
-    },
-
-    {
-     "bg": "bureau",
-     "rain": False,
-     "char": "detective",
-     "expr": 5,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "La question n'est pas de savoir si ça vaut le prix. La question est de savoir si quelqu'un est prêt à le payer. Et depuis Genève, depuis cette nuit dans la ruelle, j'ai ma réponse."
-    },
-
-    {
-     "bg": "toit",
-     "rain": False,
-     "transition": "fade_white",
-     "char": None,
-     "side": "left",
-     "name": "",
-     "text": "Le toit de mon immeuble. Je monte rarement. Ce matin, je monte. Paris s'étale sous la lumière naissante — grise, froide, belle comme seules les villes épuisées peuvent être belles."
-    },
-
-    {
-     "bg": "toit",
-     "rain": False,
-     "char": "detective",
-     "expr": 0,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Je ne suis pas un héros. Je suis quelqu'un qui ne sait pas s'arrêter. C'est peut-être la même chose. C'est peut-être très différent. Je m'en fiche."
-    },
-
-    {
-     "bg": "toit",
-     "rain": False,
-     "char": "detective",
-     "expr": 5,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Il reste un Architecte en liberté. Un Fantôme quelque part en Europe. Un sénateur qui vote des lois dans un parlement que je n'ai pas encore trouvé comment toucher. Et moi, sur ce toit, avec un café froid."
-    },
-
-    {
-     "bg": "toit",
-     "rain": False,
-     "char": "detective",
-     "expr": 6,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "C'est suffisant pour commencer. C'est toujours suffisant pour commencer."
-    },
-
-    {
-     "bg": "toit",
-     "rain": False,
-     "char": None,
-     "side": "left",
-     "name": "",
-     "text": "─── FIN DU CHAPITRE III-C ───"
-    },
-
-    {
-     "chapter_end": 11,
-     "bg": "toit",
-     "char": None,
-     "side": "left",
-     "name": "",
-     "text": ""
-    },
-]
 
 # ══════════════════════════════════════════════════════════════════════
 # Chapitre IV — L'Héritage
@@ -2757,7 +2060,7 @@ SCRIPT_V = [
     {"bg": "hotel_berlin", "rain": False,
      "char": "ghost", "expr": 1, "side": "right",
      "name": "???",
-     "text": "Le Fantôme. Son vrai nom. Il s'appelle Viktor Selg. Diplomate suédois. Attaché culturel officiel. Conseiller non officiel de trois commissions européennes.",
+     "text": "Le Fantôme. Son identité complète : Viktor Selg. Diplomate suédois, attaché culturel officiel. Conseiller non officiel de trois commissions européennes — et l'homme derrière l'accord de Berlin.",
      "evidence": ("Identité du Fantôme", "Viktor Selg — diplomate suédois, conseiller UE")},
 
     {"bg": "hotel_berlin", "rain": False,
@@ -3635,753 +2938,8 @@ SCRIPT_VII = [
     {"chapter_end": 7, "bg": "toit", "char": None, "side": "left", "name": "", "text": ""},
 ]
 
-# ══════════════════════════════════════════════════════════════════════
-# Extensions inline (nœuds dans SCRIPT original)
-# ══════════════════════════════════════════════════════════════════════
-SCRIPT_EXT_INLINE = [
 
-    # ======================================================================
-    # ████  EXTENSIONS — Branches Chapitres I & II  ████
-    # ======================================================================
-
-    {
-     "id": "interro_ext_01",
-     "bg": "salle_interrogatoire",
-     "rain": False,
-     "char": "detective",
-     "expr": 5,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Il reste trois témoins dans la zone de sécurité. Le flic de faction les a regroupés sous un auvent : une femme d'une cinquantaine d'années, un coursier, un jeune homme qui tremble."
-    },
-
-    {
-     "id": "interro_ext_02",
-     "bg": "salle_interrogatoire",
-     "rain": True,
-     "char": "policiere",
-     "expr": 0,
-     "side": "right",
-     "name": "OFF. LEILA SATO",
-     "text": "La dame, c'est Mme Yong. Elle tient l'épicerie du coin depuis vingt ans. Elle a vu quelque chose mais elle dit qu'elle ne parle qu'à un 'vrai policier'."
-    },
-
-    {
-     "id": "interro_ext_03",
-     "bg": "salle_interrogatoire",
-     "rain": True,
-     "char": "detective",
-     "expr": 6,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Je sors ma carte de presse. Je lui montre. Elle la lit deux fois. 'Privé. Ça compte quand même ?' Oui, madame. Ça compte quand même."
-    },
-
-    {
-     "id": "interro_ext_04",
-     "bg": "salle_interrogatoire",
-     "rain": True,
-     "char": None,
-     "side": "left",
-     "name": "",
-     "text": "Mme Yong — petite, manteau imperméable, parapluie violet fermé qu'elle n'a pas lâché — parle lentement, en choisissant chaque mot."
-    },
-
-    {
-     "id": "interro_ext_05",
-     "bg": "salle_interrogatoire",
-     "rain": True,
-     "char": "policiere",
-     "expr": 1,
-     "side": "right",
-     "name": "MME YONG",
-     "text": "Une voiture. Grise. Elle attendait depuis au moins deux heures avant le coup de feu. Moteur allumé. Personne ne fait ça. Pas ici. Pas à cette heure."
-    },
-
-    {
-     "id": "interro_ext_06",
-     "bg": "salle_interrogatoire",
-     "rain": True,
-     "char": "detective",
-     "expr": 5,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Vous avez vu la plaque ? Ou au moins la couleur exacte ?"
-    },
-
-    {
-     "id": "interro_ext_07",
-     "bg": "salle_interrogatoire",
-     "rain": True,
-     "char": "policiere",
-     "expr": 1,
-     "side": "right",
-     "name": "MME YONG",
-     "text": "Grise métallisée. Comme la fourchette de ma belle-mère. Le premier chiffre, c'était un sept. Et les deux lettres du milieu, WK. J'ai une bonne mémoire pour les chiffres. C'est mon métier.",
-     "evidence": ("Plaque partielle WK", "Véhicule gris — 2h stationnement — fuite après coup de feu")
-    },
-
-    {
-     "id": "interro_ext_08",
-     "bg": "salle_interrogatoire",
-     "rain": True,
-     "char": "detective",
-     "expr": 1,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "C'est une plaque d'entreprise. La série WK, c'est une flotte de location. Pas un particulier. Quelqu'un qui ne veut pas qu'on remonte à lui."
-    },
-
-    {
-     "id": "interro_ext_09",
-     "bg": "salle_interrogatoire",
-     "rain": True,
-     "char": None,
-     "side": "left",
-     "name": "",
-     "text": "Le coursier, ensuite. Vingt-deux ans, veste réfléchissante, écouteur encore dans l'oreille droite. Il a les yeux d'un homme qui a vu quelque chose qu'il ne voulait pas voir."
-    },
-
-    {
-     "id": "interro_ext_10",
-     "bg": "salle_interrogatoire",
-     "rain": True,
-     "char": "detective",
-     "expr": 0,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Vous êtes passé par là à quelle heure exactement ?"
-    },
-
-    {
-     "id": "interro_ext_11",
-     "bg": "salle_interrogatoire",
-     "rain": True,
-     "char": "taro",
-     "expr": 0,
-     "side": "right",
-     "name": "COURSIER — PIERRE",
-     "text": "2h12. J'ai regardé mon téléphone juste avant. Ma livraison était en retard. Il y avait un type — pas Vane, l'autre — qui regardait vers le haut de la ruelle. Vers les fenêtres."
-    },
-
-    {
-     "id": "interro_ext_12",
-     "bg": "salle_interrogatoire",
-     "rain": True,
-     "char": "detective",
-     "expr": 7,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Un guetteur. Ils avaient un guetteur. C'est une opération coordonnée. Pas un crime spontané."
-    },
-
-    {
-     "id": "interro_ext_13",
-     "bg": "salle_interrogatoire",
-     "rain": True,
-     "char": "taro",
-     "expr": 1,
-     "side": "right",
-     "name": "COURSIER — PIERRE",
-     "text": "Il portait un imperméable noir. Environ quarante ans. Un truc sur son oreille — une oreillette. Comme les gardes du corps. J'ai pensé que c'était un bodyguard. Alors j'ai pas regardé plus longtemps.",
-     "evidence": ("Description du guetteur", "Homme ~40 ans, imperméable noir, oreillette — 2h12")
-    },
-
-    {
-     "id": "interro_ext_14",
-     "bg": "salle_interrogatoire",
-     "rain": True,
-     "char": None,
-     "side": "left",
-     "name": "",
-     "text": "Le troisième témoin refuse de parler. Il fixe ses chaussures. Ses mains tremblent. Ce n'est pas de la peur ordinaire — c'est de la reconnaissance. Il a vu quelqu'un qu'il connaît."
-    },
-
-    {
-     "id": "interro_ext_15",
-     "bg": "salle_interrogatoire",
-     "rain": True,
-     "char": "detective",
-     "expr": 3,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Je ne lui pose pas de question. Je lui laisse ma carte. Et je lui dis : 'Vous n'avez rien à prouver ce soir. Mais si ça change, je réponds toujours.' Parfois, attendre est un acte d'enquête."
-    },
-
-    {
-     "id": "interro_ext_16",
-     "bg": "scene_de_crime",
-     "rain": True,
-     "char": "policiere",
-     "expr": 2,
-     "side": "right",
-     "name": "OFF. LEILA SATO",
-     "text": "Bilan : une plaque, une description. C'est mince. Mais c'est plus que ce qu'on avait il y a vingt minutes."
-    },
-
-    {
-     "id": "interro_ext_17",
-     "bg": "scene_de_crime",
-     "rain": True,
-     "char": "detective",
-     "expr": 5,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "C'est assez pour commencer. Une flotte de location avec WK dans la plaque, dans un rayon de deux kilomètres. Ça se rétrécit vite."
-    },
-
-    {
-     "id": "interro_ext_merge",
-     "bg": "scene_de_crime",
-     "rain": True,
-     "char": "detective",
-     "expr": 0,
-     "side": "left",
-     "name": "",
-     "text": "La pluie redouble. Il reste quarante minutes avant que Ferrière n'arrive et ne ferme la scène. Il faut décider comment utiliser ce temps.",
-     "choices": ["Continuer seul — garder l'avance sur la hiérarchie", "Appeler du renfort — cette affaire est trop grande pour un seul homme"],
-     "choice_branch": {"0": "solo", "1": "team"}
-    },
-
-    {
-     "id": "scene_ext_01",
-     "bg": "scene_de_crime",
-     "rain": True,
-     "char": "detective",
-     "expr": 5,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Je commence par la périphérie. Toujours. Les criminels se concentrent sur le centre, oublient les bords. C'est là qu'ils laissent des traces."
-    },
-
-    {
-     "id": "scene_ext_02",
-     "bg": "scene_de_crime",
-     "rain": True,
-     "char": None,
-     "side": "left",
-     "name": "",
-     "text": "Contre le mur nord : une marque. Pas une égratignure. Un tracé délibéré, fait avec quelque chose de pointu. Deux lettres entrelacées : V et S."
-    },
-
-    {
-     "id": "scene_ext_03",
-     "bg": "scene_de_crime",
-     "rain": True,
-     "char": "detective",
-     "expr": 7,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "VS. Vane avait un complice ? Ou un témoin ? Ou quelqu'un qui était là avant lui et a voulu signer quelque chose ?",
-     "evidence": ("Marque VS", "Lettres gravées dans la ruelle — auteur inconnu — avant le meurtre")
-    },
-
-    {
-     "id": "scene_ext_04",
-     "bg": "scene_de_crime",
-     "rain": True,
-     "char": "policiere",
-     "expr": 0,
-     "side": "right",
-     "name": "OFF. LEILA SATO",
-     "text": "Raven. Venez voir. Le béton sous la victime. Il y a une empreinte de chaussure. Pointure 43, semelle de course. Et il n'a pas bougé. Il était debout quand il a été touché."
-    },
-
-    {
-     "id": "scene_ext_05",
-     "bg": "scene_de_crime",
-     "rain": True,
-     "char": "detective",
-     "expr": 5,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Debout. Face à quelqu'un. Il n'essayait pas de fuir. Il attendait. Vane avait un rendez-vous. Et son interlocuteur a décidé que c'était le dernier."
-    },
-
-    {
-     "id": "scene_ext_06",
-     "bg": "scene_de_crime",
-     "rain": True,
-     "char": None,
-     "side": "left",
-     "name": "",
-     "text": "À dix mètres du corps, dans une fissure du mur : un téléphone prépayé écrasé. Volontairement. La carte SIM a été retirée mais la coque a survécu. Dessous, griffonné au marqueur : une suite de chiffres."
-    },
-
-    {
-     "id": "scene_ext_07",
-     "bg": "scene_de_crime",
-     "rain": True,
-     "char": "detective",
-     "expr": 5,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Sept chiffres. Une fréquence radio ? Non — un code postal. Luxembourg. Et une date. Dans six jours.",
-     "evidence": ("Téléphone écrasé", "Code postal Luxembourg + date — rendez-vous prévu")
-    },
-
-    {
-     "id": "scene_ext_08",
-     "bg": "scene_de_crime",
-     "rain": True,
-     "char": "detective",
-     "expr": 3,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Vane avait prévu de disparaître. Il avait prévu de fuir vers le Luxembourg dans six jours. Quelqu'un l'a su avant lui. Et a devancé ce plan."
-    },
-
-    {
-     "id": "scene_ext_09",
-     "bg": "scene_de_crime",
-     "rain": True,
-     "char": "policiere",
-     "expr": 1,
-     "side": "right",
-     "name": "OFF. LEILA SATO",
-     "text": "Il y a une autre chose. Son manteau — il porte un revers intérieur cousu. Quelqu'un a essayé de l'ouvrir et s'est arrêté. La couture est à moitié défaite."
-    },
-
-    {
-     "id": "scene_ext_10",
-     "bg": "scene_de_crime",
-     "rain": True,
-     "char": "detective",
-     "expr": 5,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Ils cherchaient quelque chose. Ils n'ont pas eu le temps de finir. Ou ils ont été interrompus. La clé USB était dans la poche intérieure — ils ne l'ont pas trouvée."
-    },
-
-    {
-     "id": "scene_ext_11",
-     "bg": "scene_de_crime",
-     "rain": True,
-     "char": None,
-     "side": "left",
-     "name": "",
-     "text": "Je prends le téléphone dans une pochette de preuve. Je prends des photos du tracé VS. Je mesure les distances. Je travaille méthodiquement, comme mon père m'a appris à lire : mot par mot, sans sauter de ligne."
-    },
-
-    {
-     "id": "scene_ext_12",
-     "bg": "scene_de_crime",
-     "rain": True,
-     "char": "detective",
-     "expr": 4,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Mon père. Il aurait aimé ça. Cette ruelle. Cette énigme. Il aurait sorti son carnet et il aurait commencé à noter avant même d'avoir compris pourquoi."
-    },
-
-    {
-     "id": "scene_ext_13",
-     "bg": "scene_de_crime",
-     "rain": True,
-     "char": "detective",
-     "expr": 9,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Je ne note plus. Je mémorise. Les carnets se perdent. Les carnets peuvent être saisis. Ce que j'ai dans la tête, personne ne peut me le prendre."
-    },
-
-    {
-     "id": "scene_ext_14",
-     "bg": "scene_de_crime",
-     "rain": True,
-     "char": "policiere",
-     "expr": 2,
-     "side": "right",
-     "name": "OFF. LEILA SATO",
-     "text": "J'ai récupéré l'historique des appels du fixe de Vane pour le mois dernier. Douze appels vers le même numéro masqué. Réguliers. Un contact habitual. Pas quelqu'un de nouveau."
-    },
-
-    {
-     "id": "scene_ext_15",
-     "bg": "scene_de_crime",
-     "rain": True,
-     "char": "detective",
-     "expr": 5,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Un numéro masqué régulier. C'est un handler. Quelqu'un qui le guidait. Ou quelqu'un qui le surveillait. Deux lectures très différentes du même fait."
-    },
-
-    {
-     "id": "scene_ext_16",
-     "bg": "scene_de_crime",
-     "rain": True,
-     "char": "detective",
-     "expr": 0,
-     "side": "left",
-     "name": "",
-     "text": "La pluie redouble. La scène de crime ne va pas rester ouverte encore longtemps. Il faut décider de la suite.",
-     "choices": ["Continuer seul — garder l'avance sur la hiérarchie", "Appeler du renfort — cette affaire est trop grande pour un seul homme"],
-     "choice_branch": {"0": "solo", "1": "team"}
-    },
-
-    {
-     "id": "ch2_trust_ext_01",
-     "bg": "bureau",
-     "rain": False,
-     "char": "natasha",
-     "expr": 0,
-     "side": "right",
-     "name": "NATASHA MORI",
-     "text": "Je vous transmets ce que j'ai sur la Synarchie. Mais d'abord — pourquoi vous faites confiance à une journaliste ? Vous détestez la presse. Tout le monde sait ça."
-    },
-
-    {
-     "id": "ch2_trust_ext_02",
-     "bg": "bureau",
-     "rain": False,
-     "char": "detective",
-     "expr": 6,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Je ne fais pas confiance à la presse. Je fais confiance aux preuves. Et vous en avez. Ce n'est pas pareil."
-    },
-
-    {
-     "id": "ch2_trust_ext_03",
-     "bg": "bureau",
-     "rain": False,
-     "char": "natasha",
-     "expr": 1,
-     "side": "right",
-     "name": "NATASHA MORI",
-     "text": "Le registre offshore. Banque de Riga, compte ouvert en 1952. Dormant pendant trente ans. Réactivé en 1982. Depuis lors, cent douze versements. Montants échelonnés pour rester sous les seuils de déclaration.",
-     "evidence": ("Registre Offshore", "Compte Riga 1952 — 112 versements — identités masquées")
-    },
-
-    {
-     "id": "ch2_trust_ext_04",
-     "bg": "bureau",
-     "rain": False,
-     "char": "detective",
-     "expr": 7,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "1952. L'année de la fondation selon les archives que Vane avait. Ce compte existe depuis le début. C'est le nerf financier de toute l'organisation."
-    },
-
-    {
-     "id": "ch2_trust_ext_05",
-     "bg": "bureau",
-     "rain": False,
-     "char": "natasha",
-     "expr": 1,
-     "side": "right",
-     "name": "NATASHA MORI",
-     "text": "Trois des bénéficiaires sont des entités morales. Deux fondations et un think tank. Je les ai retracés. Ils ont tous le même agent fiscal déclaré à Chypre. Un certain... Heinrich Voss."
-    },
-
-    {
-     "id": "ch2_trust_ext_06",
-     "bg": "bureau",
-     "rain": False,
-     "char": "detective",
-     "expr": 3,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "L'Architecte. On revient toujours à lui. Il est la colonne vertébrale. Ferrière, Vane, les comptes — ce sont des organes. Lui, c'est le squelette."
-    },
-
-    {
-     "id": "ch2_trust_ext_07",
-     "bg": "bureau",
-     "rain": False,
-     "char": "natasha",
-     "expr": 2,
-     "side": "right",
-     "name": "NATASHA MORI",
-     "text": "J'ai essayé de le contacter officiellement il y a six mois. Par l'intermédiaire de son institut. Quarante-huit heures plus tard, ma voiture était sabotée. Câble de frein partiellement sectionné."
-    },
-
-    {
-     "id": "ch2_trust_ext_08",
-     "bg": "bureau",
-     "rain": False,
-     "char": "detective",
-     "expr": 4,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Ils ne menacent pas. Ils agissent. Comme avec mon père. Câble de frein — même méthode."
-    },
-
-    {
-     "id": "ch2_trust_ext_09",
-     "bg": "bureau",
-     "rain": False,
-     "char": "natasha",
-     "expr": 3,
-     "side": "right",
-     "name": "NATASHA MORI",
-     "text": "Votre père. Vous pensez que l'accident..."
-    },
-
-    {
-     "id": "ch2_trust_ext_10",
-     "bg": "bureau",
-     "rain": False,
-     "char": "detective",
-     "expr": 3,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Je pense depuis dix ans. Ce n'est pas le moment d'en parler. Si vous voulez collaborer, j'ai besoin du dossier complet sur les réformes constitutionnelles européennes liées à Voss."
-    },
-
-    {
-     "id": "ch2_trust_ext_11",
-     "bg": "bureau",
-     "rain": False,
-     "char": "natasha",
-     "expr": 1,
-     "side": "right",
-     "name": "NATASHA MORI",
-     "text": "Réforme de Lisbonne bis. Soumise discrètement à trois commissions. Texte de 400 pages. Clause 77, alinéa 4 : permet la fusion de la souveraineté budgétaire de douze États sans référendum public."
-    },
-
-    {
-     "id": "ch2_trust_ext_12",
-     "bg": "bureau",
-     "rain": False,
-     "char": "detective",
-     "expr": 5,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Sans référendum. C'est le coup d'État légal qu'ils préparent. Une Europe unifiée sous une seule main — la bonne — sans que personne ait voté pour."
-    },
-
-    {
-     "id": "ch2_trust_ext_13",
-     "bg": "bureau",
-     "rain": False,
-     "char": "natasha",
-     "expr": 1,
-     "side": "right",
-     "name": "NATASHA MORI",
-     "text": "Le vote en commission est prévu dans quatre mois. Si la réforme passe, la clause 77 entre en application. À ce moment-là, plus rien n'est révocable sans un consensus unanime des douze États. C'est irréversible."
-    },
-
-    {
-     "id": "ch2_trust_ext_14",
-     "bg": "bureau",
-     "rain": False,
-     "char": "detective",
-     "expr": 9,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Quatre mois. On travaille ensemble. On partage tout. Et si l'un de nous disparaît, l'autre publie immédiatement. Accord ?"
-    },
-
-    {
-     "id": "ch2_trust_ext_15",
-     "bg": "bureau",
-     "rain": False,
-     "char": "natasha",
-     "expr": 0,
-     "side": "right",
-     "name": "NATASHA MORI",
-     "text": "Accord. Mais je publie quoi qu'il arrive quand j'estime que le moment est venu. Même si vous n'êtes pas d'accord. Ce point n'est pas négociable."
-    },
-
-    {
-     "id": "ch2_trust_ext_16",
-     "bg": "bureau",
-     "rain": False,
-     "char": "detective",
-     "expr": 1,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Je peux vivre avec ça. On commence maintenant. Le Loft 7 — qu'est-ce que vous savez exactement ?",
-     "choices": ["Infiltrer le Loft 7 avec Natasha", "Contacter la presse internationale en parallèle"],
-     "choice_branch": {"0": "ch2_infiltrate", "1": "ch2_press"}
-    },
-
-    {
-     "id": "ch2_resist_ext_01",
-     "bg": "bureau",
-     "rain": False,
-     "char": "detective",
-     "expr": 9,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Je travaille seul parce que c'est plus propre. Moins d'exposition. Moins de surfaces d'attaque. Natasha Mori a ses propres objectifs. Sa publication. Son nom dans les journaux."
-    },
-
-    {
-     "id": "ch2_resist_ext_02",
-     "bg": "bureau",
-     "rain": False,
-     "char": "detective",
-     "expr": 5,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Je l'observe à distance. Je lis ses articles. Elle est précise, rigoureuse, courageuse. Mais elle ne sait pas qu'elle est déjà repérée. Sa ligne téléphonique est probablement sous écoute."
-    },
-
-    {
-     "id": "ch2_resist_ext_03",
-     "bg": "bureau",
-     "rain": True,
-     "char": None,
-     "side": "left",
-     "name": "",
-     "text": "Trois nuits seul avec les dossiers de Vane. Café froid. Fenêtres fermées. Un fil rouge accroché au mur, des punaises, des photocopies. C'est comme ça que mon père travaillait."
-    },
-
-    {
-     "id": "ch2_resist_ext_04",
-     "bg": "bureau",
-     "rain": True,
-     "char": "detective",
-     "expr": 4,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Il y a un nom qui revient dans toutes les transactions de Vane. Pas un prénom, pas une raison sociale. Un sobriquet : 'L'Ingénieur'. Il reçoit 3% de chaque virement. Depuis 1994."
-    },
-
-    {
-     "id": "ch2_resist_ext_05",
-     "bg": "bureau",
-     "rain": True,
-     "char": "detective",
-     "expr": 5,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "L'Ingénieur. Pas l'Architecte. Un échelon en dessous. Quelqu'un qui implémente. Quelqu'un qui connaît les détails techniques. Peut-être quelqu'un qui peut parler."
-    },
-
-    {
-     "id": "ch2_resist_ext_06",
-     "bg": "bureau",
-     "rain": True,
-     "char": "detective",
-     "expr": 3,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Je croise le sobriquet avec les anciens dossiers de la DGSI que j'ai pu récupérer par mes contacts. Rien. Ce nom n'existe pas officiellement. Ce qui signifie qu'il est protégé au plus haut niveau."
-    },
-
-    {
-     "id": "ch2_resist_ext_07",
-     "bg": "bureau",
-     "rain": True,
-     "char": "taro",
-     "expr": 1,
-     "side": "right",
-     "name": "TARO MITSUKI",
-     "text": "Raven. Tu m'appelles à 4h du matin pour me demander qui est 'L'Ingénieur'. C'est soit une question très idiote, soit une question très dangereuse. Laquelle c'est ?"
-    },
-
-    {
-     "id": "ch2_resist_ext_08",
-     "bg": "bureau",
-     "rain": True,
-     "char": "detective",
-     "expr": 6,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "La deuxième. Tu sais quelque chose ?"
-    },
-
-    {
-     "id": "ch2_resist_ext_09",
-     "bg": "bureau",
-     "rain": True,
-     "char": "taro",
-     "expr": 3,
-     "side": "right",
-     "name": "TARO MITSUKI",
-     "text": "J'entends des rumeurs depuis dix ans. L'Ingénieur, c'est le surnom d'un ex-officier de la Stasi reconverti. Il conçoit les 'accidents'. Il modélise les risques. Il prédit les comportements des enquêteurs."
-    },
-
-    {
-     "id": "ch2_resist_ext_10",
-     "bg": "bureau",
-     "rain": True,
-     "char": "detective",
-     "expr": 7,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Stasi. Est-ce qu'il a un vrai nom ?"
-    },
-
-    {
-     "id": "ch2_resist_ext_11",
-     "bg": "bureau",
-     "rain": True,
-     "char": "taro",
-     "expr": 1,
-     "side": "right",
-     "name": "TARO MITSUKI",
-     "text": "Viktor Selg. Ou c'est ce que disent ceux qui sont encore en vie pour en parler. Et ils sont pas nombreux. Je te donne ça, Raven, mais tu ne m'as jamais appelé. Tu n'as jamais eu ce nom.",
-     "evidence": ("Viktor Selg — dit le Fantôme", "Ex-Stasi — bras armé de la Synarchie depuis 1994")
-    },
-
-    {
-     "id": "ch2_resist_ext_12",
-     "bg": "bureau",
-     "rain": True,
-     "char": "detective",
-     "expr": 4,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Viktor Selg. Le Fantôme. C'est lui qui a modélisé la mort de mon père. J'en suis presque certain maintenant."
-    },
-
-    {
-     "id": "ch2_resist_ext_13",
-     "bg": "bureau",
-     "rain": True,
-     "char": "detective",
-     "expr": 3,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Je reste seul. Mais avec ce nom, je ne suis plus aveugle. Je sais ce que je cherche. Je sais vers quoi je me dirige."
-    },
-
-    {
-     "id": "ch2_resist_ext_14",
-     "bg": "bureau",
-     "rain": True,
-     "char": None,
-     "side": "left",
-     "name": "",
-     "text": "La nuit passe. Je ne dors pas. Je croise Viktor Selg avec tous les dossiers d'accidents non résolus en Europe depuis 1994. Douze correspondances. Douze 'accidents'. Dont celui de mon père."
-    },
-
-    {
-     "id": "ch2_resist_ext_15",
-     "bg": "bureau",
-     "rain": True,
-     "char": "detective",
-     "expr": 9,
-     "side": "left",
-     "name": "DÉTECTIVE RAVEN",
-     "text": "Vingt-et-un ans. J'ai mis vingt-et-un ans à mettre un nom sur ce que je savais déjà. La fatigue que je ressens là n'est pas physique. C'est quelque chose d'autre."
-    },
-
-    {
-     "id": "ch2_resist_ext_16",
-     "bg": "bureau",
-     "rain": True,
-     "char": "detective",
-     "expr": 0,
-     "side": "left",
-     "name": "",
-     "text": "L'aube. Il faut choisir la prochaine étape.",
-     "choices": ["Infiltrer le Loft 7 — seul, sans couverture", "Contacter la presse — Natasha Mori est la seule qui comprend"],
-     "choice_branch": {"0": "ch2_infiltrate", "1": "ch2_press"}
-    },
-
-
-
-]
-
-
-SCRIPT_CH1_BRANCH_EXT = [
+SCRIPT_I_EXT = [
 
     # ════════════ EXTENSION BRANCHE "interrogation" ════════════════════════════
     # Le joueur a choisi d'interroger les témoins plutôt qu'examiner la scène.
@@ -4610,7 +3168,7 @@ SCRIPT_CH1_BRANCH_EXT = [
 #  ch2_trust / ch2_resist → ~18 nœuds exclusifs chacune avant convergence
 # ─────────────────────────────────────────────────────────────────────────────
 
-SCRIPT_CH2_BRANCH_EXT = [
+SCRIPT_II_EXT = [
 
     # ════════════ EXTENSION BRANCHE ch2_trust ══════════════════════════════════
 
@@ -4821,7 +3379,7 @@ SCRIPT_CH2_BRANCH_EXT = [
 #  Enquête de terrain entre ch3 et ch4 — témoins mineurs, micro-indices, lore
 # ─────────────────────────────────────────────────────────────────────────────
 
-SCRIPT_CH3B = [
+SCRIPT_IIIB = [
 
     # ── Titre et accroche ──────────────────────────────────────────────────────
     {"bg": "rue", "rain": False, "transition": "fade_black",
@@ -4986,7 +3544,7 @@ SCRIPT_CH3B = [
      "name": "",
      "text": "─── FIN DU CHAPITRE III-B ───"},
 
-    {"chapter_end": 10, "bg": "train", "char": None, "side": "left",
+    {"chapter_end": 3, "bg": "train", "char": None, "side": "left",
      "name": "", "text": ""},
 ]
 
@@ -4997,7 +3555,7 @@ SCRIPT_CH3B = [
 #  Renforce l'attachement avant les chapitres plus lourds (IV-VII)
 # ─────────────────────────────────────────────────────────────────────────────
 
-SCRIPT_CH3C = [
+SCRIPT_IIIC = [
 
     # ── Titre ──────────────────────────────────────────────────────────────────
     {"bg": "bureau", "rain": False, "transition": "fade_white",
@@ -5181,23 +3739,1835 @@ SCRIPT_CH3C = [
      "name": "",
      "text": "─── FIN DU CHAPITRE III-C ───"},
 
-    {"chapter_end": 11, "bg": "toit", "char": None, "side": "left",
+    {"chapter_end": 3, "bg": "toit", "char": None, "side": "left",
      "name": "", "text": ""},
 ]
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# NUIT SANS TÉMOIN — script_extension_ch4567.py
+# Extensions Chapitres IV, V, VI & VII — 40+ nœuds par chapitre
+# Interrogatoires structurés, choix relationnels, déductions, ancrage émotionnel
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# CONVENTIONS :
+#   type: "interrogation"  → mini-jeu interrogatoire (géré par interrogation.py)
+#   "rel_choice"           → choix à impact relationnel (modifie réputation)
+#   "deduction"            → nœud de déduction (combine preuves)
+#   "note"         → entrée automatique dans le journal de Raven
+#   rep_change             → dict {perso: delta}
+#   time                   → horloge diégétique HH:MM
+#
+# USAGE :
+#   Ajouter en bas de script.py :
+#     SCRIPT_EXT_CH4567 = SCRIPT_IV_EXT + SCRIPT_V_EXT + SCRIPT_VI_EXT + SCRIPT_VII_EXT
+#     SCRIPT = SCRIPT + SCRIPT_EXT_CH4567
+# ═══════════════════════════════════════════════════════════════════════════════
 
-# ─────────────────────────────────────────────────────────────────────────────
-#  ASSEMBLAGE FINAL
-#  SCRIPT_EXT = toutes les extensions concaténées
-#  Usage : SCRIPT = SCRIPT + SCRIPT_EXT
-# ─────────────────────────────────────────────────────────────────────────────
 
-SCRIPT_EXT = (
-    SCRIPT_CH1_BRANCH_EXT
-    + SCRIPT_CH2_BRANCH_EXT
-    + SCRIPT_CH3B
-    + SCRIPT_CH3C
-)
+# ══════════════════════════════════════════════════════════════════════
+# CHAPITRE IV — Extensions (~48 nœuds)
+# Interrogatoires : Mira (approfondi), l'archiviste, l'homme du train
+# Choix relationnels : Sato / Mira / Natasha
+# ══════════════════════════════════════════════════════════════════════
+
+SCRIPT_IV_EXT = [
+
+    # ─── ACTE 0 : Retombées de Genève ───────────────────────────────────────────
+
+    {"id": "ch4_ext_00",
+     "bg": "appartement", "rain": False, "transition": "fade_black",
+     "time": "07:15",
+     "char": None, "side": "left",
+     "name": "",
+     "text": "CHAPITRE IV — Extension : L'Héritage (approfondissement)"},
+
+    {"id": "ch4_ext_01",
+     "bg": "appartement", "rain": False,
+     "time": "07:15",
+     "char": "detective", "expr": 9, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Six mois. Ferrière est en préventive. L'Architecte a disparu de sa cellule en quarante-cinq minutes chrono. Quarante-cinq. Quelqu'un a eu ce temps pour ouvrir une porte sécurisée."},
+
+    {"id": "ch4_ext_02",
+     "bg": "appartement", "rain": False,
+     "char": "detective", "expr": 5, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Interpol parle de 'fuite organisée de l'intérieur'. Sato parle de 'procédure en cours'. Moi, j'appelle ça ce que c'est : il y a encore au moins un homme à eux dans la hiérarchie policière."},
+
+    {"id": "ch4_ext_03",
+     "bg": "appartement", "rain": False,
+     "char": "detective", "expr": 4, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "note": "L'Architecte libre. Source interne confirmée. Chercher qui a autorisé le transfert sans escorte.",
+     "text": "J'ai noté ça dans le journal. Pas pour moi — pour la trace. Un vieux réflexe de flic que je n'ai jamais réussi à perdre."},
+
+    # ─── Interrogatoire : Taro, reprise de contact ──────────────────────────────
+
+    {"id": "ch4_ext_04",
+     "bg": "salle_interrogatoire", "rain": False, "transition": "iris",
+     "time": "11:00",
+     "char": "taro", "expr": 1, "side": "right",
+     "name": "TARO MITSUKI",
+     "text": "Raven. Vous n'êtes pas censé me contacter. Ferrière avait mes coordonnées. Si ses amis ont récupéré son téléphone..."},
+
+    {"id": "ch4_ext_05",
+     "bg": "salle_interrogatoire", "rain": False,
+     "char": "detective", "expr": 6, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "J'ai appelé depuis une cabine. Il en reste une au boulevard de Clichy. Les vieux réflexes ont du bon."},
+
+    {"id": "ch4_ext_06",
+     "bg": "salle_interrogatoire", "rain": False,
+     "char": "taro", "expr": 0, "side": "right",
+     "name": "TARO MITSUKI",
+     "text": "Qu'est-ce que vous voulez savoir que vous ne savez pas déjà ?"},
+
+    # ── Choix d'interrogatoire Taro ──────────────────────────────────────────────
+    {"id": "ch4_ext_07",
+     "bg": "salle_interrogatoire", "rain": False,
+     "char": "detective", "expr": 0, "side": "left",
+     "name": "",
+     "text": "Taro sait quelque chose sur la fuite de l'Architecte. Il choisit ses mots avec soin. Comment l'amener à parler ?",
+     "choices": [
+         "Lui rappeler ce qu'il nous doit — il a survécu grâce à notre silence",
+         "Lui proposer une protection formelle — en faire un témoin officiel",
+         "Ne rien demander directement — attendre qu'il donne ce qu'il veut donner"
+     ],
+     "choice_branch": {"0": "ch4_taro_pression", "1": "ch4_taro_officiel", "2": "ch4_taro_attente"}},
+
+    # ── Branche : Pression ─────────────────────────────────────────────────────
+    {"id": "ch4_taro_pression",
+     "bg": "salle_interrogatoire", "rain": False,
+     "char": "detective", "expr": 5, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "rep_change": {"taro": -10},
+     "text": "Il y a six mois, j'aurais pu transmettre votre nom à Ferrière. Je ne l'ai pas fait. Cette dette ne se prescrit pas."},
+
+    {"id": "ch4_taro_pression_2",
+     "bg": "salle_interrogatoire", "rain": False,
+     "char": "taro", "expr": 3, "side": "right",
+     "name": "TARO MITSUKI",
+     "text": "...C'est la première fois que vous utilisez ça contre moi. Je vois. Bien. Le transfert de l'Architecte — la voiture qui le conduisait était réquisitionnée sous un faux bon de commande. Signé par quelqu'un de la Direction."},
+
+    {"id": "ch4_taro_pression_3",
+     "bg": "salle_interrogatoire", "rain": False,
+     "char": "detective", "expr": 4, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "J'entends l'amertume dans sa voix. Je n'aurais pas dû utiliser ça. Mais il a parlé. Et l'info tient."},
+
+    # ── Branche : Protection officielle ───────────────────────────────────────
+    {"id": "ch4_taro_officiel",
+     "bg": "salle_interrogatoire", "rain": False,
+     "char": "detective", "expr": 1, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "rep_change": {"taro": 15},
+     "text": "Sato peut vous sortir du registre actif. Nouveau nom, nouvelle ville si vous voulez. Mais pour ça, il faut un vrai témoignage. Pas des rumeurs. Des faits."},
+
+    {"id": "ch4_taro_officiel_2",
+     "bg": "salle_interrogatoire", "rain": False,
+     "char": "taro", "expr": 2, "side": "right",
+     "name": "TARO MITSUKI",
+     "text": "Vous me proposez ça pour de vrai ? Raven... Je vais réfléchir. Mais voici ce que je peux vous donner gratuitement, maintenant : le bon de commande de la voiture était signé 'Commandant Bertier'. Ce nom n'existe pas à la Préfecture."},
+
+    {"id": "ch4_taro_officiel_3",
+     "bg": "salle_interrogatoire", "rain": False,
+     "char": "detective", "expr": 5, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Un nom fantôme. Encore. Ils ont leur propre répertoire de fausses identités à l'intérieur des services. C'est plus profond que ce qu'on pensait.",
+     "evidence": ("Bon de commande — Bertier", "Fausse identité dans les services — transfert Architecte autorisé")},
+
+    # ── Branche : Attente passive ──────────────────────────────────────────────
+    {"id": "ch4_taro_attente",
+     "bg": "salle_interrogatoire", "rain": False,
+     "char": "detective", "expr": 9, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "rep_change": {"taro": 5},
+     "text": "Je ne dis rien. Je pose mon café sur la table. Je regarde par la fenêtre. Taro déteste le silence. Toujours."},
+
+    {"id": "ch4_taro_attente_2",
+     "bg": "salle_interrogatoire", "rain": False,
+     "char": "taro", "expr": 1, "side": "right",
+     "name": "TARO MITSUKI",
+     "text": "...Vous faites quoi, là ? Vous dormez les yeux ouverts ou quoi ? Bon. Très bien. Le chauffeur qui conduisait la voiture de transfert — il s'appelle Rémi Cazes. Il a arrêté de répondre au téléphone il y a trois semaines."},
+
+    {"id": "ch4_taro_attente_3",
+     "bg": "salle_interrogatoire", "rain": False,
+     "char": "detective", "expr": 6, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Cazes. Disparu ou effacé. La Synarchie nettoie ses outils après utilisation. Ce homme sait trop. S'il est encore vivant, c'est parce qu'ils n'ont pas encore trouvé où il se cache.",
+     "evidence": ("Chauffeur Cazes", "Dernier lien vivant avec la fuite de l'Architecte — localisation inconnue")},
+
+    # ─── Interrogatoire structuré : Mira (profondeur) ───────────────────────────
+
+    {"id": "ch4_ext_mira_00",
+     "bg": "parking", "rain": False, "transition": "fade_black",
+     "time": "18:30",
+     "char": "mira", "expr": 0, "side": "right",
+     "name": "MIRA VOSS",
+     "text": "Je vous ai tout dit sur les archives. Mais vous continuez à me regarder comme si j'avais une deuxième couche à éplucher."},
+
+    {"id": "ch4_ext_mira_01",
+     "bg": "parking", "rain": False,
+     "char": "detective", "expr": 5, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Tout le monde a une deuxième couche. C'est un fait humain. Ce qui varie, c'est si cette couche est dangereuse ou non."},
+
+    # ── Mini-jeu interrogatoire Mira ─────────────────────────────────────────
+    {"id": "ch4_interro_mira",
+     "type": "interrogation",
+     "suspect": "mira",
+     "time_limit": 120,
+     "on_success": "ch4_mira_ok",
+     "on_failure": "ch4_mira_fail"},
+
+    {"id": "ch4_mira_ok",
+     "bg": "parking", "rain": False,
+     "char": "mira", "expr": 3, "side": "right",
+     "name": "MIRA VOSS",
+     "rep_change": {"mira": 20},
+     "text": "Bien. Vous avez trouvé la fissure. Les dix-huit mois. Je n'étais pas en protection. J'étais en infiltration. La DGSI m'avait envoyée dans le réseau pour documenter de l'intérieur. J'ai rempli ma mission. Et ils m'ont coupée."},
+
+    {"id": "ch4_mira_ok_2",
+     "bg": "parking", "rain": False,
+     "char": "detective", "expr": 7, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Infiltrée. Dans la Synarchie. Vous avez été à l'intérieur pendant dix-huit mois."},
+
+    {"id": "ch4_mira_ok_3",
+     "bg": "parking", "rain": False,
+     "char": "mira", "expr": 1, "side": "right",
+     "name": "MIRA VOSS",
+     "text": "Sous couverture. Un poste d'analyste contractuelle dans une filiale de l'Institut Voss. J'ai vu comment ils fonctionnent de l'intérieur. Comment ils recrutent. Comment ils effacent les gens."},
+
+    {"id": "ch4_mira_ok_4",
+     "bg": "parking", "rain": False,
+     "char": "detective", "expr": 3, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Et quand ils vous ont licenciée, c'était parce qu'ils avaient découvert que vous étiez infiltrée ?"},
+
+    {"id": "ch4_mira_ok_5",
+     "bg": "parking", "rain": False,
+     "char": "mira", "expr": 4, "side": "right",
+     "name": "MIRA VOSS",
+     "text": "Non. Ils ne l'ont jamais su. Ils m'ont licenciée parce qu'Arnheim a jugé que j'avais posé de trop bonnes questions sur les comptes lettons. Ironie : ils m'ont chassée avant que je puisse les trahir.",
+     "evidence": ("Couverture Mira — 18 mois", "Infiltration confirmée — DGSI — données internes Synarchie")},
+
+    {"id": "ch4_mira_fail",
+     "bg": "parking", "rain": False,
+     "char": "mira", "expr": 0, "side": "right",
+     "name": "MIRA VOSS",
+     "text": "Je vous ai dit ce que j'avais à dire. Si vous cherchez à me déstabiliser avec des questions en miroir, vous perdez votre temps. J'ai été formée à ça aussi."},
+
+    {"id": "ch4_mira_fail_2",
+     "bg": "parking", "rain": False,
+     "char": "detective", "expr": 9, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Elle tient. Soit elle dit vrai, soit elle est très bien préparée. Dans les deux cas, elle ne fléchit pas. Je note l'opacité et j'avance."},
+
+    # ─── Moment relationnel : Raven et Sato ──────────────────────────────────────
+
+    {"id": "ch4_ext_rel_sato_00",
+     "bg": "bureau", "rain": True, "transition": "fade_black",
+     "time": "22:45",
+     "char": "policiere", "expr": 2, "side": "right",
+     "name": "OFF. LEILA SATO",
+     "text": "Raven. Vous avez mangé aujourd'hui ?"},
+
+    {"id": "ch4_ext_rel_sato_01",
+     "bg": "bureau", "rain": True,
+     "char": "detective", "expr": 9, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "J'ai eu un café à 11h et deux biscuits qui traînaient depuis la semaine dernière. C'est nutritif."},
+
+    {"id": "ch4_ext_rel_sato_02",
+     "bg": "bureau", "rain": True,
+     "char": "policiere", "expr": 1, "side": "right",
+     "name": "OFF. LEILA SATO",
+     "text": "C'est pathétique. J'ai des restes dans une boîte. Je vous les apporte. Et vous allez les manger."},
+
+    # ── Choix relationnel Sato ────────────────────────────────────────────────
+    {"id": "ch4_ext_rel_sato_03",
+     "bg": "bureau", "rain": True,
+     "char": "detective", "expr": 0, "side": "left",
+     "name": "",
+     "text": "Sato propose quelque chose de simple. Un geste qui dit : je vous vois, pas seulement le dossier. Comment répondre ?",
+     "choices": [
+         "Accepter — et reconnaître qu'on a besoin l'un de l'autre",
+         "Refuser poliment — garder la distance professionnelle",
+         "Détourner — parler du dossier pour esquiver le reste"
+     ],
+     "choice_branch": {"0": "ch4_sato_accept", "1": "ch4_sato_refuse", "2": "ch4_sato_esquive"}},
+
+    {"id": "ch4_sato_accept",
+     "bg": "bureau", "rain": True,
+     "char": "detective", "expr": 1, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "rep_change": {"sato": 15},
+     "text": "Oui. Merci. Ce n'est pas souvent que quelqu'un me demande ça. Apportez ce que vous avez. Et si vous voulez, racontez-moi quelque chose qui n'a rien à voir avec la Synarchie."},
+
+    {"id": "ch4_sato_accept_2",
+     "bg": "bureau", "rain": True,
+     "char": "policiere", "expr": 2, "side": "right",
+     "name": "OFF. LEILA SATO",
+     "text": "Ma fille a remporté un concours de dessin cette semaine. Elle a peint un chien avec six pattes parce que, je cite, 'les chiens normaux c'est ennuyeux'. Médaille d'or de l'originalité discutable."},
+
+    {"id": "ch4_sato_accept_3",
+     "bg": "bureau", "rain": True,
+     "char": "detective", "expr": 2, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Six pattes. Elle a raison, c'est plus stable. Si je renaissais en chien, je voudrais six pattes. Juste pour l'efficacité."},
+
+    {"id": "ch4_sato_refuse",
+     "bg": "bureau", "rain": True,
+     "char": "detective", "expr": 9, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "rep_change": {"sato": -5},
+     "text": "Non. Je gère. Vous n'avez pas à vous occuper de mes habitudes alimentaires. Concentrons-nous sur Cazes."},
+
+    {"id": "ch4_sato_refuse_2",
+     "bg": "bureau", "rain": True,
+     "char": "policiere", "expr": 1, "side": "right",
+     "name": "OFF. LEILA SATO",
+     "text": "D'accord. Cazes. J'ai retrouvé une transaction à son nom il y a dix jours. Un loyer payé en liquide. Rue de Ménilmontant. Il est toujours à Paris."},
+
+    {"id": "ch4_sato_esquive",
+     "bg": "bureau", "rain": True,
+     "char": "detective", "expr": 5, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Cazes. Si il est encore vivant, il est peut-être la clé du bon de commande. Vous avez une adresse ?"},
+
+    {"id": "ch4_sato_esquive_2",
+     "bg": "bureau", "rain": True,
+     "char": "policiere", "expr": 0, "side": "right",
+     "name": "OFF. LEILA SATO",
+     "text": "...Vous avez une façon de ne jamais répondre à ce qui n'est pas une question de dossier, vous savez ça ? Rue de Ménilmontant. J'apporte les restes quand même."},
+
+    # ─── Interrogatoire : Rémi Cazes ──────────────────────────────────────────
+
+    {"id": "ch4_ext_cazes_00",
+     "bg": "appartement", "rain": False, "transition": "slide_left",
+     "time": "14:00",
+     "char": None, "side": "left",
+     "name": "",
+     "text": "Ménilmontant. Immeuble des années 70. Boîte aux lettres au nom de 'R. Cazes'. Il est là."},
+
+    {"id": "ch4_ext_cazes_01",
+     "bg": "appartement", "rain": False,
+     "char": "taro", "expr": 0, "side": "right",
+     "name": "RÉMI CAZES",
+     "text": "Qui êtes-vous ? Je vais crier."},
+
+    {"id": "ch4_ext_cazes_02",
+     "bg": "appartement", "rain": False,
+     "char": "detective", "expr": 0, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Non, vous n'allez pas crier. Vous allez me faire entrer. Parce que si vous criez, les deux hommes qui surveillent votre immeuble depuis ce matin entendent aussi."},
+
+    {"id": "ch4_ext_cazes_03",
+     "bg": "appartement", "rain": False,
+     "char": "taro", "expr": 3, "side": "right",
+     "name": "RÉMI CAZES",
+     "text": "...Comment vous savez pour eux ?"},
+
+    {"id": "ch4_ext_cazes_04",
+     "bg": "appartement", "rain": False,
+     "char": "detective", "expr": 6, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Je les surveille depuis une heure. Ils ne savent pas que je suis là. Mais dans vingt minutes, leur relève arrive. C'est maintenant ou c'est trop tard."},
+
+    # ── Mini-jeu interrogatoire Cazes ─────────────────────────────────────────
+    {"id": "ch4_interro_cazes",
+     "type": "interrogation",
+     "suspect": "taro",
+     "time_limit": 90,
+     "on_success": "ch4_cazes_ok",
+     "on_failure": "ch4_cazes_fail"},
+
+    {"id": "ch4_cazes_ok",
+     "bg": "appartement", "rain": False,
+     "char": "taro", "expr": 1, "side": "right",
+     "name": "RÉMI CAZES",
+     "text": "Le bon de commande... c'était Ferrière qui me l'a donné. Mais il y avait une deuxième signature. Quelqu'un que j'avais jamais vu. Une femme. Brune, quarantaine, badge de la Direction des Affaires Spéciales."},
+
+    {"id": "ch4_cazes_ok_2",
+     "bg": "appartement", "rain": False,
+     "char": "detective", "expr": 7, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Une femme. Direction des Affaires Spéciales. C'est une unité qui n'est pas censée intervenir dans les transferts de détenus."},
+
+    {"id": "ch4_cazes_ok_3",
+     "bg": "appartement", "rain": False,
+     "char": "taro", "expr": 1, "side": "right",
+     "name": "RÉMI CAZES",
+     "text": "Elle a dit que c'était 'une procédure parallèle'. Moi j'ai juste conduit. Je savais pas ce que j'emmenais. Enfin... j'aurais dû m'en douter. Mais j'ai conduit.",
+     "evidence": ("Deuxième signature — DAS", "Femme inconnue — Direction Affaires Spéciales — complice fuite Architecte")},
+
+    {"id": "ch4_cazes_fail",
+     "bg": "appartement", "rain": False,
+     "char": "taro", "expr": 1, "side": "right",
+     "name": "RÉMI CAZES",
+     "text": "J'ai rien fait de mal. J'ai suivi des ordres signés. Si quelque chose de pas légal s'est passé, je suis pas au courant. Partez."},
+
+    {"id": "ch4_cazes_fail_2",
+     "bg": "appartement", "rain": False,
+     "char": "detective", "expr": 4, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Il ne cède pas. Peut-être trop peur. Peut-être vraiment innocent des détails. Dans les deux cas, je n'ai pas le temps. Je laisse ma carte et je sors avant la relève."},
+
+    # ─── Déduction : Photo + Badge ────────────────────────────────────────────
+
+    {"id": "ch4_ext_deduction_01",
+     "bg": "bureau", "rain": False, "transition": "fade_black",
+     "time": "23:00",
+     "char": "detective", "expr": 5, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Photo de surveillance + Badge magnétique. La photo montre quelqu'un qui connaît les angles morts de mon appartement. Le badge montre un accès Parlement. Ce ne sont pas deux opérations distinctes. C'est une surveillance institutionnelle."},
+
+    {"id": "ch4_ext_deduction_02",
+     "bg": "bureau", "rain": False,
+     "char": "detective", "expr": 3, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "evidence": ("Déduction : Surveillance institutionnelle", "Photo + Badge → quelqu'un du Parlement me surveille depuis l'intérieur"),
+     "text": "Quelqu'un du Parlement m'a mis sous surveillance avant que je ne sache que le Parlement était impliqué. Ils me regardaient venir."},
+
+    # ─── Déduction : Clé USB #2 + Fichiers Synarchie ──────────────────────────
+
+    {"id": "ch4_ext_deduction_03",
+     "bg": "bureau", "rain": False,
+     "char": "detective", "expr": 7, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Clé USB #2 + Fichiers Synarchie Ch1. Le modèle est identique. Vane utilisait ce modèle comme standard. La personne qui m'a envoyé la clé #2 était dans le réseau de Vane. Ou avait accès à son matériel."},
+
+    {"id": "ch4_ext_deduction_04",
+     "bg": "bureau", "rain": False,
+     "char": "detective", "expr": 5, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "evidence": ("Déduction : Le successeur prévu", "Clé USB #2 → même réseau que Vane → quelqu'un continue son travail"),
+     "text": "Vane avait prévu sa propre mort. Et il avait prévu quelqu'un pour continuer. Ce successeur m'a contacté. La question est : est-ce Mira ? Ou quelqu'un d'autre que je n'ai pas encore vu ?"},
+
+    # ─── Moment relationnel : Raven et Natasha ───────────────────────────────
+
+    {"id": "ch4_ext_rel_natasha_00",
+     "bg": "rue", "rain": True, "transition": "slide_left",
+     "time": "16:00",
+     "char": "natasha", "expr": 1, "side": "right",
+     "name": "NATASHA MORI",
+     "text": "Mon rédacteur en chef veut que je mette ce dossier en pause. Il dit que les pressions juridiques de Selg mettent le journal en danger. Il a raison. Je vais continuer quand même."},
+
+    {"id": "ch4_ext_rel_natasha_01",
+     "bg": "rue", "rain": True,
+     "char": "detective", "expr": 0, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Ce n'est pas une décision anodine. Si votre journal vous lâche, vous n'avez plus de couverture légale."},
+
+    {"id": "ch4_ext_rel_natasha_02",
+     "bg": "rue", "rain": True,
+     "char": "natasha", "expr": 2, "side": "right",
+     "name": "NATASHA MORI",
+     "text": "Je sais. J'ai des copies chez trois confrères à l'étranger. Et je travaille sous protection de source. C'est prévu depuis le début."},
+
+    # ── Choix relationnel : Natasha ────────────────────────────────────────────
+    {"id": "ch4_ext_rel_natasha_03",
+     "bg": "rue", "rain": True,
+     "char": "detective", "expr": 0, "side": "left",
+     "name": "",
+     "text": "Natasha a tout risqué pour ce dossier. Ce qu'elle vient de dire mérite une réponse vraie — pas juste professionnelle.",
+     "choices": [
+         "Lui dire ce qu'on pense vraiment — elle a le droit de savoir le niveau de danger",
+         "La rassurer — minimiser les risques pour qu'elle continue",
+         "Lui proposer une sortie — elle n'est pas obligée d'aller jusqu'au bout"
+     ],
+     "choice_branch": {"0": "ch4_natasha_vrai", "1": "ch4_natasha_rassure", "2": "ch4_natasha_sortie"}},
+
+    {"id": "ch4_natasha_vrai",
+     "bg": "rue", "rain": True,
+     "char": "detective", "expr": 4, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "rep_change": {"natasha": 20},
+     "text": "Le niveau de danger est élevé. Très élevé. Ils ont saboté votre voiture à un moment où vous n'aviez rien publié encore. Maintenant vous êtes sur leurs écrans en permanence."},
+
+    {"id": "ch4_natasha_vrai_2",
+     "bg": "rue", "rain": True,
+     "char": "natasha", "expr": 1, "side": "right",
+     "name": "NATASHA MORI",
+     "text": "Je sais. Merci de ne pas me l'avoir caché. C'est ce que les gens font d'habitude — ils édulcorent pour me protéger. Je préfère savoir ce dans quoi je suis."},
+
+    {"id": "ch4_natasha_vrai_3",
+     "bg": "rue", "rain": True,
+     "char": "detective", "expr": 1, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Vous et Sato. Vous méritez toutes les deux mieux que mes instincts de protection maladroits."},
+
+    {"id": "ch4_natasha_rassure",
+     "bg": "rue", "rain": True,
+     "char": "detective", "expr": 6, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "rep_change": {"natasha": -5},
+     "text": "Selg est acculé. Les menaces juridiques, c'est le signe qu'il n'a plus les moyens de l'extrajudiciaire. Vous êtes moins en danger maintenant qu'il y a six mois."},
+
+    {"id": "ch4_natasha_rassure_2",
+     "bg": "rue", "rain": True,
+     "char": "natasha", "expr": 3, "side": "right",
+     "name": "NATASHA MORI",
+     "text": "C'est gentil de me dire ça. C'est aussi faux. Mais c'est gentil."},
+
+    {"id": "ch4_natasha_sortie",
+     "bg": "rue", "rain": True,
+     "char": "detective", "expr": 4, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "rep_change": {"natasha": 10},
+     "text": "Vous n'avez pas à aller jusqu'au bout. Vous avez déjà publié plus que la plupart. Ce que vous avez fait compte. La suite, d'autres peuvent la prendre."},
+
+    {"id": "ch4_natasha_sortie_2",
+     "bg": "rue", "rain": True,
+     "char": "natasha", "expr": 2, "side": "right",
+     "name": "NATASHA MORI",
+     "text": "Je sais que vous pensez ça sincèrement. Mais non. C'est mon histoire autant que la vôtre. J'y suis depuis le début. Je finis ce que j'ai commencé."},
+
+    # ─── Épilogue étendu Ch4 ──────────────────────────────────────────────────
+
+    {"id": "ch4_ext_epilogue_00",
+     "bg": "toit", "rain": False, "transition": "fade_black",
+     "time": "03:20",
+     "char": "detective", "expr": 0, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Récapitulatif de nuit. Cazes a confirmé une deuxième signature sur le bon de commande. Une femme. DAS. Je ne sais pas encore qui c'est."},
+
+    {"id": "ch4_ext_epilogue_01",
+     "bg": "toit", "rain": False,
+     "char": "detective", "expr": 5, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Mira a été infiltrée dans la Synarchie. Dix-huit mois. Ce qu'elle a vu de l'intérieur est précieux. Ce qu'elle n'a pas vu l'est peut-être encore plus."},
+
+    {"id": "ch4_ext_epilogue_02",
+     "bg": "toit", "rain": False,
+     "char": "detective", "expr": 9, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Je pense à Vane. Il a mis dix ans à préparer sa propre mort. À encoder les preuves. À choisir le format de la clé USB. Il savait que quelqu'un arriverait. Il savait que ce serait quelqu'un comme moi."},
+
+    {"id": "ch4_ext_epilogue_03",
+     "bg": "toit", "rain": False,
+     "char": "detective", "expr": 4, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "note": "Marcus Vane savait. Tout. Depuis dix ans. Il n'a pas fui parce qu'il espérait que quelqu'un récupère le flambeau après lui.",
+     "text": "C'est peut-être la chose la plus triste et la plus digne que quelqu'un puisse faire. Préparer la suite pour qu'elle existe même si on n'est plus là pour la voir."},
+
+    {"id": "ch4_ext_epilogue_04",
+     "bg": "toit", "rain": False,
+     "char": "detective", "expr": 3, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Je ne veux pas finir dans une ruelle. Mais si c'est le cas — au moins que quelqu'un arrive après. C'est tout ce qu'on peut espérer dans ce métier."},
+
+    {"id": "ch4_ext_fin",
+     "bg": "toit", "rain": False,
+     "char": None, "side": "left",
+     "name": "",
+     "text": "─── FIN DU CHAPITRE IV — EXTENSION ───"},
+]
+
+
+# ══════════════════════════════════════════════════════════════════════
+# CHAPITRE V — Extensions (~45 nœuds)
+# Interrogatoires : le contact anonyme, Viktor Selg (face-à-face), le serveur
+# Choix relationnels : Mira (les 18 mois), Sato (la décision), l'équipe Berlin
+# ══════════════════════════════════════════════════════════════════════
+
+SCRIPT_V_EXT = [
+
+    # ─── ACTE 0 : Le train, la nuit avant Berlin ──────────────────────────────
+
+    {"id": "ch5_ext_00",
+     "bg": "train", "rain": True, "transition": "fade_black",
+     "time": "23:47",
+     "char": None, "side": "left",
+     "name": "",
+     "text": "CHAPITRE V — Extension : Le Fantôme (approfondissement)"},
+
+    {"id": "ch5_ext_01",
+     "bg": "train", "rain": True,
+     "char": "detective", "expr": 9, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Le train roule. Compartiment seul. Verre de whisky que je n'ai pas bu depuis vingt minutes. Ce genre de nuit, je lis les dossiers jusqu'à ce que les lettres se mettent à bouger."},
+
+    {"id": "ch5_ext_02",
+     "bg": "train", "rain": True,
+     "char": "detective", "expr": 4, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Je pense à la première conversation avec Taro, il y a presque un an. 'Ces gens ne jouent pas.' Il avait raison. Et moi je jouais à quoi au juste ?"},
+
+    {"id": "ch5_ext_03",
+     "bg": "train", "rain": True,
+     "char": "detective", "expr": 5, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Au policier qui peut encore changer les choses. C'est naïf. Mais c'est le seul moteur que j'ai. Les moteurs naïfs tiennent souvent plus longtemps que les autres."},
+
+    # ─── Interrogatoire : le contact anonyme ──────────────────────────────────
+
+    {"id": "ch5_ext_contact_00",
+     "bg": "hotel_berlin", "rain": False, "transition": "iris",
+     "time": "23:00",
+     "char": "ghost", "expr": 0, "side": "right",
+     "name": "LE CONTACT",
+     "text": "Vous avez l'habitude de rencontrer des gens dans des hôtels à minuit ?"},
+
+    {"id": "ch5_ext_contact_01",
+     "bg": "hotel_berlin", "rain": False,
+     "char": "detective", "expr": 6, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "C'est mon horaire de travail habituel. Vous avez dit que vous connaissiez le vrai nom du Fantôme. Prouvez-le."},
+
+    # ── Choix d'interrogatoire : Contact anonyme ──────────────────────────────
+    {"id": "ch5_ext_contact_choix",
+     "bg": "hotel_berlin", "rain": False,
+     "char": "detective", "expr": 0, "side": "left",
+     "name": "",
+     "text": "Cet homme veut sortir. Il a quelque chose. Mais il n'est pas venu par amour de la justice. Comment lire ses motivations ?",
+     "choices": [
+         "L'attaquer directement — chercher à le déstabiliser pour voir sa réaction",
+         "Jouer la compréhension — lui montrer qu'on comprend sa position",
+         "Le laisser diriger — voir où il veut en venir avant d'intervenir"
+     ],
+     "choice_branch": {"0": "ch5_contact_attaque", "1": "ch5_contact_empathie", "2": "ch5_contact_attente"}},
+
+    {"id": "ch5_contact_attaque",
+     "bg": "hotel_berlin", "rain": False,
+     "char": "detective", "expr": 3, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Vous travaillez pour Selg depuis combien de temps ? Et qu'est-ce qui vous a fait décider que le bon moment pour trahir, c'était maintenant et pas il y a dix ans ?"},
+
+    {"id": "ch5_contact_attaque_2",
+     "bg": "hotel_berlin", "rain": False,
+     "char": "ghost", "expr": 3, "side": "right",
+     "name": "LE CONTACT",
+     "text": "Vingt-deux ans. Et ce qui a tout changé : le vol 219. Je savais pour les morts. Je n'avais pas compris jusqu'à combien ils iraient. Cent quarante-sept. C'est un nombre que je ne peux pas continuer à porter."},
+
+    {"id": "ch5_contact_attaque_3",
+     "bg": "hotel_berlin", "rain": False,
+     "char": "detective", "expr": 4, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Cent quarante-sept. Et il a fallu dix ans pour que ce nombre devienne insupportable. Mais je ne dis rien. Ce n'est pas le moment d'être juge."},
+
+    {"id": "ch5_contact_empathie",
+     "bg": "hotel_berlin", "rain": False,
+     "char": "detective", "expr": 0, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "rep_change": {"ghost_contact": 15},
+     "text": "Vous êtes venu ici seul. Vous avez pris le risque de me contacter. Ça, c'est déjà une décision difficile. Je vous écoute à votre rythme."},
+
+    {"id": "ch5_contact_empathie_2",
+     "bg": "hotel_berlin", "rain": False,
+     "char": "ghost", "expr": 1, "side": "right",
+     "name": "LE CONTACT",
+     "text": "Le vol 219. J'ai vu les listes de passagers avant le départ. J'ai reconnu deux des noms — des gens qui auraient dû vivre. Et j'ai fermé les yeux. C'est ça que je ne supporte plus."},
+
+    {"id": "ch5_contact_empathie_3",
+     "bg": "hotel_berlin", "rain": False,
+     "char": "detective", "expr": 4, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Il ne cherche pas l'absolution. Il cherche juste à que quelque chose change grâce à ce qu'il sait. C'est une motivation que je comprends."},
+
+    {"id": "ch5_contact_attente",
+     "bg": "hotel_berlin", "rain": False,
+     "char": "detective", "expr": 9, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Je ne dis rien. Je sors les photos du serveur de Berlin. Je les pose sur la table sans commentaire."},
+
+    {"id": "ch5_contact_attente_2",
+     "bg": "hotel_berlin", "rain": False,
+     "char": "ghost", "expr": 3, "side": "right",
+     "name": "LE CONTACT",
+     "text": "Vous avez déjà trouvé le serveur. Selg ne le sait pas encore. Dans ce cas... il faut que je vous dise quelque chose. Quelque chose que même le serveur ne contient pas."},
+
+    {"id": "ch5_contact_attente_3",
+     "bg": "hotel_berlin", "rain": False,
+     "char": "detective", "expr": 5, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Silence et patience — les seuls outils qui n'ont jamais déçu."},
+
+    # ─── Suite : révélation du contact ────────────────────────────────────────
+
+    {"id": "ch5_ext_contact_rev_00",
+     "bg": "hotel_berlin", "rain": False,
+     "char": "ghost", "expr": 1, "side": "right",
+     "name": "LE CONTACT",
+     "text": "Le vote au Parlement. La date que vous cherchez. Le 14 juin. Mais ce n'est pas un vote. C'est une confirmation. La réforme a déjà été approuvée en sous-main par neuf des douze États."},
+
+    {"id": "ch5_ext_contact_rev_01",
+     "bg": "hotel_berlin", "rain": False,
+     "char": "detective", "expr": 7, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Déjà approuvée. Le vote est une mise en scène. Une formalité publique pour légitimer ce qui est déjà décidé."},
+
+    {"id": "ch5_ext_contact_rev_02",
+     "bg": "hotel_berlin", "rain": False,
+     "char": "ghost", "expr": 1, "side": "right",
+     "name": "LE CONTACT",
+     "text": "Trois chefs d'État ont signé sous pression. Des dossiers compromettants. Selg les a depuis dix ans. C'est son assurance vie et son levier simultanément.",
+     "evidence": ("Accord de Berlin — Chantage institutionnel", "Selg détient dossiers sur 3 chefs d'État — signatures extorquées")},
+
+    {"id": "ch5_ext_contact_rev_03",
+     "bg": "hotel_berlin", "rain": False,
+     "char": "detective", "expr": 3, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Ce n'est plus de la corruption. C'est du chantage d'État. À l'échelle de trois gouvernements."},
+
+    # ─── Moment relationnel : Mira — les 18 mois ──────────────────────────────
+
+    {"id": "ch5_ext_rel_mira_00",
+     "bg": "hotel_berlin", "rain": False, "transition": "fade_black",
+     "time": "01:30",
+     "char": "mira", "expr": 0, "side": "right",
+     "name": "MIRA VOSS",
+     "text": "Vous n'avez pas dormi. Et vous continuez à me regarder comme si j'avais quelque chose à vous donner que je n'ai pas encore donné."},
+
+    {"id": "ch5_ext_rel_mira_01",
+     "bg": "hotel_berlin", "rain": False,
+     "char": "detective", "expr": 5, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Dans ces dix-huit mois d'infiltration — vous avez rencontré Selg ?"},
+
+    {"id": "ch5_ext_rel_mira_02",
+     "bg": "hotel_berlin", "rain": False,
+     "char": "mira", "expr": 4, "side": "right",
+     "name": "MIRA VOSS",
+     "text": "Une fois. À une réunion de la commission consultative. Il était présenté sous un autre nom. Mais j'ai reconnu sa façon de parler — cette précision chirurgicale dans les mots. Comme si chaque phrase était une pièce dans un mécanisme."},
+
+    {"id": "ch5_ext_rel_mira_03",
+     "bg": "hotel_berlin", "rain": False,
+     "char": "detective", "expr": 0, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Il vous a regardée ?"},
+
+    {"id": "ch5_ext_rel_mira_04",
+     "bg": "hotel_berlin", "rain": False,
+     "char": "mira", "expr": 1, "side": "right",
+     "name": "MIRA VOSS",
+     "text": "Il regarde tout le monde de la même façon. Avec un intérêt poli qui cache une évaluation constante. Il calcule les utilités. Vous aussi il l'a fait avec vous, vous savez."},
+
+    # ── Choix relationnel : comprendre Mira ───────────────────────────────────
+    {"id": "ch5_ext_rel_mira_choix",
+     "bg": "hotel_berlin", "rain": False,
+     "char": "detective", "expr": 0, "side": "left",
+     "name": "",
+     "text": "Mira parle de Selg avec une précision qui vient de la proximité. Elle le connaît d'une façon que je ne connais pas. Comment naviguer dans cette conversation ?",
+     "choices": [
+         "Lui demander comment elle s'en est sortie psychologiquement — 18 mois c'est long",
+         "Se concentrer sur le renseignement — ce qu'elle a vu qui peut être utile maintenant",
+         "Lui dire qu'on lui fait confiance, sans condition"
+     ],
+     "choice_branch": {"0": "ch5_mira_psy", "1": "ch5_mira_intel", "2": "ch5_mira_trust"}},
+
+    {"id": "ch5_mira_psy",
+     "bg": "hotel_berlin", "rain": False,
+     "char": "detective", "expr": 4, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "rep_change": {"mira": 15},
+     "text": "Dix-huit mois à jouer un rôle chez des gens qui tuent. Comment on revient de ça ? Est-ce qu'on revient ?"},
+
+    {"id": "ch5_mira_psy_2",
+     "bg": "hotel_berlin", "rain": False,
+     "char": "mira", "expr": 4, "side": "right",
+     "name": "MIRA VOSS",
+     "text": "On ne revient pas. On devient quelqu'un qui a fait ça. Et qui vit avec. Certains jours c'est acceptable. D'autres c'est... moins. Mais vous ne voulez pas vraiment entendre ça maintenant."},
+
+    {"id": "ch5_mira_psy_3",
+     "bg": "hotel_berlin", "rain": False,
+     "char": "detective", "expr": 1, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Si. Je le veux. Pas parce que c'est utile pour l'enquête. Parce que c'est important de savoir à qui on demande de prendre des risques."},
+
+    {"id": "ch5_mira_psy_4",
+     "bg": "hotel_berlin", "rain": False,
+     "char": "mira", "expr": 2, "side": "right",
+     "name": "MIRA VOSS",
+     "text": "...C'est la première fois depuis un an que quelqu'un me dit ça. Merci. Maintenant on peut parler de Selg si vous voulez."},
+
+    {"id": "ch5_mira_intel",
+     "bg": "hotel_berlin", "rain": False,
+     "char": "detective", "expr": 5, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Les réunions de la commission. Quels étaient les sujets qui revenaient systématiquement ? Qu'est-ce qui les obsédait ?"},
+
+    {"id": "ch5_mira_intel_2",
+     "bg": "hotel_berlin", "rain": False,
+     "char": "mira", "expr": 1, "side": "right",
+     "name": "MIRA VOSS",
+     "text": "Deux obsessions : la date du vote et l'exposition médiatique. Ils avaient une peur panique que quelqu'un publie avant le 14 juin. Tout le reste était secondaire.",
+     "evidence": ("Obsession date vote — Synarchie", "14 juin est la date limite absolue — après, le vote est irréversible")},
+
+    {"id": "ch5_mira_trust",
+     "bg": "hotel_berlin", "rain": False,
+     "char": "detective", "expr": 1, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "rep_change": {"mira": 25},
+     "text": "Mira. Je vous fais confiance. Sans condition, sans réserve, et sans avoir besoin de comprendre les dix-huit mois dans le détail. Ce que vous avez fait, vous l'avez fait."},
+
+    {"id": "ch5_mira_trust_2",
+     "bg": "hotel_berlin", "rain": False,
+     "char": "mira", "expr": 2, "side": "right",
+     "name": "MIRA VOSS",
+     "text": "Raven... personne ne m'a jamais dit quelque chose comme ça aussi directement. C'est presque déstabilisant."},
+
+    {"id": "ch5_mira_trust_3",
+     "bg": "hotel_berlin", "rain": False,
+     "char": "detective", "expr": 6, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Habituez-vous. On va finir ce dossier ensemble et j'ai besoin que vous soyez là jusqu'au bout."},
+
+    # ─── Face-à-face avec Viktor Selg (interrogatoire diplomatique) ───────────
+
+    {"id": "ch5_ext_selg_00",
+     "bg": "parlement", "rain": False, "transition": "iris",
+     "time": "10:30",
+     "char": "ghost", "expr": 0, "side": "right",
+     "name": "VIKTOR SELG",
+     "text": "Raven. Vous vous promenez dans une conférence diplomatique sans invitation. C'est techniquement une violation du protocole de sécurité internationale."},
+
+    {"id": "ch5_ext_selg_01",
+     "bg": "parlement", "rain": False,
+     "char": "detective", "expr": 8, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Heureusement que je ne travaille plus pour l'État. Les violations de protocole sont mon domaine de prédilection."},
+
+    # ── Mini-jeu interrogatoire Selg ──────────────────────────────────────────
+    {"id": "ch5_interro_selg",
+     "type": "interrogation",
+     "suspect": "ghost",
+     "time_limit": 120,
+     "on_success": "ch5_selg_ok",
+     "on_failure": "ch5_selg_fail"},
+
+    {"id": "ch5_selg_ok",
+     "bg": "parlement", "rain": False,
+     "char": "ghost", "expr": 3, "side": "right",
+     "name": "VIKTOR SELG",
+     "text": "Vous avez trouvé la fissure. Impressionnant. Oui. La femme de la DAS — c'est moi qui l'ai nommée. Votre Commandant Bertier, c'est Élise Moran. Direction des Affaires Spéciales. Elle était à moi depuis huit ans."},
+
+    {"id": "ch5_selg_ok_2",
+     "bg": "parlement", "rain": False,
+     "char": "detective", "expr": 3, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Élise Moran. Un nom. Une identité réelle. Pour la première fois depuis le début, vous me donnez quelque chose de vrai."},
+
+    {"id": "ch5_selg_ok_3",
+     "bg": "parlement", "rain": False,
+     "char": "ghost", "expr": 2, "side": "right",
+     "name": "VIKTOR SELG",
+     "text": "Parce que dans dix minutes votre journaliste publie ma photo. Et Moran est la seule pièce que je peux sacrifier sans me noyer. Calculez.",
+     "evidence": ("Élise Moran — DAS", "Taupe institutionnelle — 8 ans au service de Selg — fuite Architecte confirmée")},
+
+    {"id": "ch5_selg_fail",
+     "bg": "parlement", "rain": False,
+     "char": "ghost", "expr": 1, "side": "right",
+     "name": "VIKTOR SELG",
+     "text": "Vous êtes décevant, Raven. Vraiment. J'attendais plus. Allez. Partez. Je vous reverrai à des conditions moins favorables."},
+
+    {"id": "ch5_selg_fail_2",
+     "bg": "parlement", "rain": False,
+     "char": "detective", "expr": 4, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Il me congédie comme un stagiaire. Ce n'est pas un échec — c'est une information sur lui. Il a besoin de dominer. Ça veut dire qu'il a peur."},
+
+    # ─── Déduction : Identité Fantôme + Accord Berlin ─────────────────────────
+
+    {"id": "ch5_ext_deduction_00",
+     "bg": "hotel_berlin", "rain": False, "transition": "fade_black",
+     "char": "detective", "expr": 5, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Viktor Selg + Accord de Berlin 1994. Selg était à la table de fondation. Pas un exécutant — un co-fondateur. Il n'a pas rejoint la Synarchie. Il l'a créée avec l'Architecte."},
+
+    {"id": "ch5_ext_deduction_01",
+     "bg": "hotel_berlin", "rain": False,
+     "char": "detective", "expr": 7, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "evidence": ("Déduction : Le Fantôme est l'architecte adjoint", "Selg co-fondateur 1994 — opérationnel et idéologique"),
+     "text": "Ce n'est pas le bras droit de l'Architecte. C'est son égal. Genève n'a éliminé qu'une moitié. Selg, c'est l'autre moitié que personne n'a vue venir."},
+
+    # ─── Moment d'équipe : nuit avant l'opération ────────────────────────────
+
+    {"id": "ch5_ext_team_00",
+     "bg": "hotel_berlin", "rain": False, "transition": "slide_left",
+     "time": "22:00",
+     "char": None, "side": "left",
+     "name": "",
+     "text": "La chambre d'hôtel. Quatre personnes. Une bouteille d'eau plate et un plan dessiné sur du papier d'hôtel."},
+
+    {"id": "ch5_ext_team_01",
+     "bg": "hotel_berlin", "rain": False,
+     "char": "policiere", "expr": 1, "side": "right",
+     "name": "OFF. LEILA SATO",
+     "text": "Demain, si on touche le serveur, Selg le sait dans l'heure. On a un créneau. Exactement un."},
+
+    {"id": "ch5_ext_team_02",
+     "bg": "hotel_berlin", "rain": False,
+     "char": "natasha", "expr": 1, "side": "right",
+     "name": "NATASHA MORI",
+     "text": "Mon contact à Berlin confirme que Selg part pour Vienne après-demain. Si on rate la fenêtre..."},
+
+    {"id": "ch5_ext_team_03",
+     "bg": "hotel_berlin", "rain": False,
+     "char": "mira", "expr": 2, "side": "right",
+     "name": "MIRA VOSS",
+     "text": "On ne la rate pas. J'ai les codes d'accès du sous-sol. Ils ont changé depuis mon infiltration, mais le système de rotation est prévisible. Je peux calculer le nouveau code."},
+
+    {"id": "ch5_ext_team_04",
+     "bg": "hotel_berlin", "rain": False,
+     "char": "detective", "expr": 0, "side": "left",
+     "name": "",
+     "text": "Une équipe. Quatre personnes avec quatre compétences complémentaires. Et une nuit pour décider de ce qu'on fait du serveur quand on l'a.",
+     "choices": [
+         "Décision collective — tout le monde vote sur la stratégie",
+         "Raven décide seul — prendre la responsabilité pour protéger les autres"
+     ],
+     "choice_branch": {"0": "ch5_team_vote", "1": "ch5_team_solo"}},
+
+    {"id": "ch5_team_vote",
+     "bg": "hotel_berlin", "rain": False,
+     "char": "detective", "expr": 1, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "rep_change": {"sato": 10, "natasha": 10, "mira": 10},
+     "text": "Cette décision n'est pas la mienne seule. On est quatre. On vote."},
+
+    {"id": "ch5_team_vote_2",
+     "bg": "hotel_berlin", "rain": False,
+     "char": "policiere", "expr": 2, "side": "right",
+     "name": "OFF. LEILA SATO",
+     "text": "Conserver le serveur intact. On le protège et on s'en sert comme levier pour forcer la levée d'immunité d'Arnheim. Majorité ? Trois pour. Natasha ?"},
+
+    {"id": "ch5_team_vote_3",
+     "bg": "hotel_berlin", "rain": False,
+     "char": "natasha", "expr": 1, "side": "right",
+     "name": "NATASHA MORI",
+     "text": "Je suis pour détruire après extraction. Mais je m'incline devant la majorité. À condition qu'on ait les copies avant de sortir du sous-sol. Sinon c'est non."},
+
+    {"id": "ch5_team_solo",
+     "bg": "hotel_berlin", "rain": False,
+     "char": "detective", "expr": 9, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "rep_change": {"sato": -5, "mira": -5},
+     "text": "Je prends la décision. On garde le serveur intact. Si ça tourne mal, c'est sur moi. Pas sur vous."},
+
+    {"id": "ch5_team_solo_2",
+     "bg": "hotel_berlin", "rain": False,
+     "char": "policiere", "expr": 3, "side": "right",
+     "name": "OFF. LEILA SATO",
+     "text": "Raven. On en a déjà parlé. Arrêtez de décider pour nous. Mais soit. Cette fois. Serveur conservé. Et si ça tourne mal, on en parle tous ensemble."},
+
+    # ─── Épilogue étendu Ch5 ──────────────────────────────────────────────────
+
+    {"id": "ch5_ext_epilogue_00",
+     "bg": "hotel_berlin", "rain": False, "transition": "fade_black",
+     "time": "06:15",
+     "char": "detective", "expr": 0, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Aube de Berlin. Lumière grise et froide. Dehors il y a des gens qui vont au travail, qui emmènent leurs enfants à l'école. Ils ne savent pas que dans un sous-sol de cette ville, quelqu'un vient de décider qui contrôlera leur continent."},
+
+    {"id": "ch5_ext_epilogue_01",
+     "bg": "hotel_berlin", "rain": False,
+     "char": "detective", "expr": 5, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Ce qui me frappe, ce n'est pas la monstruosité du plan. C'est sa banalité. Des réunions. Des comptes. Des signatures. L'Europe est en train de se faire acheter une ligne de budget à la fois."},
+
+    {"id": "ch5_ext_epilogue_02",
+     "bg": "hotel_berlin", "rain": False,
+     "char": "detective", "expr": 4, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "note": "Viktor Selg : co-fondateur, pas exécutant. L'Architecte était le visage. Selg est le moteur. Arnheim est la courroie de transmission.",
+     "text": "Je réécris la cartographie dans ma tête. Ce n'est pas une organisation pyramidale. C'est une roue. Enlève un rayon, la roue tient. Enlève l'essieu, tout s'effondre."},
+
+    {"id": "ch5_ext_epilogue_03",
+     "bg": "hotel_berlin", "rain": False,
+     "char": "detective", "expr": 9, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Selg est l'essieu. L'Architecte était la jante. Arnheim est les rayons. Pour casser la roue, il faut toucher l'essieu. Pas les bords."},
+
+    {"id": "ch5_ext_fin",
+     "bg": "hotel_berlin", "rain": False,
+     "char": None, "side": "left",
+     "name": "",
+     "text": "─── FIN DU CHAPITRE V — EXTENSION ───"},
+]
+
+
+# ══════════════════════════════════════════════════════════════════════
+# CHAPITRE VI — Extensions (~46 nœuds)
+# Interrogatoires : Arnheim (à distance), Élise Moran, Natasha sous pression
+# Choix relationnels : Mira révèle tout, Raven et la culpabilité, le plan B
+# ══════════════════════════════════════════════════════════════════════
+
+SCRIPT_VI_EXT = [
+
+    # ─── ACTE 0 : Strasbourg, couloirs du parlement ───────────────────────────
+
+    {"id": "ch6_ext_00",
+     "bg": "parlement", "rain": False, "transition": "fade_black",
+     "time": "08:00",
+     "char": None, "side": "left",
+     "name": "",
+     "text": "CHAPITRE VI — Extension : Parlement (approfondissement)"},
+
+    {"id": "ch6_ext_01",
+     "bg": "parlement", "rain": False,
+     "char": "detective", "expr": 5, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Strasbourg. Je n'ai jamais aimé cette ville. Trop propre pour dissimuler quelque chose d'aussi sale. La saleté préfère le maquillage des grandes capitales."},
+
+    {"id": "ch6_ext_02",
+     "bg": "parlement", "rain": False,
+     "char": "detective", "expr": 0, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Le Parlement. Des couloirs qui sentent la moquette neuve et l'ambition ancienne. Des badges de sécurité partout. Et quelque part dans ce bâtiment, un sénateur qui vote des lois le matin et ment au peuple l'après-midi."},
+
+    # ─── Observation : Arnheim en coulisses ───────────────────────────────────
+
+    {"id": "ch6_ext_arnheim_00",
+     "bg": "parlement", "rain": False,
+     "char": "senator", "expr": 0, "side": "right",
+     "name": "SÉNATEUR ARNHEIM",
+     "text": "— (Il parle à un collaborateur, ignorant qu'on l'observe) — La commission vote jeudi. Aucune fuite avant. Si Selg m'appelle encore ce soir, je décroche pas."},
+
+    {"id": "ch6_ext_arnheim_01",
+     "bg": "parlement", "rain": False,
+     "char": "detective", "expr": 5, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Il se coupe de Selg. La panique commence à se fissurer. Quelqu'un lui a dit de prendre ses distances avec le Fantôme. Quelqu'un à l'intérieur."},
+
+    {"id": "ch6_ext_arnheim_02",
+     "bg": "parlement", "rain": False,
+     "char": "detective", "expr": 7, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Un sénateur qui se distance de son opérationnel trois jours avant le vote. Soit il a peur. Soit il a trouvé quelqu'un d'autre à qui parler. Et ce quelqu'un d'autre, c'est peut-être nous.",
+     "evidence": ("Arnheim — rupture avec Selg", "Arnheim coupe les communications — 3 jours avant vote — signal de fragilité")},
+
+    # ─── Interrogatoire : Élise Moran ─────────────────────────────────────────
+
+    {"id": "ch6_ext_moran_00",
+     "bg": "parking", "rain": False, "transition": "iris",
+     "time": "14:30",
+     "char": "mira", "expr": 3, "side": "right",
+     "name": "ÉLISE MORAN — DAS",
+     "text": "Comment vous avez eu cette adresse ? Je suis en protection. Il n'y a que deux personnes qui la connaissent."},
+
+    {"id": "ch6_ext_moran_01",
+     "bg": "parking", "rain": False,
+     "char": "detective", "expr": 6, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "La troisième, c'est quelqu'un du réseau de Selg qui ne lui est plus loyal. Ça arrive, quand le bateau prend l'eau."},
+
+    # ── Mini-jeu interrogatoire Moran ─────────────────────────────────────────
+    {"id": "ch6_interro_moran",
+     "type": "interrogation",
+     "suspect": "mira",
+     "time_limit": 100,
+     "on_success": "ch6_moran_ok",
+     "on_failure": "ch6_moran_fail"},
+
+    {"id": "ch6_moran_ok",
+     "bg": "parking", "rain": False,
+     "char": "mira", "expr": 1, "side": "right",
+     "name": "ÉLISE MORAN — DAS",
+     "text": "D'accord. Je vais tout vous donner. Pas par idéalisme — parce que Selg m'a dit hier que si les choses tournaient mal, je serais la première à tomber. Vingt ans de service. Et je suis la variable d'ajustement."},
+
+    {"id": "ch6_moran_ok_2",
+     "bg": "parking", "rain": False,
+     "char": "detective", "expr": 4, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Je connais ce sentiment. Être l'outil qu'on range quand il est encombrant."},
+
+    {"id": "ch6_moran_ok_3",
+     "bg": "parking", "rain": False,
+     "char": "mira", "expr": 1, "side": "right",
+     "name": "ÉLISE MORAN — DAS",
+     "text": "Le bon de commande. Cazes ne savait pas tout. La voiture avait un deuxième occupant. Un homme que j'avais fait entrer avec un badge de transfert médical. C'est cet homme qui a extrait l'Architecte.",
+     "evidence": ("Élise Moran — témoignage complet", "Second homme — badge médical — extraction Architecte confirmée à deux agents")},
+
+    {"id": "ch6_moran_ok_4",
+     "bg": "parking", "rain": False,
+     "char": "detective", "expr": 3, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Le nom de l'homme avec le badge médical."},
+
+    {"id": "ch6_moran_ok_5",
+     "bg": "parking", "rain": False,
+     "char": "mira", "expr": 0, "side": "right",
+     "name": "ÉLISE MORAN — DAS",
+     "text": "Stefan Krause. Médecin légiste attaché à la Préfecture. Et depuis quinze ans, membre passif de la cellule parisienne de la Synarchie.",
+     "evidence": ("Stefan Krause — médecin légiste", "Membre cellule Paris — extraction Architecte — dossier à Interpol")},
+
+    {"id": "ch6_moran_fail",
+     "bg": "parking", "rain": False,
+     "char": "mira", "expr": 1, "side": "right",
+     "name": "ÉLISE MORAN — DAS",
+     "text": "Vous êtes moins bon que ce que disait Selg. Il m'avait prévenue que vous étiez redoutable. Je suis déçue. Bonne journée."},
+
+    {"id": "ch6_moran_fail_2",
+     "bg": "parking", "rain": False,
+     "char": "detective", "expr": 9, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Elle part. Mais elle n'a pas dit 'je ne sais rien'. Elle a dit 'vous êtes moins bon'. Elle sait. Elle attend une meilleure offre. Je reviendrai avec une."},
+
+    # ─── Moment relationnel : Mira révèle tout ────────────────────────────────
+
+    {"id": "ch6_ext_rel_mira_00",
+     "bg": "parlement", "rain": False, "transition": "fade_black",
+     "time": "19:00",
+     "char": "mira", "expr": 4, "side": "right",
+     "name": "MIRA VOSS",
+     "text": "Raven. Il y a quelque chose que je ne vous ai pas dit. Sur Arnheim. Sur moi. Et sur pourquoi ils m'ont licenciée vraiment."},
+
+    {"id": "ch6_ext_rel_mira_01",
+     "bg": "parlement", "rain": False,
+     "char": "detective", "expr": 5, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Je vous écoute."},
+
+    {"id": "ch6_ext_rel_mira_02",
+     "bg": "parlement", "rain": False,
+     "char": "mira", "expr": 1, "side": "right",
+     "name": "MIRA VOSS",
+     "text": "Arnheim est mon père biologique. Il ne le sait pas. Ma mère a eu une liaison avec lui en 1988. Elle est morte quand j'avais douze ans. Elle ne m'a jamais dit son nom."},
+
+    {"id": "ch6_ext_rel_mira_03",
+     "bg": "parlement", "rain": False,
+     "char": "detective", "expr": 7, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Arnheim. Vous enquêtez sur votre père biologique."},
+
+    {"id": "ch6_ext_rel_mira_04",
+     "bg": "parlement", "rain": False,
+     "char": "mira", "expr": 1, "side": "right",
+     "name": "MIRA VOSS",
+     "text": "Je l'ai appris il y a trois ans. En croisant son dossier DAS. Une photo de 1988 dans ses archives personnelles. Ma mère était dessus. J'ai fait faire un test ADN. C'est confirmé."},
+
+    {"id": "ch6_ext_rel_mira_05",
+     "bg": "parlement", "rain": False,
+     "char": "detective", "expr": 4, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Et ça a changé quoi, dans votre enquête ?"},
+
+    {"id": "ch6_ext_rel_mira_06",
+     "bg": "parlement", "rain": False,
+     "char": "mira", "expr": 1, "side": "right",
+     "name": "MIRA VOSS",
+     "text": "Rien. Tout. Rien sur l'objectif. Tout sur le poids que ça représente. Je dépose mon père biologique. Et je le fais quand même. Parce que ce qu'il a fait est indéfendable."},
+
+    # ── Choix : comment répondre à Mira ────────────────────────────────────────
+    {"id": "ch6_ext_rel_mira_choix",
+     "bg": "parlement", "rain": False,
+     "char": "detective", "expr": 0, "side": "left",
+     "name": "",
+     "text": "Mira vient de partager quelque chose d'immense. Quelque chose qui ne concerne pas l'enquête — et qui la concerne entièrement. Comment répondre ?",
+     "choices": [
+         "Reconnaître le courage que ça représente — sans minimiser",
+         "Lui demander si elle est sûre de vouloir continuer dans ces conditions",
+         "Lui rappeler qu'elle n'est pas seule pour porter ça"
+     ],
+     "choice_branch": {"0": "ch6_mira_courage", "1": "ch6_mira_question", "2": "ch6_mira_soutien"}},
+
+    {"id": "ch6_mira_courage",
+     "bg": "parlement", "rain": False,
+     "char": "detective", "expr": 1, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "rep_change": {"mira": 20},
+     "text": "Ce que vous faites — identifier votre père, construire le dossier contre lui, continuer malgré tout — c'est la chose la plus difficile que j'ai vue faire à quelqu'un depuis longtemps."},
+
+    {"id": "ch6_mira_courage_2",
+     "bg": "parlement", "rain": False,
+     "char": "mira", "expr": 2, "side": "right",
+     "name": "MIRA VOSS",
+     "text": "Je n'attends pas d'éloge. Mais merci. Vraiment."},
+
+    {"id": "ch6_mira_question",
+     "bg": "parlement", "rain": False,
+     "char": "detective", "expr": 4, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Mira. Est-ce que vous êtes certaine que vous pouvez aller jusqu'au bout ? Sans que ça vous brise quelque chose d'irréparable ?"},
+
+    {"id": "ch6_mira_question_2",
+     "bg": "parlement", "rain": False,
+     "char": "mira", "expr": 3, "side": "right",
+     "name": "MIRA VOSS",
+     "text": "Non. Je ne suis certaine de rien. Mais arrêter maintenant me briserait davantage. C'est un calcul. Et pour l'instant, continuer gagne."},
+
+    {"id": "ch6_mira_soutien",
+     "bg": "parlement", "rain": False,
+     "char": "detective", "expr": 1, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "rep_change": {"mira": 15},
+     "text": "Vous n'êtes pas seule pour porter ça. Sato sait rester discrète. Natasha aussi. Et moi... j'ai enquêté sur la mort de mon père pendant vingt ans. Je sais ce que ça fait."},
+
+    {"id": "ch6_mira_soutien_2",
+     "bg": "parlement", "rain": False,
+     "char": "mira", "expr": 2, "side": "right",
+     "name": "MIRA VOSS",
+     "text": "Vous et moi. Deux enfants dont les pères ont croisé la même organisation. Vingt ans d'écart. C'est une coïncidence que j'aurais trouvée romanesque si elle n'était pas si lourde à porter."},
+
+    # ─── Natasha sous pression légale ──────────────────────────────────────────
+
+    {"id": "ch6_ext_natasha_00",
+     "bg": "rue", "rain": True, "transition": "slide_left",
+     "time": "11:00",
+     "char": "natasha", "expr": 3, "side": "right",
+     "name": "NATASHA MORI",
+     "text": "J'ai reçu une convocation ce matin. Le cabinet juridique de Selg demande une saisie conservatoire de mes archives personnelles. Ils ont trois jours pour convaincre un juge."},
+
+    {"id": "ch6_ext_natasha_01",
+     "bg": "rue", "rain": True,
+     "char": "detective", "expr": 5, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Trois jours. C'est calculé pour être avant le vote du 14. Si vos archives sont saisies, les preuves que vous gardez disparaissent dans le circuit légal pendant des mois."},
+
+    {"id": "ch6_ext_natasha_02",
+     "bg": "rue", "rain": True,
+     "char": "natasha", "expr": 1, "side": "right",
+     "name": "NATASHA MORI",
+     "text": "J'ai déjà transmis des copies à mes trois confrères étrangers. Mais les copies numériques d'une source originale ne valent pas grand chose si la source elle-même est contestée."},
+
+    # ── Choix : comment soutenir Natasha ──────────────────────────────────────
+    {"id": "ch6_ext_natasha_choix",
+     "bg": "rue", "rain": True,
+     "char": "detective", "expr": 0, "side": "left",
+     "name": "",
+     "text": "Natasha est dans l'étau juridique. Selg a calculé son coup. Quelle est la bonne réponse ?",
+     "choices": [
+         "Accélérer la publication avant la saisie — tout sortir maintenant",
+         "Chercher un juge de rechange — trouver quelqu'un d'incorruptible dans le circuit",
+         "Lui proposer de porter les originaux en sécurité hors de France"
+     ],
+     "choice_branch": {"0": "ch6_natasha_accele", "1": "ch6_natasha_juge", "2": "ch6_natasha_exfil"}},
+
+    {"id": "ch6_natasha_accele",
+     "bg": "rue", "rain": True,
+     "char": "detective", "expr": 3, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "rep_change": {"natasha": 5},
+     "text": "On publie maintenant. Tout. La saisie devient sans objet si les preuves sont déjà dans l'espace public. Légalement, ils ne peuvent pas 'désublier' un article."},
+
+    {"id": "ch6_natasha_accele_2",
+     "bg": "rue", "rain": True,
+     "char": "natasha", "expr": 0, "side": "right",
+     "name": "NATASHA MORI",
+     "text": "C'est risqué. On perd l'effet de surprise coordonné. Mais vous avez raison — une saisie judiciaire d'archive, ça peut paralyser un journal pendant six mois. On publie. Demain matin. Coordination avec les trois autres rédactions."},
+
+    {"id": "ch6_natasha_juge",
+     "bg": "rue", "rain": True,
+     "char": "detective", "expr": 5, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "rep_change": {"sato": 5},
+     "text": "Sato. Elle connaît un juge d'instruction indépendant — quelqu'un qui n'est pas dans le circuit de la Synarchie. Si on dépose les preuves dans ses mains en priorité, la saisie devient contestable."},
+
+    {"id": "ch6_natasha_juge_2",
+     "bg": "rue", "rain": True,
+     "char": "natasha", "expr": 2, "side": "right",
+     "name": "NATASHA MORI",
+     "text": "Un juge indépendant. Ça pourrait fonctionner. Mais si ce juge est corruptible aussi — on vient de livrer les originaux directement. C'est un risque double."},
+
+    {"id": "ch6_natasha_exfil",
+     "bg": "rue", "rain": True,
+     "char": "detective", "expr": 6, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "rep_change": {"natasha": 10},
+     "text": "Vos archives papier. Vous me les donnez ce soir. Je les passe la frontière suisse demain matin. Dans un coffre hors juridiction française. La saisie ne peut pas suivre."},
+
+    {"id": "ch6_natasha_exfil_2",
+     "bg": "rue", "rain": True,
+     "char": "natasha", "expr": 1, "side": "right",
+     "name": "NATASHA MORI",
+     "text": "Vous allez passer une frontière avec des preuves compromettantes dans un sac. Vous avez réalisé à quel point c'est exactement le genre de chose qu'on vous reprochera dans le procès de Selg ?"},
+
+    {"id": "ch6_natasha_exfil_3",
+     "bg": "rue", "rain": True,
+     "char": "detective", "expr": 8, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Je noterai ça dans ma liste de problèmes potentiels. Juste après 'ne pas laisser la Synarchie contrôler l'Europe'."},
+
+    # ─── Déduction : Enregistrement Parlement + Accord Secret ─────────────────
+
+    {"id": "ch6_ext_deduction_00",
+     "bg": "bureau", "rain": False, "transition": "fade_black",
+     "char": "detective", "expr": 5, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Enregistrement parlement + Accord Secret de 1994. La voix d'Arnheim dans l'enregistrement cite des clauses précises de l'accord. Clauses qui n'ont jamais été rendues publiques. Il était à la table de 1994."},
+
+    {"id": "ch6_ext_deduction_01",
+     "bg": "bureau", "rain": False,
+     "char": "detective", "expr": 7, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "evidence": ("Déduction : Corruption au sommet de l'UE", "Arnheim co-signataire 1994 — corruption institutionnelle confirmée sur 30 ans"),
+     "text": "Arnheim n'est pas un recrutement tardif. Il est un pilier d'origine. Trente ans de corruption au cœur d'une institution censée protéger les citoyens européens."},
+
+    # ─── Raven et la culpabilité ──────────────────────────────────────────────
+
+    {"id": "ch6_ext_culpa_00",
+     "bg": "toit", "rain": False, "transition": "fade_black",
+     "time": "02:00",
+     "char": "detective", "expr": 4, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Je pense à Vane encore. L'Architecte a accéléré sa mort parce qu'il savait que je viendrais. Vane est mort parce que j'existe. Parce que j'étais le bon profil."},
+
+    {"id": "ch6_ext_culpa_01",
+     "bg": "toit", "rain": False,
+     "char": "detective", "expr": 9, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Est-ce que je continue parce que c'est juste ? Ou est-ce que je continue pour ne pas avoir été l'instrument de rien ? La différence compte. Elle change tout à la façon dont on travaille."},
+
+    {"id": "ch6_ext_culpa_02",
+     "bg": "toit", "rain": False,
+     "char": "policiere", "expr": 0, "side": "right",
+     "name": "OFF. LEILA SATO",
+     "text": "Raven. Il est 2h du matin et vous vous auto-flagellez sur le toit. Je vous entends depuis votre fenêtre ouverte."},
+
+    {"id": "ch6_ext_culpa_03",
+     "bg": "toit", "rain": False,
+     "char": "detective", "expr": 6, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Je n'avais pas prévu de public."},
+
+    {"id": "ch6_ext_culpa_04",
+     "bg": "toit", "rain": False,
+     "char": "policiere", "expr": 1, "side": "right",
+     "name": "OFF. LEILA SATO",
+     "text": "Vane vous aurait remercié d'être venu. C'est ce qu'on ne sait jamais des morts — ce qu'ils auraient voulu dire. Mais si j'avais préparé mon propre piège depuis dix ans pour que quelqu'un continue à ma place... je voudrais que cette personne arrête de culpabiliser et finisse le travail."},
+
+    {"id": "ch6_ext_culpa_05",
+     "bg": "toit", "rain": False,
+     "char": "detective", "expr": 1, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Vous savez que vous êtes meilleure que moi à presque tout, Sato."},
+
+    {"id": "ch6_ext_culpa_06",
+     "bg": "toit", "rain": False,
+     "char": "policiere", "expr": 2, "side": "right",
+     "name": "OFF. LEILA SATO",
+     "text": "Je sais. Allez dormir."},
+
+    # ─── Plan B — si le vote passe quand même ────────────────────────────────
+
+    {"id": "ch6_ext_planb_00",
+     "bg": "parlement", "rain": False, "transition": "slide_left",
+     "time": "16:00",
+     "char": "mira", "expr": 1, "side": "right",
+     "name": "MIRA VOSS",
+     "text": "Hypothèse de travail : le vote passe quand même le 14. La réforme entre en application. Qu'est-ce qu'on fait ?"},
+
+    {"id": "ch6_ext_planb_01",
+     "bg": "parlement", "rain": False,
+     "char": "detective", "expr": 5, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "On n'a pas de plan B. On a un plan A qu'on réussit. Le plan B c'est perdre, et perdre sur ce dossier n'est pas une option que j'ai envisagée."},
+
+    {"id": "ch6_ext_planb_02",
+     "bg": "parlement", "rain": False,
+     "char": "natasha", "expr": 1, "side": "right",
+     "name": "NATASHA MORI",
+     "text": "Moi si. Hypothèse : vote adopté le 14. La réforme est irréversible par les voies institutionnelles. Il reste la voie judiciaire internationale. Si on a le serveur et les preuves du chantage..."},
+
+    {"id": "ch6_ext_planb_03",
+     "bg": "parlement", "rain": False,
+     "char": "natasha", "expr": 2, "side": "right",
+     "name": "NATASHA MORI",
+     "text": "La Cour de Justice de l'UE. Ça prend des années. Mais une réforme adoptée sous chantage peut être annulée. Le précédent juridique existe — traités signés sous contrainte."},
+
+    {"id": "ch6_ext_planb_04",
+     "bg": "parlement", "rain": False,
+     "char": "policiere", "expr": 1, "side": "right",
+     "name": "OFF. LEILA SATO",
+     "text": "Des années, c'est réaliste. La Synarchie a misé sur le fait que personne ne voudrait passer dix ans en procès pour défaire un traité européen. Mais si les preuves de chantage sont irréfutables..."},
+
+    {"id": "ch6_ext_planb_05",
+     "bg": "parlement", "rain": False,
+     "char": "detective", "expr": 3, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Le plan B existe. Je l'entends. Mais le plan A est pour maintenant. Le reste, ce sera pour ceux qui viendront après nous si on échoue."},
+
+    # ─── Épilogue étendu Ch6 ──────────────────────────────────────────────────
+
+    {"id": "ch6_ext_epilogue_00",
+     "bg": "toit", "rain": False, "transition": "fade_black",
+     "time": "04:30",
+     "char": "detective", "expr": 0, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Onze jours avant le vote. Les publications ont déclenché une onde de choc dans les médias européens. Arnheim est convoqué. Selg est introuvable. Mais quelque chose me gêne."},
+
+    {"id": "ch6_ext_epilogue_01",
+     "bg": "toit", "rain": False,
+     "char": "detective", "expr": 5, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Quelque chose me gêne depuis Berlin. Le contact anonyme — il nous a tout donné trop facilement. Le serveur. Moran. Selg. C'est trop propre. Les gens qui trahissent après vingt ans gardent toujours quelque chose pour eux."},
+
+    {"id": "ch6_ext_epilogue_02",
+     "bg": "toit", "rain": False,
+     "char": "detective", "expr": 7, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Qu'est-ce qu'il gardait pour lui ? Et est-ce que ça nous manquera au moment crucial ?"},
+
+    {"id": "ch6_ext_epilogue_03",
+     "bg": "toit", "rain": False,
+     "char": "detective", "expr": 9, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "note": "Le contact anonyme a peut-être gardé quelque chose. Vérifier : Accord Berlin 1994, signataire manquant.",
+     "text": "Dans l'Accord de Berlin de 1994, il y a six signataires. On en a cinq. Le sixième n'a jamais été nommé. Ni dans le serveur. Ni dans les archives de Mira. Ni par Selg."},
+
+    {"id": "ch6_ext_epilogue_04",
+     "bg": "toit", "rain": False,
+     "char": "detective", "expr": 3, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Le sixième signataire. C'est le trou dans le dossier. C'est ce que le contact nous a caché. Et d'une façon ou d'une autre, ce sixième nom est encore debout. Encore actif."},
+
+    {"id": "ch6_ext_fin",
+     "bg": "toit", "rain": False,
+     "char": None, "side": "left",
+     "name": "",
+     "text": "─── FIN DU CHAPITRE VI — EXTENSION ───"},
+]
+
+
+# ══════════════════════════════════════════════════════════════════════
+# CHAPITRE VII — Extensions (~47 nœuds)
+# Interrogatoires : l'Architecte (ultime), le sixième signataire, épilogue à choix
+# Choix relationnels : Raven + chaque membre de l'équipe, décision finale sur Mira
+# ══════════════════════════════════════════════════════════════════════
+
+SCRIPT_VII_EXT = [
+
+    # ─── ACTE 0 : Montée vers le bunker ──────────────────────────────────────
+
+    {"id": "ch7_ext_00",
+     "bg": "sous_sol", "rain": False, "transition": "fade_black",
+     "time": "05:00",
+     "char": None, "side": "left",
+     "name": "",
+     "text": "CHAPITRE VII — Extension : La Décision (approfondissement)"},
+
+    {"id": "ch7_ext_01",
+     "bg": "sous_sol", "rain": False,
+     "char": "detective", "expr": 9, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Alpes autrichiennes. 2200 mètres. 5h du matin. L'air est froid et sec comme il ne l'est jamais à Paris. Dans cet air, les erreurs ont moins d'endroit où se cacher."},
+
+    {"id": "ch7_ext_02",
+     "bg": "sous_sol", "rain": False,
+     "char": "detective", "expr": 4, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Je pense à Marcus Vane. Il a passé dix ans à construire le piège dans lequel la Synarchie vient de tomber. Et il est mort sans voir si ça marcherait."},
+
+    {"id": "ch7_ext_03",
+     "bg": "sous_sol", "rain": False,
+     "char": "detective", "expr": 5, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "C'est une des formes les plus solitaires du courage. Construire quelque chose qu'on ne verra pas."},
+
+    # ─── Le sixième signataire ────────────────────────────────────────────────
+
+    {"id": "ch7_ext_sixieme_00",
+     "bg": "sous_sol", "rain": False, "transition": "iris",
+     "time": "05:45",
+     "char": "detective", "expr": 5, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Le serveur de Berlin. Avant de partir pour l'Autriche, j'ai demandé à Mira de chercher le sixième signataire. Elle a trouvé quelque chose."},
+
+    {"id": "ch7_ext_sixieme_01",
+     "bg": "sous_sol", "rain": False,
+     "char": "mira", "expr": 3, "side": "right",
+     "name": "MIRA VOSS",
+     "text": "Le sixième signataire. Dans l'accord de Berlin de 1994, la sixième signature était codée. Un numéro. J'ai croisé ce numéro avec les registres bancaires du compte letton."},
+
+    {"id": "ch7_ext_sixieme_02",
+     "bg": "sous_sol", "rain": False,
+     "char": "detective", "expr": 7, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Et ?"},
+
+    {"id": "ch7_ext_sixieme_03",
+     "bg": "sous_sol", "rain": False,
+     "char": "mira", "expr": 1, "side": "right",
+     "name": "MIRA VOSS",
+     "text": "Le sixième bénéficiaire du compte letton s'appelait Franz Bertier. Pas Commandant Bertier — un titre de façade. Franz Bertier, ex-directeur de la Direction des Affaires Spéciales. Il est à la retraite depuis quatre ans.",
+     "evidence": ("Franz Bertier — 6e signataire", "Ex-directeur DAS — fondateur occulte — retraite dorée depuis 4 ans")},
+
+    {"id": "ch7_ext_sixieme_04",
+     "bg": "sous_sol", "rain": False,
+     "char": "detective", "expr": 3, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Bertier. Le Commandant Bertier du bon de commande de Cazes. La même fausse identité. Il s'est servi de son propre nom de guerre. La vanité comme erreur."},
+
+    {"id": "ch7_ext_sixieme_05",
+     "bg": "sous_sol", "rain": False,
+     "char": "detective", "expr": 5, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Et Bertier est retraité à Salzburg. À deux heures de route d'ici. Ce n'est pas une coïncidence. Il est là pour superviser la fin du plan. Pour voir le résultat de trente ans de travail.",
+     "evidence": ("Bertier à Salzburg", "6e signataire en déplacement — supervision finale — 2h du bunker")},
+
+    # ─── Interrogatoire ultime : l'Architecte, face-à-face vrai ──────────────
+
+    {"id": "ch7_ext_architecte_00",
+     "bg": "sous_sol", "rain": False, "transition": "fade_black",
+     "time": "07:30",
+     "char": "architect", "expr": 0, "side": "right",
+     "name": "L'ARCHITECTE",
+     "text": "Raven. Il y a quelque chose que je veux vous demander. Sans calculer la réponse. Vraiment."},
+
+    {"id": "ch7_ext_architecte_01",
+     "bg": "sous_sol", "rain": False,
+     "char": "detective", "expr": 5, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Demandez."},
+
+    {"id": "ch7_ext_architecte_02",
+     "bg": "sous_sol", "rain": False,
+     "char": "architect", "expr": 1, "side": "right",
+     "name": "L'ARCHITECTE",
+     "text": "Si vous saviez depuis le début que le procès n'aboutirait à rien — que mes avocats auraient raison, que les sept noms disparaîtraient, que dans vingt ans quelqu'un rebâtirait ce que vous venez de détruire... vous auriez quand même fait tout ça ?"},
+
+    # ── Choix d'interrogatoire — question philosophique ───────────────────────
+    {"id": "ch7_ext_architecte_choix",
+     "bg": "sous_sol", "rain": False,
+     "char": "detective", "expr": 0, "side": "left",
+     "name": "",
+     "text": "L'Architecte pose une question qui n'attend pas une stratégie d'interrogatoire. Il veut une vraie réponse. Comment répondre ?",
+     "choices": [
+         "Oui — même si rien ne change durablement, ça valait le coup",
+         "Non — sans résultat réel, ça n'aurait pas de sens",
+         "Je ne sais pas — et cette incertitude est honnête"
+     ],
+     "choice_branch": {"0": "ch7_archi_oui", "1": "ch7_archi_non", "2": "ch7_archi_saispa"}},
+
+    {"id": "ch7_archi_oui",
+     "bg": "sous_sol", "rain": False,
+     "char": "detective", "expr": 3, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Oui. Marcus Vane méritait que quelqu'un vienne. Mon père méritait que quelqu'un continue. Les 147 du vol 219 méritaient que quelqu'un nomme ce qui leur est arrivé. Même si personne d'autre n'entend jamais."},
+
+    {"id": "ch7_archi_oui_2",
+     "bg": "sous_sol", "rain": False,
+     "char": "architect", "expr": 3, "side": "right",
+     "name": "L'ARCHITECTE",
+     "text": "...Vous le pensez vraiment. C'est ça qui vous rend dangereux, Raven. Pas votre intelligence. Votre conviction."},
+
+    {"id": "ch7_archi_non",
+     "bg": "sous_sol", "rain": False,
+     "char": "detective", "expr": 9, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Non. Sincèrement non. Je fais ça parce que je crois que ça peut changer quelque chose. Si j'étais certain que ça ne servirait à rien, je serais peut-être moins là."},
+
+    {"id": "ch7_archi_non_2",
+     "bg": "sous_sol", "rain": False,
+     "char": "architect", "expr": 1, "side": "right",
+     "name": "L'ARCHITECTE",
+     "text": "Honnête. Et plus humain que je ne le pensais. Vous avez des doutes. C'est bien."},
+
+    {"id": "ch7_archi_saispa",
+     "bg": "sous_sol", "rain": False,
+     "char": "detective", "expr": 4, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "rep_change": {"architect_respect": 5},
+     "text": "Je ne sais pas. C'est la réponse honnête. Peut-être oui. Peut-être que je ferais la même chose par réflexe ou par obstination. Peut-être que ça n'a plus rien à voir avec le résultat."},
+
+    {"id": "ch7_archi_saispa_2",
+     "bg": "sous_sol", "rain": False,
+     "char": "architect", "expr": 2, "side": "right",
+     "name": "L'ARCHITECTE",
+     "text": "C'est la seule réponse qui me touche. Vraiment. Parce que moi aussi, après trente ans, je ne sais plus si je crois encore au résultat. Ou si je continue par inertie."},
+
+    {"id": "ch7_archi_saispa_3",
+     "bg": "sous_sol", "rain": False,
+     "char": "detective", "expr": 5, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Alors peut-être qu'on est plus similaires qu'on ne l'admettra jamais. Et c'est pour ça que je ne peux pas vous laisser partir."},
+
+    # ─── Moment relationnel : Sato — avant le dénouement ─────────────────────
+
+    {"id": "ch7_ext_rel_sato_00",
+     "bg": "sous_sol", "rain": False, "transition": "fade_black",
+     "time": "06:30",
+     "char": "policiere", "expr": 1, "side": "right",
+     "name": "OFF. LEILA SATO",
+     "text": "Raven. Je veux vous dire quelque chose. Avant qu'on entre."},
+
+    {"id": "ch7_ext_rel_sato_01",
+     "bg": "sous_sol", "rain": False,
+     "char": "detective", "expr": 0, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Allez."},
+
+    {"id": "ch7_ext_rel_sato_02",
+     "bg": "sous_sol", "rain": False,
+     "char": "policiere", "expr": 2, "side": "right",
+     "name": "OFF. LEILA SATO",
+     "text": "Ma fille m'a encore parlé de vous cette semaine. Elle vous a dessiné. Avec le chapeau. Et six pattes. Parce que, dit-elle, les héros normaux c'est ennuyeux."},
+
+    {"id": "ch7_ext_rel_sato_03",
+     "bg": "sous_sol", "rain": False,
+     "char": "detective", "expr": 2, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Elle m'a donné des pattes supplémentaires. C'est utile pour un terrain montagneux."},
+
+    # ── Choix : répondre à Sato avant l'action ────────────────────────────────
+    {"id": "ch7_ext_rel_sato_choix",
+     "bg": "sous_sol", "rain": False,
+     "char": "detective", "expr": 0, "side": "left",
+     "name": "",
+     "text": "Sato vient de partager quelque chose de doux dans un moment qui ne l'est pas. Comment répondre ?",
+     "choices": [
+         "Lui dire ce qu'on pense vraiment d'elle — maintenant, avant qu'il soit trop tard",
+         "Garder l'humour — c'est ce qui les a maintenus debout jusqu'ici",
+         "Lui dire qu'on reviendra — et que cette fois on le pense"
+     ],
+     "choice_branch": {"0": "ch7_sato_sincere", "1": "ch7_sato_humour", "2": "ch7_sato_promesse"}},
+
+    {"id": "ch7_sato_sincere",
+     "bg": "sous_sol", "rain": False,
+     "char": "detective", "expr": 4, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "rep_change": {"sato": 25},
+     "text": "Sato. Leila. Vous êtes la personne la plus compétente et la plus courageuse que j'aie connue dans ce métier. Et je n'aurais pas pu finir ce dossier sans vous. Je voulais vous le dire."},
+
+    {"id": "ch7_sato_sincere_2",
+     "bg": "sous_sol", "rain": False,
+     "char": "policiere", "expr": 2, "side": "right",
+     "name": "OFF. LEILA SATO",
+     "text": "...C'est la première fois que vous utilisez mon prénom. Allez. On rentre là-dedans."},
+
+    {"id": "ch7_sato_humour",
+     "bg": "sous_sol", "rain": False,
+     "char": "detective", "expr": 6, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "rep_change": {"sato": 10},
+     "text": "Dites à votre fille que je garde les six pattes pour l'escalade en haute montagne. Ça aide."},
+
+    {"id": "ch7_sato_humour_2",
+     "bg": "sous_sol", "rain": False,
+     "char": "policiere", "expr": 2, "side": "right",
+     "name": "OFF. LEILA SATO",
+     "text": "Je lui dirai. Allez, detective-six-pattes. On y va."},
+
+    {"id": "ch7_sato_promesse",
+     "bg": "sous_sol", "rain": False,
+     "char": "detective", "expr": 1, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "rep_change": {"sato": 20},
+     "text": "On ressort d'ici. Je vous le promets. Et cette fois ce n'est pas une formule."},
+
+    {"id": "ch7_sato_promesse_2",
+     "bg": "sous_sol", "rain": False,
+     "char": "policiere", "expr": 1, "side": "right",
+     "name": "OFF. LEILA SATO",
+     "text": "Je vous tiens pour responsable de cette promesse. Votre seule qualité fiable, c'est de tenir vos engagements. Même les inconfortables."},
+
+    # ─── Franz Bertier : le sixième homme ─────────────────────────────────────
+
+    {"id": "ch7_ext_bertier_00",
+     "bg": "sous_sol", "rain": False, "transition": "slide_left",
+     "time": "08:00",
+     "char": None, "side": "left",
+     "name": "",
+     "text": "Dans le bunker, après l'arrestation de l'Architecte et de Selg. Une pièce qu'on n'avait pas vu. Derrière une porte codée."},
+
+    {"id": "ch7_ext_bertier_01",
+     "bg": "sous_sol", "rain": False,
+     "char": "taro", "expr": 0, "side": "right",
+     "name": "FRANZ BERTIER",
+     "text": "Vous avez trouvé la pièce. Je n'espérais plus vous voir arriver. Ou je l'espérais trop."},
+
+    {"id": "ch7_ext_bertier_02",
+     "bg": "sous_sol", "rain": False,
+     "char": "detective", "expr": 5, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Franz Bertier. Le sixième signataire. L'homme dont même Selg ne prononçait pas le nom."},
+
+    {"id": "ch7_ext_bertier_03",
+     "bg": "sous_sol", "rain": False,
+     "char": "taro", "expr": 1, "side": "right",
+     "name": "FRANZ BERTIER",
+     "text": "À 74 ans, Raven, on n'a plus grand chose à perdre et tout à raconter. Je savais que ce jour viendrait. En 1994, j'ai cru au projet. En 2009, après le vol 219, j'ai arrêté d'y croire. En 2024, je suis là."},
+
+    # ── Mini-jeu interrogatoire Bertier ───────────────────────────────────────
+    {"id": "ch7_interro_bertier",
+     "type": "interrogation",
+     "suspect": "taro",
+     "time_limit": 150,
+     "on_success": "ch7_bertier_ok",
+     "on_failure": "ch7_bertier_fail"},
+
+    {"id": "ch7_bertier_ok",
+     "bg": "sous_sol", "rain": False,
+     "char": "taro", "expr": 2, "side": "right",
+     "name": "FRANZ BERTIER",
+     "text": "Vous avez trouvé la clé. La vraie. Vane et moi, on se connaissait. C'est moi qui lui ai demandé de construire l'assurance-vie. C'est moi qui ai dit qu'un jour quelqu'un comme vous viendrait."},
+
+    {"id": "ch7_bertier_ok_2",
+     "bg": "sous_sol", "rain": False,
+     "char": "detective", "expr": 7, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Vous... vous êtes le commanditaire de la clé USB. Pas l'Architecte."},
+
+    {"id": "ch7_bertier_ok_3",
+     "bg": "sous_sol", "rain": False,
+     "char": "taro", "expr": 1, "side": "right",
+     "name": "FRANZ BERTIER",
+     "text": "L'Architecte voulait éliminer Vane proprement. Moi j'ai orchestré sa mort de façon à ce qu'elle laisse des traces. Les traces que vous avez suivies. Je vous ai mis sur la piste depuis le premier soir.",
+     "evidence": ("Testament de Vane — vérité complète", "Bertier orchestrateur — Vane complice volontaire — piège conçu à deux pour dix ans")},
+
+    {"id": "ch7_bertier_ok_4",
+     "bg": "sous_sol", "rain": False,
+     "char": "detective", "expr": 4, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Vane est mort en sachant que vous aviez construit son piège. Et il a accepté."},
+
+    {"id": "ch7_bertier_ok_5",
+     "bg": "sous_sol", "rain": False,
+     "char": "taro", "expr": 2, "side": "right",
+     "name": "FRANZ BERTIER",
+     "text": "Il a dit : 'Si ça marche, ça aura valu le coup. Si ça ne marche pas, au moins j'aurai essayé.' C'est tout. Marcus Vane était un homme simple avec une conviction extraordinaire."},
+
+    {"id": "ch7_bertier_fail",
+     "bg": "sous_sol", "rain": False,
+     "char": "taro", "expr": 1, "side": "right",
+     "name": "FRANZ BERTIER",
+     "text": "Vous ne trouverez pas la fissure de ce côté. Je suis vieux mais pas fragile. Ce que j'ai à dire, je le dirai devant un tribunal. Pas avant."},
+
+    {"id": "ch7_bertier_fail_2",
+     "bg": "sous_sol", "rain": False,
+     "char": "detective", "expr": 6, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Il tient. Bien. Il survivra au procès. Et devant un tribunal, ce qu'il a à dire sera peut-être la pièce finale. Je le laisse venir."},
+
+    # ─── Déduction finale : Testament + Schéma ────────────────────────────────
+
+    {"id": "ch7_ext_deduction_00",
+     "bg": "sous_sol", "rain": False, "transition": "fade_black",
+     "char": "detective", "expr": 5, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Testament de Vane + Schéma du Réseau + déclaration de Bertier. Les pièces sont complètes. Vane tenait deux jeux de comptes non pas par peur — mais parce que Bertier lui avait demandé de construire la preuve parfaite."},
+
+    {"id": "ch7_ext_deduction_01",
+     "bg": "sous_sol", "rain": False,
+     "char": "detective", "expr": 3, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "evidence": ("Déduction : Vane savait depuis le début", "Vane + Bertier — plan décennal — suicide organisé comme transmission de preuves"),
+     "text": "Ce n'est pas une victime. C'est un agent volontaire qui a sacrifié sa vie pour que les preuves arrivent intact. L'héroïsme le moins visible qui soit."},
+
+    # ─── Moment relationnel : Raven seul face à l'épilogue ───────────────────
+
+    {"id": "ch7_ext_solo_00",
+     "bg": "toit", "rain": False, "transition": "fade_white",
+     "time": "18:00",
+     "char": "detective", "expr": 0, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Le bunker. Interpol. Les menottes. La route du retour. Tout ça est derrière maintenant. Je suis sur le toit de mon immeuble à Paris. Le seul endroit où je sais réfléchir."},
+
+    {"id": "ch7_ext_solo_01",
+     "bg": "toit", "rain": False,
+     "char": "detective", "expr": 5, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Six personnages. Un réseau. Un plan de trente ans. Et Marcus Vane, tout seul dans une ruelle, qui a attendu que quelqu'un lise sa clé USB."},
+
+    {"id": "ch7_ext_solo_02",
+     "bg": "toit", "rain": False,
+     "char": "detective", "expr": 4, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Je pense à lui. Je pense à mon père. À tous les gens qui ont su des choses et qui ont décidé que ça valait la peine de les dire. Même au prix le plus élevé."},
+
+    {"id": "ch7_ext_solo_03",
+     "bg": "toit", "rain": False,
+     "char": "detective", "expr": 1, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Il y a quelque chose de reposant dans le fait d'avoir fini. Pas de victoire éclatante. Pas de discours. Juste : c'est fait. Ça aura été fait. Et c'est assez."},
+
+    # ─── Épilogue relationnel : les adieux ou les retrouvailles ──────────────
+
+    {"id": "ch7_ext_epilogue_mira",
+     "bg": "toit", "rain": False, "transition": "slide_left",
+     "time": "21:00",
+     "char": "mira", "expr": 2, "side": "right",
+     "name": "MIRA VOSS",
+     "text": "J'ai assisté à l'audience préliminaire ce matin. Arnheim a pâli quand le procureur a cité la filiation biologique. Il ne savait pas. Il ne sait toujours pas que c'est moi."},
+
+    {"id": "ch7_ext_epilogue_mira_2",
+     "bg": "toit", "rain": False,
+     "char": "detective", "expr": 4, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Est-ce que vous avez l'intention de lui dire ?"},
+
+    {"id": "ch7_ext_epilogue_mira_3",
+     "bg": "toit", "rain": False,
+     "char": "mira", "expr": 0, "side": "right",
+     "name": "MIRA VOSS",
+     "text": "Non. Ce n'est pas nécessaire. Ce qui est nécessaire, c'est le procès. Le reste... je vivrai avec."},
+
+    {"id": "ch7_ext_epilogue_mira_4",
+     "bg": "toit", "rain": False,
+     "char": "detective", "expr": 1, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Vous avez fait quelque chose que peu de gens auraient pu faire. Et vous êtes encore debout."},
+
+    {"id": "ch7_ext_epilogue_mira_5",
+     "bg": "toit", "rain": False,
+     "char": "mira", "expr": 2, "side": "right",
+     "name": "MIRA VOSS",
+     "text": "Je suis encore debout. C'est déjà beaucoup. Et votre équipe... si jamais vous avez besoin d'une analyste pour la suite... je suis là. Pour de vrai, cette fois."},
+
+    {"id": "ch7_ext_epilogue_natasha",
+     "bg": "rue", "rain": False, "transition": "fade_black",
+     "time": "22:00",
+     "char": "natasha", "expr": 2, "side": "right",
+     "name": "NATASHA MORI",
+     "text": "Prix Albert Londres confirmé. Remise en novembre. Mes trois confrères partagent la récompense. Mon rédacteur en chef m'a appelé pour s'excuser d'avoir voulu mettre le dossier en pause."},
+
+    {"id": "ch7_ext_epilogue_natasha_2",
+     "bg": "rue", "rain": False,
+     "char": "detective", "expr": 6, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Je suppose que vous lui avez dit que vous acceptiez ses excuses avec grâce et magnanimité."},
+
+    {"id": "ch7_ext_epilogue_natasha_3",
+     "bg": "rue", "rain": False,
+     "char": "natasha", "expr": 1, "side": "right",
+     "name": "NATASHA MORI",
+     "text": "Je lui ai dit que la prochaine fois qu'il essayait de me faire mettre en pause une investigation, je publie dans un journal concurrent. Ça ressemble à de la magnanimité pour quelqu'un qui me connaît."},
+
+    # ─── Fin étendue : Raven, la dernière question ────────────────────────────
+
+    {"id": "ch7_ext_fin_00",
+     "bg": "toit", "rain": True, "transition": "fade_black",
+     "time": "02:00",
+     "char": "detective", "expr": 9, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Franz Bertier vient de signer sa déposition complète. Vingt-deux pages. Trente ans. Chaque décision de la Synarchie, chaque crime, chaque nom. Il a tout donné."},
+
+    {"id": "ch7_ext_fin_01",
+     "bg": "toit", "rain": True,
+     "char": "detective", "expr": 4, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Il m'a demandé une seule chose : que le nom de Marcus Vane soit mentionné dans le dossier d'accusation. Pas comme victime. Comme source. Comme l'homme qui a tout rendu possible."},
+
+    {"id": "ch7_ext_fin_02",
+     "bg": "toit", "rain": True,
+     "char": "detective", "expr": 5, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "J'ai dit oui. J'ai appelé le procureur. Il a dit que c'était inhabituel. J'ai dit que l'habituel ne m'intéressait pas. Et que Marcus Vane méritait au moins son nom dans les archives."},
+
+    {"id": "ch7_ext_fin_03",
+     "bg": "toit", "rain": True,
+     "char": "detective", "expr": 0, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "note": "Marcus Vane. Source principale. Architecte de la chute de la Synarchie. Ce qui compte n'est pas toujours ce qu'on voit.",
+     "text": "Marcus Vane, né à Bordeaux le 3 mars 1982, mort à Chinatown le 14 janvier de cette année. Source principale dans l'affaire Synarchie. Quarante-deux ans. Seul. Et pourtant pas."},
+
+    {"id": "ch7_ext_fin_04",
+     "bg": "toit", "rain": True,
+     "char": "detective", "expr": 5, "side": "left",
+     "name": "DÉTECTIVE RAVEN",
+     "text": "Parce que dix ans plus tôt, il avait décidé que quelqu'un viendrait. Et quelqu'un est venu. Ce n'était pas rien. Ce n'est jamais rien."},
+
+    {"id": "ch7_ext_fin_05",
+     "bg": "toit", "rain": False, "transition": "fade_white",
+     "char": None, "side": "left",
+     "name": "",
+     "text": "─── FIN DU CHAPITRE VII — EXTENSION ───\n\nNUIT SANS TÉMOIN — Édition complète"},
+]
+
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # ASSEMBLAGE FINAL — SCRIPT = SCRIPT_I + SCRIPT_II + ... + SCRIPT_VII
@@ -5205,27 +5575,18 @@ SCRIPT_EXT = (
 
 SCRIPT = (
     SCRIPT_I
+    + SCRIPT_I_EXT
     + SCRIPT_II
+    + SCRIPT_II_EXT
     + SCRIPT_III
-    + SCRIPT_IIIb
-    + SCRIPT_IIIc
+    + SCRIPT_IIIB
+    + SCRIPT_IIIC
     + SCRIPT_IV
+    + SCRIPT_IV_EXT
     + SCRIPT_V
+    + SCRIPT_V_EXT
     + SCRIPT_VI
+    + SCRIPT_VI_EXT
     + SCRIPT_VII
-    + SCRIPT_EXT_INLINE
-    + SCRIPT_CH1_BRANCH_EXT
-    + SCRIPT_CH2_BRANCH_EXT
-    + SCRIPT_CH3B
-    + SCRIPT_CH3C
+    + SCRIPT_VII_EXT
 )
-
-# Horloge — ancrer l'heure d'une scène
-{"bg": "scene_de_crime", "time": "02:37", "text": "…"}
-
-# Journal — ajouter une note automatiquement
-{"note": "La Synarchie n'est pas morte à Genève. Elle a mué.", "text": "…"}
-
-# Réputation — modifier la confiance envers un PNJ
-{"rep_change": {"natasha": 10}, "text": "…"}
-{"rep_change": {"ferriere": -20}, "text": "…"}

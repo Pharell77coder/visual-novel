@@ -1,6 +1,5 @@
 import pygame
 import sys
-import os
 import math
 
 from config import *
@@ -69,7 +68,7 @@ class VNEngine:
 
         # ── Système de réputation ───────────────────────────────────────────────
         self.reputation = ReputationSystem(self.assets)
-        self._rep_hud_visible = True
+        self._rep_hud_visible = True   # toggled by [H]
         # ── Mini-jeu interrogatoire ────────────────────────────────────────────
         self.interro: "InterrogationMinigame | None" = None
 
@@ -77,7 +76,7 @@ class VNEngine:
         self.state = "title"   # title → game → save_menu → load_menu → gallery → narrative_map → end
         self.current_node    = None
         self.fade_alpha      = 255
-        self.fading_in       = True
+        self.fading_in       = True   # True only at engine start; _load_node resets to False
         self.show_rain       = False
         self.bg_surf         = None
         self._current_bg_name = None
@@ -255,6 +254,16 @@ class VNEngine:
                 for _ in range(20):
                     self.particles.append(Particle(SCREEN_W - 50, 80, PINK_ACCENT))
 
+        # ── Objet inventaire ──────────────────────────────────────────────────
+        item = node.get("item")
+        if item:
+            name = item[0] if isinstance(item, (list, tuple)) else item
+            desc = item[1] if isinstance(item, (list, tuple)) and len(item) > 1 else ""
+            icon = item[2] if isinstance(item, (list, tuple)) and len(item) > 2 else "?"
+            self.inventory.add(name, desc, icon)
+            for _ in range(15):
+                self.particles.append(Particle(SCREEN_W // 2, SCREEN_H // 2, GOLD))
+
         # ── Horloge diégétique ─────────────────────────────────────────────────
         node_time = node.get("time")
         if node_time:
@@ -301,7 +310,6 @@ class VNEngine:
         self.fade_alpha = 0
 
     def _show_narrative_map(self, chapter: int) -> None:
-        self._narrative_resume_idx = getattr(self, "_narrative_resume_idx", self.script_idx + 1)
         self.narrative_map.show(
             chapter       = chapter,
             choices_taken = self._choices_taken,
@@ -497,6 +505,7 @@ class VNEngine:
             consumed = self.cg_gallery.handle_event(event)
             if not self.cg_gallery.visible:
                 self.state = "title"
+            # consumed is intentionally unused here — gallery manages its own input
             return
 
         if self.state == "narrative_map":
@@ -610,6 +619,11 @@ class VNEngine:
                 # ── Réputation : touche R ──────────────────────────────────────
                 if event.key == pygame.K_r:
                     self.reputation.toggle()
+                    return
+
+                # ── HUD réputation : touche H ──────────────────────────────────
+                if event.key == pygame.K_h:
+                    self._rep_hud_visible = not self._rep_hud_visible
                     return
 
                 # ── BACKLOG : touche B ─────────────────────────────────────────
@@ -739,7 +753,6 @@ class VNEngine:
         # ── Mini-jeu interrogatoire en priorité ────────────────────────────────
         if self.interro is not None:
             self.interro.draw(self.screen)
-            pygame.display.flip()
             return
 
         if self.state == "title":
