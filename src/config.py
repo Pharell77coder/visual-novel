@@ -56,3 +56,10 @@ POLICIERE_EXPR = {
 # ── Configuration Audio ────────────────────────────────────────────────────────
 DEFAULT_MUSIC = "jazz.mp3"
 DIALOGUE_CLICK = "click.wav"
+
+# ── Horloge diégétique ─────────────────────────────────────────────────────────
+# Chaque scène peut déclarer "time": "HH:MM" (ex: "02:37") pour ancrer l'heure.
+# Si une scène ne le déclare pas, l'heure courante est conservée.
+# L'heure s'affiche en haut à droite du HUD.
+DIEGETIC_START_TIME = "02:37"   # heure de la scène 0 (par défaut)
+

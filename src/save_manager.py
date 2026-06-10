@@ -54,25 +54,27 @@ class SaveManager:
         bg_name:     Optional[str] = None,
         scene_name:  str = "",
         deductions:  Optional[list] = None,
-        cg_unlocked: Optional[list] = None,   # liste des ids CG débloqués
+        cg_unlocked: Optional[list] = None,
+        journal:     Optional[list] = None,    # NOUVEAU
+        reputation:  Optional[dict] = None,    # NOUVEAU
+        diegetic_time: str = "02:37",           # NOUVEAU
     ) -> bool:
-        """
-        Sauvegarde l'état dans le slot donné (0-2).
-        Retourne True en cas de succès.
-        """
         if not (0 <= slot < NUM_SLOTS):
             print(f"[SaveManager] Slot invalide : {slot}")
             return False
 
         data = {
-            "slot":        slot,
-            "script_idx":  script_idx,
-            "evidence":    [list(e) for e in evidence],
-            "deductions":  deductions or [],
-            "cg_unlocked": cg_unlocked or [],           # NOUVEAU
-            "bg_name":     bg_name,
-            "scene_name":  scene_name[:60],
-            "saved_at":    datetime.now().strftime("%Y-%m-%d %H:%M"),
+            "slot":          slot,
+            "script_idx":    script_idx,
+            "evidence":      [list(e) for e in evidence],
+            "deductions":    deductions or [],
+            "cg_unlocked":   cg_unlocked or [],
+            "journal":       journal or [],
+            "reputation":    reputation or {},
+            "diegetic_time": diegetic_time,
+            "bg_name":       bg_name,
+            "scene_name":    scene_name[:60],
+            "saved_at":      datetime.now().strftime("%Y-%m-%d %H:%M"),
         }
         try:
             with open(_slot_path(slot), "w", encoding="utf-8") as f:
@@ -82,7 +84,6 @@ class SaveManager:
         except OSError as e:
             print(f"[SaveManager] Erreur écriture slot {slot} : {e}")
             return False
-
     # ── Lecture ────────────────────────────────────────────────────────────────
 
     def load(self, slot: int) -> Optional[dict]:
@@ -94,10 +95,13 @@ class SaveManager:
             with open(path, "r", encoding="utf-8") as f:
                 data = json.load(f)
             # Reconvertit les listes [nom, desc] en tuples
-            data["evidence"]    = [tuple(e) for e in data.get("evidence", [])]
-            data["deductions"]  = data.get("deductions", [])
-            data["cg_unlocked"] = data.get("cg_unlocked", [])   # rétrocompatibilité
-            return data
+                data["evidence"]      = [tuple(e) for e in data.get("evidence", [])]
+                data["deductions"]    = data.get("deductions", [])
+                data["cg_unlocked"]   = data.get("cg_unlocked", [])
+                data["journal"]       = data.get("journal", [])       # NOUVEAU
+                data["reputation"]    = data.get("reputation", {})    # NOUVEAU
+                data["diegetic_time"] = data.get("diegetic_time", "02:37")  # NOUVEAU
+                return data
         except (OSError, json.JSONDecodeError) as e:
             print(f"[SaveManager] Erreur lecture slot {slot} : {e}")
             return None

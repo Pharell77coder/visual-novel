@@ -6,7 +6,9 @@ import math
 from config import *
 from assets_manager import *
 from models import *
-from ui import DialogueBox, EvidencePanel, InventoryPanel, TitleScreen, SaveSlotScreen, DeductionPanel, CGGallery, NarrativeMap, InGameMenu
+from ui import (DialogueBox, EvidencePanel, InventoryPanel, TitleScreen,
+               SaveSlotScreen, DeductionPanel, CGGallery, NarrativeMap,
+               InGameMenu, DetectiveJournal, MissedEvidencePanel, ReputationSystem)
 from script import SCRIPT
 from transitions import Transition
 from save_manager import SaveManager
@@ -48,16 +50,31 @@ class VNEngine:
 
         # ── Menu en cours de jeu ───────────────────────────────────────────────
         self.in_game_menu = InGameMenu(self.assets)
+        
+        # ── Horloge diégétique ─────────────────────────────────────────────────
+        self._diegetic_time: str = DIEGETIC_START_TIME
 
+        # ── Journal de bord de Raven ────────────────────────────────────────────
+        self.journal = DetectiveJournal(self.assets)
+
+        # ── Script (doit être initialisé avant _build_evidence_registry) ─────────
+        self.script_idx      = 0
+        self.script          = SCRIPT
+        self._build_index()
+
+        # ── Preuves manquées (fin de chapitre) ─────────────────────────────────
+        self._evidence_registry: dict[int, list] = {}
+        self._build_evidence_registry()
+        self.missed_panel = MissedEvidencePanel(self.assets, self._evidence_registry)
+
+        # ── Système de réputation ───────────────────────────────────────────────
+        self.reputation = ReputationSystem(self.assets)
+        self._rep_hud_visible = True
         # ── Mini-jeu interrogatoire ────────────────────────────────────────────
         self.interro: "InterrogationMinigame | None" = None
 
         # ── État ──────────────────────────────────────────────────────────────
         self.state = "title"   # title → game → save_menu → load_menu → gallery → narrative_map → end
-
-        self.script_idx      = 0
-        self.script          = SCRIPT
-        self._build_index()
         self.current_node    = None
         self.fade_alpha      = 255
         self.fading_in       = True
@@ -105,6 +122,33 @@ class VNEngine:
             if "id" in node:
                 self.id_map[node["id"]] = i
 
+    def _build_evidence_registry(self) -> None:
+        """Groupe les preuves du script par chapitre pour le panneau 'preuves manquées'."""
+        current_chapter = 1
+        for node in self.script:
+            if "chapter_end" in node:
+                current_chapter = node["chapter_end"] + 1
+                continue
+            ev = node.get("evidence")
+            if ev:
+                name, desc = ev[0], ev[1]
+                hint = desc[:60] if desc else "Cherchez mieux…"
+                chapter_list = self._evidence_registry.setdefault(current_chapter, [])
+                if not any(e[0] == name for e in chapter_list):
+                    chapter_list.append((name, desc, hint))
+
+    @staticmethod
+    def _parse_time(time_str: str) -> tuple[int, int]:
+        try:
+            h, m = time_str.split(":")
+            return int(h) % 24, int(m) % 60
+        except Exception:
+            return 2, 37
+
+    @staticmethod
+    def _format_time(h: int, m: int) -> str:
+        return f"{h:02d}:{m:02d}"
+    
     # ── Helpers sauvegarde ─────────────────────────────────────────────────────
 
     def _scene_label(self) -> str:
@@ -119,13 +163,16 @@ class VNEngine:
 
     def _do_save(self, slot: int) -> None:
         ok = self.save_manager.save(
-            slot        = slot,
-            script_idx  = self.script_idx,
-            evidence    = self.evidence.items,
-            bg_name     = self._current_bg_name,
-            scene_name  = self._scene_label(),
-            deductions  = self.ded_engine.to_list(),
-            cg_unlocked = self.cg_mgr.to_list(),
+            slot          = slot,
+            script_idx    = self.script_idx,
+            evidence      = self.evidence.items,
+            bg_name       = self._current_bg_name,
+            scene_name    = self._scene_label(),
+            deductions    = self.ded_engine.to_list(),
+            cg_unlocked   = self.cg_mgr.to_list(),
+            journal       = self.journal.to_list(),
+            reputation    = self.reputation.to_dict(),
+            diegetic_time = self._diegetic_time,
         )
         self._toast(f"Sauvegarde slot {slot + 1} — OK" if ok else "Erreur sauvegarde !", ok)
 
@@ -135,15 +182,13 @@ class VNEngine:
             self._toast("Slot vide !", success=False)
             return
         self.evidence.items = list(data["evidence"])
-        # Restaurer les déductions
-        ded_data = data.get("deductions", [])
-        self.ded_engine.from_list(ded_data)
-        # Restaurer les CG débloquées
-        cg_data = data.get("cg_unlocked", [])
-        self.cg_mgr.from_list(cg_data)
+        self.ded_engine.from_list(data.get("deductions", []))
+        self.cg_mgr.from_list(data.get("cg_unlocked", []))
+        self.journal.from_list(data.get("journal", []))
+        self.reputation.from_dict(data.get("reputation", {}))
+        self._diegetic_time = data.get("diegetic_time", DIEGETIC_START_TIME)
         self._load_node(data["script_idx"])
         self._toast(f"Chargement slot {slot + 1} — OK", success=True)
-
     def _toast(self, msg: str, success: bool = True) -> None:
         self._toast_msg   = msg
         self._toast_timer = 2.5
@@ -210,6 +255,20 @@ class VNEngine:
                 for _ in range(20):
                     self.particles.append(Particle(SCREEN_W - 50, 80, PINK_ACCENT))
 
+        # ── Horloge diégétique ─────────────────────────────────────────────────
+        node_time = node.get("time")
+        if node_time:
+            self._diegetic_time = node_time
+
+        # ── Note pour le journal ───────────────────────────────────────────────
+        note = node.get("note")
+        if note:
+            self.journal.add_note(note, source=node.get("name", ""))
+
+        # ── Réputation ─────────────────────────────────────────────────────────
+        for char, delta in node.get("rep_change", {}).items():
+            self.reputation.change(char, int(delta))
+
         # ── Déblocage CG ───────────────────────────────────────────────────────
         cg_id = node.get("cg")
         if cg_id:
@@ -242,7 +301,6 @@ class VNEngine:
         self.fade_alpha = 0
 
     def _show_narrative_map(self, chapter: int) -> None:
-        """Affiche la carte narrative de fin de chapitre."""
         self._narrative_resume_idx = getattr(self, "_narrative_resume_idx", self.script_idx + 1)
         self.narrative_map.show(
             chapter       = chapter,
@@ -250,6 +308,10 @@ class VNEngine:
             evidence      = self.evidence.items,
             deductions    = self.ded_engine.all_deductions(),
         )
+        # Preuves manquées pour le chapitre qui se termine
+        self.missed_panel.show(chapter=chapter, collected=self.evidence.items)
+        # Mettre à jour le chapitre dans le journal
+        self.journal.set_chapter(chapter + 1)
         self.state = "narrative_map"
 
     # ── Démarrage du mini-jeu interrogatoire ──────────────────────────────────
@@ -278,12 +340,13 @@ class VNEngine:
 
         try:
             self.interro = InterrogationMinigame(
-                screen     = self.screen,
-                assets     = self.assets,
-                suspect_id = suspect_id,
-                time_limit = time_limit,
-                on_success = on_success,
-                on_failure = on_failure,
+                screen             = self.screen,
+                assets             = self.assets,
+                suspect_id         = suspect_id,
+                time_limit         = time_limit,
+                on_success         = on_success,
+                on_failure         = on_failure,
+                collected_evidence = [name for name, _ in self.evidence.items],
             )
         except ValueError as e:
             print(f"[interrogation] {e}")
@@ -437,6 +500,9 @@ class VNEngine:
             return
 
         if self.state == "narrative_map":
+            if self.missed_panel.visible:          # NOUVEAU
+                self.missed_panel.handle_event(event)
+                return
             result = self.narrative_map.handle_event(event)
             if result == "continue":
                 self.narrative_map.close()
@@ -487,6 +553,26 @@ class VNEngine:
                     text_speed_idx = self.dlg.speed_idx,
                 )
                 return
+            
+            # Journal (priorité si ouvert)
+            if self.journal.visible:
+                if self.journal.handle_event(event):
+                    return
+
+            # Réputation
+            if self.reputation.visible:
+                if self.reputation.handle_event(event):
+                    return
+
+            # Preuves manquées
+            if self.missed_panel.visible:
+                if self.missed_panel.handle_event(event):
+                    return
+
+            # Inventaire
+            if self.inventory.visible:
+                if self.inventory.handle_event(event):
+                    return
 
             # Le panneau de preuves consomme l'événement en mode select
             if self.evidence.visible:
@@ -515,6 +601,15 @@ class VNEngine:
                     return
                 if event.key == pygame.K_i:
                     self.inventory.toggle()
+                    return
+                # ── Journal : touche N ─────────────────────────────────────────
+                if event.key == pygame.K_n:
+                    self.journal.toggle()
+                    return
+
+                # ── Réputation : touche R ──────────────────────────────────────
+                if event.key == pygame.K_r:
+                    self.reputation.toggle()
                     return
 
                 # ── BACKLOG : touche B ─────────────────────────────────────────
@@ -633,6 +728,7 @@ class VNEngine:
                 p.update(dt)
 
             self.in_game_menu.update(dt)
+            self.reputation.update(dt)
 
             if self._toast_timer > 0:
                 self._toast_timer = max(0.0, self._toast_timer - dt)
@@ -657,6 +753,7 @@ class VNEngine:
         if self.state == "narrative_map":
             self._draw_game()   # fond de jeu visible dessous
             self.narrative_map.draw(self.screen, self.t)
+            self.missed_panel.draw(self.screen, self.t)
             return
         if self.state == "end":
             self._draw_end()
@@ -712,6 +809,20 @@ class VNEngine:
 
         self._draw_toast()
 
+        # Réputation — jauges compactes
+        active_chars = [s["char"] for s in self._char_slots.values() if s.get("char")]
+        if self._rep_hud_visible:
+            self.reputation.draw_hud(self.screen, self.t, active_chars)
+
+        # Journal
+        self.journal.draw(self.screen, self.t)
+
+        # Réputation — panneau complet
+        self.reputation.draw_full_panel(self.screen, self.t)
+
+        # Preuves manquées
+        self.missed_panel.draw(self.screen, self.t)
+
         # Menu en jeu (par-dessus tout le reste)
         if self.in_game_menu.visible:
             self.in_game_menu.draw(self.screen, self.t)
@@ -735,20 +846,21 @@ class VNEngine:
         t_title = f.render(TITLE, True, CYAN)
         hud.blit(t_title, (8, 2))
 
-        # Centre : panneaux
+        # Centre
         t_panels = f.render(
             f"[E] Preuves({len(self.evidence.items)})  "
-            f"[D] Déductions({self.ded_engine.count()})  [I] Inv.",
+            f"[D] Déductions({self.ded_engine.count()})  [I] Inv.  "
+            f"[N] Journal({len(self.journal._entries)})",
             True, TEXT_GRAY)
         hud.blit(t_panels, (SCREEN_W // 2 - t_panels.get_width() // 2, 2))
 
-        # Droite : navigation
-        t_nav = f.render("[ESPACE] Avancer", True, TEXT_GRAY)
-        hud.blit(t_nav, (SCREEN_W - t_nav.get_width() - 8, 2))
+        # Droite : horloge diégétique (remplace "[ESPACE] Avancer")
+        clock_s = f.render(f"⏱ {self._diegetic_time}", True, GOLD)
+        hud.blit(clock_s, (SCREEN_W - clock_s.get_width() - 8, 2))
 
         # ── Ligne 2 ──────────────────────────────────────────────────────────
         # Gauche : sauvegarde / chargement
-        t_save = f.render("[S] Sauver  [L] Charger  [M] Menu", True, TEXT_GRAY)
+        t_save = f.render("[S] Sauver  [L] Charger  [M] Menu  [R] Réputation", True, TEXT_GRAY)
         hud.blit(t_save, (8, 20))
 
         # Centre : backlog

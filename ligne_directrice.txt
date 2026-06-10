@@ -101,3 +101,37 @@ Pour **30–40 €** (18 mois, projet sérieux) :
 - Chapitre procès complet avec tous les accusés
 - Artworks de personnages professionnels redessinés
 - Fin secrète/true end nécessitant 100% des déductions
+
+
+Voici ce que je vois en parcourant l'ensemble du code :
+
+Gameplay & narration
+
+Système de temps/horloge diégétique — le jeu s'appelle Nuit Sans Témoin mais aucune horloge ne tourne. Afficher l'heure qui avance selon les scènes renforcerait l'urgence et la cohérence noir.
+Journal de bord du détective — une page "notes de Raven" auto-générée à partir des dialogues importants (tags note: dans le script), accessible depuis le menu pause. Ça donne de la profondeur sans surcharger le HUD.
+Preuves manquées — à la fin de chaque chapitre, la NarrativeMap pourrait signaler les preuves disponibles mais non collectées, avec un indice vague. Ça encourage le rejeu sans spoiler.
+Système de réputation/confiance — certains dialogues dans script.py bifurquent déjà selon les choix ; un score discret par PNJ (Natasha, Taro, Mira…) ouvrirait des options de dialogue supplémentaires sans alourdir l'UI.
+
+
+Code & architecture
+
+EvidencePanel et DeductionPanel ne communiquent pas — quand une déduction est débloquée, les preuves qui l'ont générée ne sont pas marquées visuellement. Un petit badge ✦ sur la ligne de preuve concernée serait lisible et utile.
+script.py chargé en mémoire entière — pour un jeu à 7 chapitres, ça va, mais charger chapitre par chapitre (lazy_load_chapter) éviterait tout temps de gel en début de partie et préparerait l'ajout futur de chapitres DLC.
+Absence de typing strict — beaucoup de dict non typés (node, entry, result). Introduire des TypedDict ou dataclasses pour ScriptNode, CGEntry, DeductionResult éliminerait des bugs silencieux et documenterait l'API interne.
+assets_manager.py bloque le démarrage — tout est chargé de façon synchrone dans __init__. Un chargement asynchrone avec écran de progression (LoadingScreen) serait propre et permettrait d'afficher un splash screen pendant l'init audio/images.
+Pas de gestion des erreurs dans VNEngine._load_node() — si un bg, un char ou un id de nœud est absent du script, le jeu plante silencieusement. Un mode debug_mode qui affiche un overlay rouge avec le nœud fautif en dev serait précieux.
+
+
+UI/UX
+
+Raccourcis clavier non affichés en jeu — il faut lire le code pour savoir que B ouvre le backlog, E les preuves, D les déductions. Un petit bandeau d'aide flottant (une seconde, puis fondu) au premier accès de chaque panneau règle ça.
+DialogueBox n'affiche que 4 lignes — les textes longs sont tronqués silencieusement. Soit on wrape sur plus de lignes avec réduction de la boîte, soit on ajoute un scroll interne à la boîte de dialogue elle-même pour les répliques très longues.
+Pas de retour tactile/sonore sur la combinaison de preuves — l'animation de fusion est visuelle mais il n'y a aucun son dédié. Un snd_combine_success / snd_combine_fail distincts renforcerait le feedback.
+CGGallery ne scrolle pas — même problème que les panneaux corrigés aujourd'hui : avec 23 CGs sur deux rangées la grille de vignettes déborde de l'écran. Même approche que ce qui vient d'être fait.
+
+
+Polish & accessibilité
+
+Pas de mode daltonien — les couleurs cyan/or/rose sont le langage visuel du jeu, mais aucun palette alternative n'existe. Même un simple preset "contraste élevé" dans les options serait une bonne base.
+RainEffect toujours active — la pluie est affichée sur tous les fonds sans condition. Attacher son activation à une propriété du nœud script ("weather": "rain") la rendrait narrative plutôt que décorative.
+Sauvegardes sans screenshot — les slots affichent nom de scène + date mais pas d'aperçu visuel. Capturer un screen.copy() réduit (160×90) au moment de la sauvegarde et l'afficher dans SaveSlotScreen changerait radicalement le confort de chargement.

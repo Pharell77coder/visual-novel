@@ -390,6 +390,8 @@ class EvidencePanel:
     ROW_H    = 60
     ROW_GAP  = 6
     HEADER_H = 52
+    MAX_VISIBLE_ROWS = 6   # nombre max de lignes visibles avant scroll
+    SCROLLBAR_W = 8
 
     def __init__(self, assets: Assets, deduction_engine=None):
         self.assets    = assets
@@ -397,6 +399,9 @@ class EvidencePanel:
         self.visible   = False
         self.items     = []          # list of (nom, desc)
         self.selected  = 0           # indice survolé
+
+        # Scroll
+        self._scroll_offset = 0  # nombre de lignes scrollées vers le bas
 
         # Mode combinaison
         self._mode         = "browse"  # "browse" | "select"
@@ -423,6 +428,7 @@ class EvidencePanel:
         self.visible = not self.visible
         if not self.visible:
             self._reset_selection()
+            self._scroll_offset = 0
 
     def add(self, name, desc):
         self.items.append((name, desc))
@@ -455,9 +461,11 @@ class EvidencePanel:
 
             if event.key in (pygame.K_UP,):
                 self.selected = max(0, self.selected - 1)
+                self._ensure_visible(self.selected)
                 return True
             if event.key in (pygame.K_DOWN,):
                 self.selected = min(len(self.items) - 1, self.selected + 1)
+                self._ensure_visible(self.selected)
                 return True
 
             if event.key == pygame.K_RETURN and self._mode == "select":
@@ -499,6 +507,11 @@ class EvidencePanel:
                 if go_btn and go_btn.collidepoint(event.pos):
                     self._start_combine()
                     return True
+
+        elif event.type == pygame.MOUSEWHEEL:
+            self._scroll_offset = max(0, min(self._max_scroll(),
+                                              self._scroll_offset - event.y))
+            return True
 
         elif event.type == pygame.MOUSEMOTION:
             row_i = self._row_at(event.pos)
@@ -570,32 +583,55 @@ class EvidencePanel:
     # ── Géométrie ─────────────────────────────────────────────────────────────
 
     def _panel_height(self) -> int:
-        rows = max(1, len(self.items))
-        base = self.HEADER_H + rows * (self.ROW_H + self.ROW_GAP)
+        visible_rows = min(len(self.items), self.MAX_VISIBLE_ROWS)
+        visible_rows = max(1, visible_rows)
+        base = self.HEADER_H + visible_rows * (self.ROW_H + self.ROW_GAP)
         if self._mode == "select":
             base += 54   # barre d'action en bas
         elif len(self.items) >= 2:
             base += 36   # bouton [C]
         return min(base, SCREEN_H - 80)
 
+    def _max_scroll(self) -> int:
+        """Nombre maximum de lignes qu'on peut scroller."""
+        return max(0, len(self.items) - self.MAX_VISIBLE_ROWS)
+
+    def _clamp_scroll(self):
+        self._scroll_offset = max(0, min(self._max_scroll(), self._scroll_offset))
+
+    def _ensure_visible(self, idx: int):
+        """Scrolle pour s'assurer que la ligne idx est visible."""
+        if idx < self._scroll_offset:
+            self._scroll_offset = idx
+        elif idx >= self._scroll_offset + self.MAX_VISIBLE_ROWS:
+            self._scroll_offset = idx - self.MAX_VISIBLE_ROWS + 1
+        self._clamp_scroll()
+
     def _panel_rect(self) -> pygame.Rect:
         return pygame.Rect(SCREEN_W - self.PANEL_W - 10, 60,
                            self.PANEL_W, self._panel_height())
 
     def _row_rect(self, i: int, pr: pygame.Rect) -> pygame.Rect:
-        y = pr.y + self.HEADER_H + i * (self.ROW_H + self.ROW_GAP)
-        return pygame.Rect(pr.x + 8, y, pr.w - 16, self.ROW_H)
+        """Position visuelle de la ligne i (i = index absolu dans self.items)."""
+        visible_i = i - self._scroll_offset
+        y = pr.y + self.HEADER_H + visible_i * (self.ROW_H + self.ROW_GAP)
+        return pygame.Rect(pr.x + 8, y, pr.w - 16 - self.SCROLLBAR_W, self.ROW_H)
 
     def _row_at(self, pos) -> "int | None":
         pr = self._panel_rect()
-        for i in range(len(self.items)):
-            if self._row_rect(i, pr).collidepoint(pos):
-                return i
+        visible_rows = min(len(self.items), self.MAX_VISIBLE_ROWS)
+        for vi in range(visible_rows):
+            abs_i = vi + self._scroll_offset
+            if abs_i >= len(self.items):
+                break
+            if self._row_rect(abs_i, pr).collidepoint(pos):
+                return abs_i
         return None
 
     def _combine_btn_rect(self) -> pygame.Rect:
         pr = self._panel_rect()
-        y  = pr.y + self.HEADER_H + len(self.items) * (self.ROW_H + self.ROW_GAP) + 4
+        visible_rows = min(len(self.items), self.MAX_VISIBLE_ROWS)
+        y = pr.y + self.HEADER_H + visible_rows * (self.ROW_H + self.ROW_GAP) + 4
         return pygame.Rect(pr.x + 8, y, pr.w - 16, 28)
 
     def _go_btn_rect(self) -> "pygame.Rect | None":
@@ -655,11 +691,37 @@ class EvidencePanel:
         count_s = fs.render(f"{len(self.items)} indice{'s' if len(self.items) > 1 else ''}",
                              True, TEXT_GRAY)
         panel.blit(count_s, ((pr.w - count_s.get_width()) // 2, 32))
+        if self._max_scroll() > 0:
+            scroll_hint = fs.render("[↑↓/molette] défiler", True, CYAN_DIM)
+            panel.blit(scroll_hint, ((pr.w - scroll_hint.get_width()) // 2, 32))
         screen.blit(panel, (pr.x, pr.y))
 
-        # ── Lignes de preuves ──────────────────────────────────────────────────
-        for i, (name, desc) in enumerate(self.items):
+        # ── Lignes de preuves (seulement celles visibles) ─────────────────────
+        visible_rows = min(len(self.items), self.MAX_VISIBLE_ROWS)
+        clip_top    = pr.y + self.HEADER_H
+        clip_height = visible_rows * (self.ROW_H + self.ROW_GAP)
+        clip_rect   = pygame.Rect(pr.x, clip_top, pr.w, clip_height)
+        old_clip    = screen.get_clip()
+        screen.set_clip(clip_rect)
+        for i in range(self._scroll_offset, self._scroll_offset + visible_rows):
+            if i >= len(self.items):
+                break
+            name, desc = self.items[i]
             self._draw_row(screen, i, name, desc, pr, t)
+        screen.set_clip(old_clip)
+
+        # ── Barre de scroll ────────────────────────────────────────────────────
+        max_s = self._max_scroll()
+        if max_s > 0:
+            sb_x  = pr.x + pr.w - self.SCROLLBAR_W - 2
+            sb_y  = pr.y + self.HEADER_H
+            sb_h  = clip_height
+            thumb_h = max(20, int(sb_h * visible_rows / len(self.items)))
+            thumb_pos = int((sb_h - thumb_h) * self._scroll_offset / max_s)
+            pygame.draw.rect(screen, (*CYAN_DIM, 50),
+                             (sb_x, sb_y, self.SCROLLBAR_W, sb_h), border_radius=3)
+            pygame.draw.rect(screen, (*PINK_ACCENT, 160),
+                             (sb_x, sb_y + thumb_pos, self.SCROLLBAR_W, thumb_h), border_radius=3)
 
         # ── Bouton [C] combiner (mode browse) ─────────────────────────────────
         if self._mode == "browse" and len(self.items) >= 2:
@@ -793,11 +855,11 @@ class EvidencePanel:
         progress = 1.0 - (self._combine_t / _COMBINE_DUR)
         ease = progress * progress * (3.0 - 2.0 * progress)
 
-        if self._sel_a is None or self._sel_b is None:
+        if self._anim_sel_a is None or self._anim_sel_b is None:
             return
 
-        ra = self._row_rect(self._sel_a, pr)
-        rb = self._row_rect(self._sel_b, pr)
+        ra = self._row_rect(self._anim_sel_a, pr)
+        rb = self._row_rect(self._anim_sel_b, pr)
         ax, ay = ra.centerx, ra.centery
         bx, by = rb.centerx, rb.centery
         cx = (SCREEN_W) // 2
@@ -952,6 +1014,8 @@ class DeductionPanel:
     """
     PW = 340
     ROW_H = 72
+    MAX_VISIBLE_ROWS = 5   # nombre max de lignes visibles avant scroll
+    SCROLLBAR_W = 8
 
     # Dimensions du modal de détail
     MODAL_W = 560
@@ -962,6 +1026,7 @@ class DeductionPanel:
         self.deduction = deduction_engine
         self.visible   = False
         self.selected  = 0
+        self._scroll_offset = 0
         # Modal de détail
         self._modal_idx: int | None = None   # index de la déduction affichée en modal
         self._modal_item: dict | None = None  # copie du dict de la déduction
@@ -970,6 +1035,7 @@ class DeductionPanel:
         self.visible = not self.visible
         if not self.visible:
             self._close_modal()
+            self._scroll_offset = 0
 
     def _open_modal(self, idx: int):
         items = self.deduction.all_deductions() if self.deduction else []
@@ -980,6 +1046,19 @@ class DeductionPanel:
     def _close_modal(self):
         self._modal_idx  = None
         self._modal_item = None
+
+    def _max_scroll(self, item_count: int) -> int:
+        return max(0, item_count - self.MAX_VISIBLE_ROWS)
+
+    def _clamp_scroll(self, item_count: int):
+        self._scroll_offset = max(0, min(self._max_scroll(item_count), self._scroll_offset))
+
+    def _ensure_visible(self, idx: int, item_count: int):
+        if idx < self._scroll_offset:
+            self._scroll_offset = idx
+        elif idx >= self._scroll_offset + self.MAX_VISIBLE_ROWS:
+            self._scroll_offset = idx - self.MAX_VISIBLE_ROWS + 1
+        self._clamp_scroll(item_count)
 
     def handle_event(self, event) -> bool:
         if not self.visible:
@@ -1001,42 +1080,57 @@ class DeductionPanel:
                 return True
             return True  # bloque le reste
 
+        items = self.deduction.all_deductions() if self.deduction else []
+
         if event.type == pygame.KEYDOWN:
             if event.key in (pygame.K_ESCAPE, pygame.K_d):
                 self.toggle()
                 return True
             if event.key == pygame.K_UP:
                 self.selected = max(0, self.selected - 1)
+                self._ensure_visible(self.selected, len(items))
                 return True
             if event.key == pygame.K_DOWN:
-                items = self.deduction.all_deductions() if self.deduction else []
                 self.selected = min(len(items) - 1, self.selected + 1)
+                self._ensure_visible(self.selected, len(items))
                 return True
             if event.key in (pygame.K_RETURN, pygame.K_SPACE):
                 self._open_modal(self.selected)
                 return True
 
+        elif event.type == pygame.MOUSEWHEEL:
+            self._scroll_offset = max(0, min(self._max_scroll(len(items)),
+                                              self._scroll_offset - event.y))
+            return True
+
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            items = self.deduction.all_deductions() if self.deduction else []
-            ph = min(SCREEN_H - 80, 60 + len(items) * (self.ROW_H + 6) + 20)
-            ph = max(ph, 120)
+            ph = self._panel_height(len(items))
             panel_rect = pygame.Rect(10, 60, self.PW, ph)
             if not panel_rect.collidepoint(event.pos):
                 self.toggle()
                 return True
-            # Clic sur une ligne
-            for i in range(len(items)):
-                row_y = 60 + 60 + i * (self.ROW_H + 6)
-                row_rect = pygame.Rect(18, row_y, self.PW - 16, self.ROW_H)
+            # Clic sur une ligne visible
+            visible_rows = min(len(items), self.MAX_VISIBLE_ROWS)
+            for vi in range(visible_rows):
+                abs_i = vi + self._scroll_offset
+                if abs_i >= len(items):
+                    break
+                row_y = 60 + 60 + vi * (self.ROW_H + 6)
+                row_rect = pygame.Rect(18, row_y, self.PW - 16 - self.SCROLLBAR_W, self.ROW_H)
                 if row_rect.collidepoint(event.pos):
-                    if i == self._modal_idx:
+                    if abs_i == self._modal_idx:
                         self._close_modal()
                     else:
-                        self.selected = i
-                        self._open_modal(i)
+                        self.selected = abs_i
+                        self._open_modal(abs_i)
                     return True
 
         return False
+
+    def _panel_height(self, item_count: int) -> int:
+        visible_rows = min(item_count, self.MAX_VISIBLE_ROWS)
+        ph = 60 + max(visible_rows, 1) * (self.ROW_H + 6) + 20
+        return min(ph, SCREEN_H - 80)
 
     def draw(self, screen: pygame.Surface, t: float):
         if not self.visible:
@@ -1046,7 +1140,8 @@ class DeductionPanel:
         fn = self.assets.font_med
         fs = self.assets.font_small
 
-        ph = min(SCREEN_H - 80, 60 + len(items) * (self.ROW_H + 6) + 20)
+        visible_rows = min(len(items), self.MAX_VISIBLE_ROWS)
+        ph = self._panel_height(len(items))
         ph = max(ph, 120)
 
         panel = pygame.Surface((self.PW, ph), pygame.SRCALPHA)
@@ -1055,45 +1150,75 @@ class DeductionPanel:
 
         title = fn.render("── DÉDUCTIONS ──", True, GOLD)
         panel.blit(title, ((self.PW - title.get_width()) // 2, 10))
-        count_s = fs.render(f"{len(items)} déduction{'s' if len(items) > 1 else ''}", True, TEXT_GRAY)
+
+        count_text = f"{len(items)} déduction{'s' if len(items) > 1 else ''}"
+        count_s = fs.render(count_text, True, TEXT_GRAY)
         panel.blit(count_s, ((self.PW - count_s.get_width()) // 2, 32))
 
         if not items:
             msg = fs.render("Combinez des preuves [E → C]", True, TEXT_GRAY)
             panel.blit(msg, ((self.PW - msg.get_width()) // 2, ph // 2))
         else:
-            hint_s = fs.render("[Entrée/clic] Détails", True, TEXT_GRAY)
+            if self._max_scroll(len(items)) > 0:
+                hint_s = fs.render("[Entrée/clic] Détails  [↑↓/molette] défiler", True, TEXT_GRAY)
+            else:
+                hint_s = fs.render("[Entrée/clic] Détails", True, TEXT_GRAY)
             panel.blit(hint_s, ((self.PW - hint_s.get_width()) // 2, 48))
-            for i, d in enumerate(items):
-                y   = 68 + i * (self.ROW_H + 6)
-                sel = i == self.selected
-                is_open = i == self._modal_idx
-                row = pygame.Surface((self.PW - 16, self.ROW_H), pygame.SRCALPHA)
-                bg_col = (*GOLD, 50) if is_open else (*GOLD, 30) if sel else (10, 15, 35, 200)
-                bd_col = (*GOLD, 220) if is_open else (*GOLD, 160) if sel else (*GOLD, 60)
-                pygame.draw.rect(row, bg_col, (0, 0, self.PW - 16, self.ROW_H), border_radius=5)
-                pygame.draw.rect(row, bd_col, (0, 0, self.PW - 16, self.ROW_H), width=2 if is_open else 1, border_radius=5)
-
-                dt_surf = fn.render(d.get("title", "?")[:26], True, GOLD if (sel or is_open) else TEXT_MAIN)
-                row.blit(dt_surf, (10, 6))
-
-                ins = fs.render(d.get("insight", "")[:36], True, CYAN if (sel or is_open) else TEXT_GRAY)
-                row.blit(ins, (10, 30))
-
-                fr = d.get("from", ())
-                if fr:
-                    src_txt = f"{fr[0][:16]} × {fr[1][:16]}"
-                    src_s = fs.render(src_txt, True, TEXT_GRAY)
-                    row.blit(src_s, (10, 52))
-
-                # Indicateur "modal ouvert"
-                if is_open:
-                    arrow = fs.render("▶", True, GOLD)
-                    row.blit(arrow, (self.PW - 32, (self.ROW_H - arrow.get_height()) // 2))
-
-                panel.blit(row, (8, y))
 
         screen.blit(panel, (10, 60))
+
+        # ── Lignes visibles ────────────────────────────────────────────────────
+        clip_top = 60 + 68
+        clip_h   = visible_rows * (self.ROW_H + 6)
+        clip_rect = pygame.Rect(10, clip_top, self.PW, clip_h)
+        old_clip  = screen.get_clip()
+        screen.set_clip(clip_rect)
+
+        for vi in range(visible_rows):
+            abs_i = vi + self._scroll_offset
+            if abs_i >= len(items):
+                break
+            d   = items[abs_i]
+            y   = 60 + 60 + vi * (self.ROW_H + 6)
+            sel = abs_i == self.selected
+            is_open = abs_i == self._modal_idx
+            row = pygame.Surface((self.PW - 16 - self.SCROLLBAR_W, self.ROW_H), pygame.SRCALPHA)
+            bg_col = (*GOLD, 50) if is_open else (*GOLD, 30) if sel else (10, 15, 35, 200)
+            bd_col = (*GOLD, 220) if is_open else (*GOLD, 160) if sel else (*GOLD, 60)
+            rw = self.PW - 16 - self.SCROLLBAR_W
+            pygame.draw.rect(row, bg_col, (0, 0, rw, self.ROW_H), border_radius=5)
+            pygame.draw.rect(row, bd_col, (0, 0, rw, self.ROW_H), width=2 if is_open else 1, border_radius=5)
+
+            dt_surf = fn.render(d.get("title", "?")[:24], True, GOLD if (sel or is_open) else TEXT_MAIN)
+            row.blit(dt_surf, (10, 6))
+
+            ins = fs.render(d.get("insight", "")[:34], True, CYAN if (sel or is_open) else TEXT_GRAY)
+            row.blit(ins, (10, 30))
+
+            fr = d.get("from", ())
+            if fr:
+                src_txt = f"{fr[0][:14]} × {fr[1][:14]}"
+                src_s = fs.render(src_txt, True, TEXT_GRAY)
+                row.blit(src_s, (10, 52))
+
+            if is_open:
+                arrow = fs.render("▶", True, GOLD)
+                row.blit(arrow, (rw - arrow.get_width() - 3, (self.ROW_H - arrow.get_height()) // 2))
+
+            screen.blit(row, (18, y))
+
+        screen.set_clip(old_clip)
+
+        # ── Barre de scroll ────────────────────────────────────────────────────
+        max_s = self._max_scroll(len(items))
+        if max_s > 0 and visible_rows > 0:
+            sb_x  = 10 + self.PW - self.SCROLLBAR_W - 4
+            sb_y  = clip_top
+            sb_h  = clip_h
+            thumb_h = max(20, int(sb_h * visible_rows / len(items)))
+            thumb_pos = int((sb_h - thumb_h) * self._scroll_offset / max_s)
+            pygame.draw.rect(screen, (*GOLD, 40), (sb_x, sb_y, self.SCROLLBAR_W, sb_h), border_radius=3)
+            pygame.draw.rect(screen, (*GOLD, 180), (sb_x, sb_y + thumb_pos, self.SCROLLBAR_W, thumb_h), border_radius=3)
 
         # ── Modal de détail ────────────────────────────────────────────────────
         if self._modal_idx is not None and self._modal_item is not None:
@@ -1166,46 +1291,168 @@ class DeductionPanel:
         screen.blit(popup, (mx0, my0))
 
 
-# ── Panneau Preuves (version legacy simple — non utilisée mais gardée) ─────────
 # ── Inventaire ──────────────────────────────────────────────────────────────────
 class InventoryPanel:
-    ITEMS = [
-        ("Badge",     "Insigne de détective"),
-        ("Dossier",   "Affaires en cours"),
-        ("Revolver",  ".38 Special"),
+    PANEL_W         = 280
+    ROW_H           = 54
+    ROW_GAP         = 5
+    HEADER_H        = 50
+    MAX_VISIBLE_ROWS = 6
+    SCROLLBAR_W     = 8
+
+    # Objets présents dès le début (peuvent être vides si le jeu les ajoute dynamiquement)
+    DEFAULT_ITEMS = [
+        ("Badge",    "Insigne de détective"),
+        ("Dossier",  "Affaires en cours"),
+        ("Revolver", ".38 Special"),
     ]
 
     def __init__(self, assets: Assets):
-        self.assets = assets
+        self.assets  = assets
         self.visible = False
+        self.items   = list(self.DEFAULT_ITEMS)   # list of (nom, desc)
+        self._scroll_offset = 0
+        self.selected       = 0
+
+    # ── API ────────────────────────────────────────────────────────────────────
 
     def toggle(self):
         self.visible = not self.visible
+        if not self.visible:
+            self._scroll_offset = 0
+
+    def add(self, name: str, desc: str) -> None:
+        """Ajoute un objet si pas déjà présent."""
+        if not any(it[0] == name for it in self.items):
+            self.items.append((name, desc))
+
+    # ── Géométrie ─────────────────────────────────────────────────────────────
+
+    def _max_scroll(self) -> int:
+        return max(0, len(self.items) - self.MAX_VISIBLE_ROWS)
+
+    def _panel_height(self) -> int:
+        visible = min(len(self.items), self.MAX_VISIBLE_ROWS)
+        return self.HEADER_H + max(1, visible) * (self.ROW_H + self.ROW_GAP) + 12
+
+    def _ensure_visible(self, idx: int):
+        if idx < self._scroll_offset:
+            self._scroll_offset = idx
+        elif idx >= self._scroll_offset + self.MAX_VISIBLE_ROWS:
+            self._scroll_offset = idx - self.MAX_VISIBLE_ROWS + 1
+        self._scroll_offset = max(0, min(self._max_scroll(), self._scroll_offset))
+
+    def _panel_rect(self) -> pygame.Rect:
+        return pygame.Rect(20, 60, self.PANEL_W, min(self._panel_height(), SCREEN_H - 80))
+
+    # ── Événements ────────────────────────────────────────────────────────────
+
+    def handle_event(self, event) -> bool:
+        """Retourne True si l'événement est consommé."""
+        if not self.visible:
+            return False
+
+        if event.type == pygame.KEYDOWN:
+            if event.key in (pygame.K_ESCAPE, pygame.K_i):
+                self.toggle()
+                return True
+            if event.key == pygame.K_UP:
+                self.selected = max(0, self.selected - 1)
+                self._ensure_visible(self.selected)
+                return True
+            if event.key == pygame.K_DOWN:
+                self.selected = min(len(self.items) - 1, self.selected + 1)
+                self._ensure_visible(self.selected)
+                return True
+
+        elif event.type == pygame.MOUSEWHEEL:
+            self._scroll_offset = max(0, min(self._max_scroll(),
+                                              self._scroll_offset - event.y))
+            return True
+
+        elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            if not self._panel_rect().collidepoint(event.pos):
+                self.toggle()
+                return True
+            # Clic sur une ligne
+            pr = self._panel_rect()
+            visible = min(len(self.items), self.MAX_VISIBLE_ROWS)
+            for vi in range(visible):
+                abs_i = vi + self._scroll_offset
+                if abs_i >= len(self.items):
+                    break
+                ry = pr.y + self.HEADER_H + vi * (self.ROW_H + self.ROW_GAP)
+                row_rect = pygame.Rect(pr.x + 10, ry, self.PANEL_W - 20 - self.SCROLLBAR_W, self.ROW_H)
+                if row_rect.collidepoint(event.pos):
+                    self.selected = abs_i
+                    return True
+
+        return False
+
+    # ── Rendu ─────────────────────────────────────────────────────────────────
 
     def draw(self, screen, t):
         if not self.visible:
             return
+
         px, py = 20, 60
-        panel = pygame.Surface((260, 220), pygame.SRCALPHA)
-        pygame.draw.rect(panel, (*DARK_BG, 240), (0, 0, 260, 220), border_radius=8)
-        pygame.draw.rect(panel, (*CYAN, 200), (0, 0, 260, 220), width=2, border_radius=8)
+        PW = self.PANEL_W
+        PH = min(self._panel_height(), SCREEN_H - 80)
+
+        panel = pygame.Surface((PW, PH), pygame.SRCALPHA)
+        pygame.draw.rect(panel, (*DARK_BG, 240), (0, 0, PW, PH), border_radius=8)
+        pygame.draw.rect(panel, (*CYAN, 200),    (0, 0, PW, PH), width=2, border_radius=8)
 
         f  = self.assets.font_med
         fs = self.assets.font_small
 
-        title = f.render("── INVENTAIRE ──", True, CYAN)
-        panel.blit(title, ((260 - title.get_width()) // 2, 10))
+        # En-tête
+        title   = f.render("── INVENTAIRE ──", True, CYAN)
+        panel.blit(title, ((PW - title.get_width()) // 2, 8))
+        count_s = fs.render(f"{len(self.items)} objet(s)", True, TEXT_GRAY)
+        panel.blit(count_s, ((PW - count_s.get_width()) // 2, 30))
+        pygame.draw.line(panel, (*CYAN, 60), (10, self.HEADER_H - 2), (PW - 10, self.HEADER_H - 2))
 
-        for i, (name, desc) in enumerate(self.ITEMS):
-            y   = 50 + i * 55
-            row = pygame.Surface((240, 46), pygame.SRCALPHA)
-            pygame.draw.rect(row, (20, 30, 50, 200), (0, 0, 240, 46), border_radius=4)
-            pygame.draw.rect(row, (*CYAN_DIM, 100), (0, 0, 240, 46), width=1, border_radius=4)
+        # Lignes visibles
+        visible = min(len(self.items), self.MAX_VISIBLE_ROWS)
+        for vi in range(visible):
+            abs_i = vi + self._scroll_offset
+            if abs_i >= len(self.items):
+                break
+            name, desc = self.items[abs_i]
+            ry  = self.HEADER_H + vi * (self.ROW_H + self.ROW_GAP)
+            sel = (abs_i == self.selected)
+
+            row = pygame.Surface((PW - 20, self.ROW_H), pygame.SRCALPHA)
+            if sel:
+                pygame.draw.rect(row, (*CYAN, 35),  (0, 0, PW-20, self.ROW_H), border_radius=4)
+                pygame.draw.rect(row, (*CYAN, 160), (0, 0, PW-20, self.ROW_H), width=1, border_radius=4)
+            else:
+                pygame.draw.rect(row, (20, 30, 50, 200), (0, 0, PW-20, self.ROW_H), border_radius=4)
+                pygame.draw.rect(row, (*CYAN_DIM, 100), (0, 0, PW-20, self.ROW_H), width=1, border_radius=4)
+
             ns = f.render(f"▸ {name}", True, GOLD)
-            ds = fs.render(desc, True, TEXT_GRAY)
-            row.blit(ns, (8, 4))
-            row.blit(ds, (8, 24))
-            panel.blit(row, (10, y))
+            ds = fs.render(desc[:32], True, TEXT_GRAY)
+            row.blit(ns, (8, 5))
+            row.blit(ds, (8, 28))
+            panel.blit(row, (10, ry))
+
+        # Scrollbar (uniquement si nécessaire)
+        if self._max_scroll() > 0:
+            sb_x  = PW - self.SCROLLBAR_W - 3
+            sb_y  = self.HEADER_H
+            sb_h  = visible * (self.ROW_H + self.ROW_GAP)
+            th_h  = max(16, int(sb_h * visible / len(self.items)))
+            th_y  = int((self._scroll_offset / self._max_scroll()) * (sb_h - th_h))
+            pygame.draw.rect(panel, (*CYAN_DIM, 60),
+                             (sb_x, sb_y, self.SCROLLBAR_W, sb_h), border_radius=3)
+            pygame.draw.rect(panel, (*CYAN, 200),
+                             (sb_x, sb_y + th_y, self.SCROLLBAR_W, th_h), border_radius=3)
+
+        # Hint navigation
+        hint = fs.render("[↑↓] Naviguer  [I/Échap] Fermer", True, TEXT_GRAY)
+        if hint.get_width() < PW - 10:
+            panel.blit(hint, ((PW - hint.get_width()) // 2, PH - 16))
 
         screen.blit(panel, (px, py))
 
@@ -2968,3 +3215,343 @@ class InGameMenu:
                 hint_s = fs.render("[← →] Ajuster", True, CYAN_DIM)
                 screen.blit(hint_s, (track_r.x + (track_r.w - hint_s.get_width()) // 2,
                                      track_r.y + 14))
+                
+
+# ══════════════════════════════════════════════════════════════════════════════
+# ── Journal de bord (Notes de Raven) ─────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════════════════
+class DetectiveJournal:
+    """
+    Journal auto-généré depuis les nœuds taggés "note:" dans script.py.
+    Touche [N] pour ouvrir/fermer.
+
+    Dans script.py :
+        {"note": "La Synarchie recrute dans les grandes écoles.", ...}
+    """
+    W = 740
+    H = 460
+    MAX_ENTRIES = 120
+    LINES_PER_PAGE = 12
+
+    def __init__(self, assets):
+        self.assets  = assets
+        self.visible = False
+        self._entries: list[dict] = []
+        self._scroll = 0
+        self._current_chapter = 1
+
+    def set_chapter(self, ch: int) -> None:
+        self._current_chapter = ch
+
+    def add_note(self, text: str, source: str = "") -> None:
+        if any(e["text"] == text for e in self._entries):
+            return
+        self._entries.append({"text": text, "source": source, "chapter": self._current_chapter})
+        if len(self._entries) > self.MAX_ENTRIES:
+            self._entries.pop(0)
+
+    def toggle(self) -> None:
+        self.visible = not self.visible
+        if self.visible:
+            self._scroll = max(0, len(self._entries) - self.LINES_PER_PAGE)
+
+    def handle_event(self, event) -> bool:
+        if not self.visible:
+            return False
+        if event.type == pygame.KEYDOWN:
+            if event.key in (pygame.K_n, pygame.K_ESCAPE):
+                self.visible = False
+                return True
+            if event.key == pygame.K_UP:
+                self._scroll = max(0, self._scroll - 1)
+                return True
+            if event.key == pygame.K_DOWN:
+                self._scroll = min(max(0, len(self._entries) - self.LINES_PER_PAGE),
+                                   self._scroll + 1)
+                return True
+        elif event.type == pygame.MOUSEWHEEL:
+            self._scroll = max(0, min(
+                max(0, len(self._entries) - self.LINES_PER_PAGE),
+                self._scroll - event.y))
+            return True
+        return False
+
+    def draw(self, screen, t: float) -> None:
+        if not self.visible:
+            return
+        f  = self.assets.font_med
+        fs = self.assets.font_small
+        fb = self.assets.font_big
+        x  = (SCREEN_W - self.W) // 2
+        y  = (SCREEN_H - self.H) // 2
+
+        panel = pygame.Surface((self.W, self.H), pygame.SRCALPHA)
+        pygame.draw.rect(panel, (*DARK_BG, 245), (0, 0, self.W, self.H), border_radius=10)
+        pygame.draw.rect(panel, (*CYAN, 180),    (0, 0, self.W, self.H), width=2, border_radius=10)
+        screen.blit(panel, (x, y))
+
+        title_s = fb.render("NOTES DE RAVEN", True, CYAN)
+        screen.blit(title_s, (x + self.W // 2 - title_s.get_width() // 2, y + 12))
+        pygame.draw.line(screen, (*CYAN, 80), (x + 16, y + 42), (x + self.W - 16, y + 42))
+
+        count_s = fs.render(
+            f"{len(self._entries)} note(s)  •  [↑↓] Défiler  •  [N/Échap] Fermer",
+            True, TEXT_GRAY)
+        screen.blit(count_s, (x + self.W // 2 - count_s.get_width() // 2, y + 46))
+
+        if not self._entries:
+            empty_s = f.render("Aucune note pour l'instant.", True, TEXT_GRAY)
+            screen.blit(empty_s, (x + self.W // 2 - empty_s.get_width() // 2, y + self.H // 2))
+        else:
+            body_y = y + 70
+            chap_cols = [CYAN, GOLD, PINK_ACCENT, (100, 220, 120), (180, 130, 255),
+                         (255, 160, 50), (80, 200, 200)]
+            for i, entry in enumerate(self._entries[self._scroll: self._scroll + self.LINES_PER_PAGE]):
+                ey  = body_y + i * 31
+                col = chap_cols[(entry["chapter"] - 1) % len(chap_cols)]
+                pygame.draw.circle(screen, col, (x + 22, ey + 10), 5)
+                meta = f"Ch.{entry['chapter']}"
+                if entry["source"]:
+                    meta += f"  {entry['source'][:22]}"
+                screen.blit(fs.render(meta, True, TEXT_GRAY), (x + 34, ey + 2))
+                note_txt = entry["text"]
+                while f.size(note_txt)[0] > self.W - 50 and len(note_txt) > 10:
+                    note_txt = note_txt[:-4] + "…"
+                screen.blit(f.render(note_txt, True, TEXT_MAIN), (x + 34, ey + 16))
+
+        if len(self._entries) > self.LINES_PER_PAGE:
+            total   = len(self._entries)
+            bar_h   = self.H - 75
+            thumb_h = max(20, int(bar_h * self.LINES_PER_PAGE / total))
+            thumb_y = int((self._scroll / max(1, total - self.LINES_PER_PAGE)) * (bar_h - thumb_h))
+            pygame.draw.rect(screen, (*CYAN_DIM, 60),
+                             (x + self.W - 10, y + 70, 4, bar_h), border_radius=2)
+            pygame.draw.rect(screen, (*CYAN, 180),
+                             (x + self.W - 10, y + 70 + thumb_y, 4, thumb_h), border_radius=2)
+
+    def to_list(self) -> list:
+        return list(self._entries)
+
+    def from_list(self, data: list) -> None:
+        self._entries = [dict(e) for e in data if isinstance(e, dict)]
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# ── Panneau "Preuves manquées" ────────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════════════════
+class MissedEvidencePanel:
+    """
+    Affiché à la fin de chaque chapitre, par-dessus la NarrativeMap.
+    Liste les preuves disponibles non collectées avec un indice vague.
+    """
+    W = 680
+    H = 400
+
+    def __init__(self, assets, evidence_registry: dict):
+        self.assets   = assets
+        self.registry = evidence_registry
+        self.visible  = False
+        self._missed: list[dict] = []
+
+    def show(self, chapter: int, collected: list) -> None:
+        known_names = {e[0] for e in collected}
+        available   = self.registry.get(chapter, [])
+        self._missed = [
+            {"name": name, "hint": hint}
+            for name, desc, hint in available
+            if name not in known_names
+        ]
+        self.visible = bool(self._missed)   # n'affiche que s'il y a des manques
+
+    def handle_event(self, event) -> bool:
+        if not self.visible:
+            return False
+        if event.type == pygame.KEYDOWN and event.key in (
+            pygame.K_RETURN, pygame.K_ESCAPE, pygame.K_n
+        ):
+            self.visible = False
+            return True
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            self.visible = False
+            return True
+        return False
+
+    def draw(self, screen, t: float) -> None:
+        if not self.visible:
+            return
+        f  = self.assets.font_med
+        fs = self.assets.font_small
+        fb = self.assets.font_big
+        x  = (SCREEN_W - self.W) // 2
+        y  = (SCREEN_H - self.H) // 2
+
+        panel = pygame.Surface((self.W, self.H), pygame.SRCALPHA)
+        pygame.draw.rect(panel, (*DARK_BG, 248), (0, 0, self.W, self.H), border_radius=10)
+        pygame.draw.rect(panel, (*GOLD, 180),    (0, 0, self.W, self.H), width=2, border_radius=10)
+        screen.blit(panel, (x, y))
+
+        title_s = fb.render("PREUVES MANQUÉES", True, GOLD)
+        screen.blit(title_s, (x + self.W // 2 - title_s.get_width() // 2, y + 14))
+        pygame.draw.line(screen, (*GOLD, 80), (x + 16, y + 44), (x + self.W - 16, y + 44))
+
+        intro_s = fs.render(
+            f"{len(self._missed)} preuve(s) disponible(s) n'ont pas été trouvées :",
+            True, TEXT_GRAY)
+        screen.blit(intro_s, (x + 20, y + 52))
+
+        for i, entry in enumerate(self._missed[:8]):
+            ey = y + 76 + i * 38
+            pygame.draw.rect(screen, (*GOLD, 20),  (x + 14, ey, self.W - 28, 32), border_radius=5)
+            pygame.draw.rect(screen, (*GOLD, 60),  (x + 14, ey, self.W - 28, 32), width=1, border_radius=5)
+            # Nom partiellement masqué
+            name = entry["name"]
+            masked = name[:3] + "…" + name[-2:] if len(name) > 6 else "???"
+            screen.blit(f.render(f"[ {masked} ]", True, GOLD), (x + 22, ey + 7))
+            screen.blit(fs.render(entry["hint"][:55], True, TEXT_GRAY), (x + 150, ey + 10))
+
+        hint = fs.render("[Entrée / Clic] Continuer", True, TEXT_GRAY)
+        screen.blit(hint, (x + self.W // 2 - hint.get_width() // 2, y + self.H - 28))
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# ── Système de réputation ─────────────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════════════════
+class ReputationSystem:
+    """
+    Score 0-100 par PNJ. Déclenche des niveaux : MÉFIANT / NEUTRE / COOPÉRATIF / CONFIANCE.
+
+    Dans script.py :
+        {"rep_change": {"natasha": 10}, ...}   → booste Natasha de +10
+        {"rep_change": {"ferriere": -15}, ...} → pénalise Ferrière de 15
+
+    Vérification dans VNEngine (exemple pour débloquer un dialogue) :
+        if engine.reputation.meets("natasha", 60):
+            # accès au dialogue bonus
+    """
+    CHARS = ["sato", "natasha", "taro", "mira", "ghost", "architect", "senator"]
+
+    def __init__(self, assets):
+        self.assets   = assets
+        self.visible  = False
+        self._scores: dict[str, int] = {c: 50 for c in self.CHARS}
+        self._recent: list[tuple[str, int, float]] = []  # (char, delta, timer)
+
+    def set_chapter(self, ch: int) -> None:
+        pass  # hook pour usage futur
+
+    def change(self, char: str, delta: int) -> None:
+        if char not in self._scores:
+            self._scores[char] = 50
+        self._scores[char] = max(0, min(100, self._scores[char] + delta))
+        self._recent.append((char, delta, 2.5))
+
+    def get(self, char: str) -> int:
+        return self._scores.get(char, 50)
+
+    def level(self, char: str) -> str:
+        v = self.get(char)
+        if v >= 85: return "trust"
+        if v >= 60: return "high"
+        if v >= 25: return "medium"
+        return "low"
+
+    def meets(self, char: str, required: int) -> bool:
+        return self.get(char) >= required
+
+    def toggle(self) -> None:
+        self.visible = not self.visible
+
+    def update(self, dt: float) -> None:
+        self._recent = [(c, d, t - dt) for c, d, t in self._recent if t - dt > 0]
+
+    def handle_event(self, event) -> bool:
+        if not self.visible:
+            return False
+        if event.type == pygame.KEYDOWN and event.key in (pygame.K_r, pygame.K_ESCAPE):
+            self.visible = False
+            return True
+        return False
+
+    def draw_hud(self, screen, t: float, active_chars: list) -> None:
+        """Mini-jauges pour les PNJ actuellement à l'écran."""
+        fs = self.assets.font_small
+        chars = [c for c in active_chars if c in self._scores][:4]
+        gx, gy = 8, 42
+        lvl_cols = {"low": RED_ACCENT, "medium": GOLD,
+                    "high": (100, 210, 80), "trust": CYAN}
+        for ci, char in enumerate(chars):
+            score = self._scores[char]
+            col   = lvl_cols[self.level(char)]
+            ry    = gy + ci * 22
+            screen.blit(fs.render(char[:10].upper(), True, col), (gx, ry))
+            bar_x, bar_w, bar_h = gx + 88, 80, 8
+            pygame.draw.rect(screen, (*DARK_BG, 180), (bar_x, ry + 4, bar_w, bar_h), border_radius=3)
+            if score > 0:
+                pygame.draw.rect(screen, (*col, 210),
+                                 (bar_x, ry + 4, int(bar_w * score / 100), bar_h), border_radius=3)
+            pygame.draw.rect(screen, (*col, 80), (bar_x, ry + 4, bar_w, bar_h), width=1, border_radius=3)
+
+        # Notifications flottantes
+        for ci, (char, delta, timer) in enumerate(self._recent[-3:]):
+            alpha = min(255, int(timer * 160))
+            col   = (100, 220, 100) if delta >= 0 else (220, 80, 80)
+            sign  = "+" if delta >= 0 else ""
+            s = fs.render(f"{char.upper()} {sign}{delta}", True, col)
+            ns = pygame.Surface(s.get_size(), pygame.SRCALPHA)
+            ns.blit(s, (0, 0))
+            ns.set_alpha(alpha)
+            screen.blit(ns, (8, SCREEN_H - 200 - ci * 22))
+
+    def draw_full_panel(self, screen, t: float) -> None:
+        """Panneau complet ouvert via [R]."""
+        if not self.visible:
+            return
+        W, H = 480, 380
+        x, y = (SCREEN_W - W) // 2, (SCREEN_H - H) // 2
+
+        panel = pygame.Surface((W, H), pygame.SRCALPHA)
+        pygame.draw.rect(panel, (*DARK_BG, 248), (0, 0, W, H), border_radius=10)
+        pygame.draw.rect(panel, (*CYAN, 180),    (0, 0, W, H), width=2, border_radius=10)
+        screen.blit(panel, (x, y))
+
+        fb, f, fs = self.assets.font_big, self.assets.font_med, self.assets.font_small
+        title_s = fb.render("RÉPUTATION", True, CYAN)
+        screen.blit(title_s, (x + W // 2 - title_s.get_width() // 2, y + 12))
+        pygame.draw.line(screen, (*CYAN, 80), (x + 16, y + 44), (x + W - 16, y + 44))
+
+        labels = {"sato": "Officier Sato", "natasha": "Natasha Mori",
+                  "taro": "Taro Mitsuki",  "mira": "Mira Voss",
+                  "ghost": "Viktor Selg",  "architect": "L'Architecte",
+                  "senator": "Sénateur Arnheim"}
+        lvl_labels = {"low": "MÉFIANT", "medium": "NEUTRE",
+                      "high": "COOPÉRATIF", "trust": "CONFIANCE"}
+        lvl_cols   = {"low": RED_ACCENT, "medium": GOLD,
+                      "high": (100, 210, 80), "trust": CYAN}
+
+        for i, char in enumerate(self.CHARS):
+            score = self._scores.get(char, 50)
+            lvl   = self.level(char)
+            col   = lvl_cols[lvl]
+            ry    = y + 58 + i * 43
+            row = pygame.Surface((W - 28, 36), pygame.SRCALPHA)
+            row.fill((*col, 12))
+            pygame.draw.rect(row, (*col, 40), (0, 0, W - 28, 36), width=1, border_radius=5)
+            screen.blit(row, (x + 14, ry))
+            screen.blit(f.render(labels.get(char, char), True, TEXT_MAIN), (x + 22, ry + 8))
+            bar_x, bar_w, bar_h = x + 240, 120, 10
+            pygame.draw.rect(screen, (*DARK_BG, 180), (bar_x, ry + 13, bar_w, bar_h), border_radius=4)
+            if score > 0:
+                pygame.draw.rect(screen, (*col, 220),
+                                 (bar_x, ry + 13, int(bar_w * score / 100), bar_h), border_radius=4)
+            screen.blit(fs.render(lvl_labels[lvl], True, col), (bar_x + bar_w + 8, ry + 12))
+
+        hint_s = fs.render("[R / Échap] Fermer", True, TEXT_GRAY)
+        screen.blit(hint_s, (x + W // 2 - hint_s.get_width() // 2, y + H - 26))
+
+    def to_dict(self) -> dict:
+        return dict(self._scores)
+
+    def from_dict(self, data: dict) -> None:
+        for char in self.CHARS:
+            if char in data:
+                self._scores[char] = int(data[char])

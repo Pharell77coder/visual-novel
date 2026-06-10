@@ -256,8 +256,11 @@
 #   Chapitre VII  — La Décision (étendu)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-SCRIPT = [
 
+# ══════════════════════════════════════════════════════════════════════
+# Chapitre I — La Nuit sans Témoin
+# ══════════════════════════════════════════════════════════════════════
+SCRIPT_I = [
     # ══════════════════════════════════════════════════════════════════════════
     # ████  CHAPITRE I — "La Nuit sans Témoin"  ████
     # ══════════════════════════════════════════════════════════════════════════
@@ -682,6 +685,12 @@ SCRIPT = [
 
     {"chapter_end": 1, "bg": "toit", "char": None, "side": "left",
      "name": "", "text": ""},
+]
+
+# ══════════════════════════════════════════════════════════════════════
+# Chapitre II — Le Prix de la Vérité
+# ══════════════════════════════════════════════════════════════════════
+SCRIPT_II = [
 
 
  # ══════════════════════════════════════════════════════════════════════════
@@ -1165,6 +1174,12 @@ SCRIPT = [
 
     {"chapter_end": 2, "bg": "geneve", "char": None, "side": "left",
      "name": "", "text": ""},
+]
+
+# ══════════════════════════════════════════════════════════════════════
+# Chapitre III — L'Architecte
+# ══════════════════════════════════════════════════════════════════════
+SCRIPT_III = [
 
 
  # ══════════════════════════════════════════════════════════════════════════
@@ -1548,6 +1563,12 @@ SCRIPT = [
     # ── Marqueur fin de chapitre III → carte narrative ───────────────────────
     {"chapter_end": 3, "bg": "toit", "char": None, "side": "left",
      "name": "", "text": ""},
+]
+
+# ══════════════════════════════════════════════════════════════════════
+# Chapitre III-B — Terrain
+# ══════════════════════════════════════════════════════════════════════
+SCRIPT_IIIb = [
 
 
 
@@ -1870,13 +1891,12 @@ SCRIPT = [
      "name": "",
      "text": ""
     },
+]
 
-
-
-    # ======================================================================
-    # ████  CHAPITRE III-C — "Mémoire"  ████
-    # ======================================================================
-
+# ══════════════════════════════════════════════════════════════════════
+# Chapitre III-C — Mémoire
+# ══════════════════════════════════════════════════════════════════════
+SCRIPT_IIIc = [
     {
      "bg": "bureau",
      "rain": False,
@@ -2232,11 +2252,12 @@ SCRIPT = [
      "name": "",
      "text": ""
     },
+]
 
-
-    # ── Transition vers Chapitre IV ─────────────────────────────────────
-
-    # ── Titre ──────────────────────────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════════
+# Chapitre IV — L'Héritage
+# ══════════════════════════════════════════════════════════════════════
+SCRIPT_IV = [
     {"bg": "appartement", "rain": True, "transition": "fade_black",
      "char": None, "side": "left",
      "name": "", "text": "CHAPITRE IV — L'Héritage"},
@@ -2587,6 +2608,12 @@ SCRIPT = [
 
     # Marqueur fin de chapitre → NarrativeMap
     {"chapter_end": 4, "bg": "toit", "char": None, "side": "left", "name": "", "text": ""},
+]
+
+# ══════════════════════════════════════════════════════════════════════
+# Chapitre V — Le Fantôme
+# ══════════════════════════════════════════════════════════════════════
+SCRIPT_V = [
 
     # ══════════════════════════════════════════════════════════════════════════
     # ████  CHAPITRE V — "Le Fantôme"  ████
@@ -2908,6 +2935,12 @@ SCRIPT = [
      "name": "", "text": "─── FIN DU CHAPITRE V ───"},
 
     {"chapter_end": 5, "bg": "hotel_berlin", "char": None, "side": "left", "name": "", "text": ""},
+]
+
+# ══════════════════════════════════════════════════════════════════════
+# Chapitre VI — Parlement
+# ══════════════════════════════════════════════════════════════════════
+SCRIPT_VI = [
 
     # ══════════════════════════════════════════════════════════════════════════
     # ████  CHAPITRE VI — "Parlement"  ████
@@ -3228,6 +3261,12 @@ SCRIPT = [
      "name": "", "text": "─── FIN DU CHAPITRE VI ───"},
 
     {"chapter_end": 6, "bg": "toit", "char": None, "side": "left", "name": "", "text": ""},
+]
+
+# ══════════════════════════════════════════════════════════════════════
+# Chapitre VII — La Décision
+# ══════════════════════════════════════════════════════════════════════
+SCRIPT_VII = [
 
     # ══════════════════════════════════════════════════════════════════════════
     # ████  CHAPITRE VII — "La Décision"  ████
@@ -3594,6 +3633,12 @@ SCRIPT = [
      "text": "─── FIN DE NUIT SANS TÉMOIN ───\n\nMerci à Marcus Vane.\nEt à tous ceux qui n'ont pas abandonné."},
 
     {"chapter_end": 7, "bg": "toit", "char": None, "side": "left", "name": "", "text": ""},
+]
+
+# ══════════════════════════════════════════════════════════════════════
+# Extensions inline (nœuds dans SCRIPT original)
+# ══════════════════════════════════════════════════════════════════════
+SCRIPT_EXT_INLINE = [
 
     # ======================================================================
     # ████  EXTENSIONS — Branches Chapitres I & II  ████
@@ -4335,81 +4380,6 @@ SCRIPT = [
 
 ]
 
-EXAMPLE_SCRIPT_NODES = [
-    {
-        "id": "sc_01",
-        "bg": "bureau_nuit",
-        "char": "vane",
-        "text": "Ce dossier ne tient pas debout.",
-        # Pas de clé "transition" → FadeBlack par défaut (0.7 s)
-    },
-    {
-        "id": "sc_02",
-        "bg": "rue_pluie",
-        "char": "vane",
-        "text": "Dehors, la pluie efface les empreintes.",
-        "transition": "slide_left",     # Déplacement spatial
-    },
-    {
-        "id": "sc_03",
-        "bg": "metro",
-        "char": "narrateur",
-        "text": "Trois heures plus tard…",
-        "transition": "fade_black",     # Ellipse temporelle
-    },
-    {
-        "id": "sc_04",
-        "bg": "flashback_enfance",
-        "char": "vane",
-        "text": "Je me souviens de ce matin-là.",
-        "transition": "fade_white",     # Flashback
-    },
-    {
-        "id": "sc_05",
-        "bg": "salle_interrogatoire",
-        "char": "commissaire",
-        "text": "Asseyez-vous, inspecteur.",
-        "transition": "iris",           # Scène dramatique
-    },
-]
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# NUIT SANS TÉMOIN — script_extension.py
-# ═══════════════════════════════════════════════════════════════════════════════
-#
-#  Ce fichier contient :
-#    1. Les extensions des branches Ch1 / Ch2 / Ch3 (15–20 nœuds exclusifs)
-#    2. Chapitre III-B  — "Terrain"  (enquête de terrain, témoins, micro-indices)
-#    3. Chapitre III-C  — "Mémoire"  (repos, flashbacks Raven, character building)
-#
-#  Intégration dans script.py :
-#    • Ajouter  from script_extension import SCRIPT_EXT  en haut de script.py
-#    • Remplacer la seconde occurrence "chapter_end: 3" du tronc commun par
-#      les nœuds de ce fichier (voir commentaires ci-dessous).
-#    OU plus simplement, à la fin de script.py :
-#      SCRIPT = SCRIPT + SCRIPT_EXT
-#    (L'engine lit les id= pour les branchements, l'ordre linéaire sert au
-#     fallback ; les nœuds avec id sont toujours référencés par leur id.)
-#
-# ═══════════════════════════════════════════════════════════════════════════════
-#
-# LORE — Synarchie (rappel compact pour cohérence rédactionnelle)
-# ───────────────────────────────────────────────────────────────
-#  Le "Viertes Reich" (Quatrième Reich) est le nom interne du projet.
-#  Plan en 4 étapes :
-#    1. Infiltrer les institutions européennes
-#    2. Faire voter une fusion des États membres en un seul État
-#    3. Placer un des leurs à la tête de cet État
-#    4. Éliminer tout obstacle (journalistes, juges, politiciens récalcitrants)
-#  La Synarchie finance ses ops via un réseau bancaire offshore actif depuis 1952.
-#  Elle se présente en public comme un cercle pro-fédéraliste respectable.
-# ═══════════════════════════════════════════════════════════════════════════════
-
-# ─────────────────────────────────────────────────────────────────────────────
-#  SECTION A : EXTENSIONS DES BRANCHES CH1
-#  Les branches "interrogation" et "scene" gagnent chacune ~15 nœuds exclusifs
-#  avant de rejoindre le tronc commun au choix solo/team.
-# ─────────────────────────────────────────────────────────────────────────────
 
 SCRIPT_CH1_BRANCH_EXT = [
 
@@ -5228,3 +5198,34 @@ SCRIPT_EXT = (
     + SCRIPT_CH3B
     + SCRIPT_CH3C
 )
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ASSEMBLAGE FINAL — SCRIPT = SCRIPT_I + SCRIPT_II + ... + SCRIPT_VII
+# ═══════════════════════════════════════════════════════════════════════════════
+
+SCRIPT = (
+    SCRIPT_I
+    + SCRIPT_II
+    + SCRIPT_III
+    + SCRIPT_IIIb
+    + SCRIPT_IIIc
+    + SCRIPT_IV
+    + SCRIPT_V
+    + SCRIPT_VI
+    + SCRIPT_VII
+    + SCRIPT_EXT_INLINE
+    + SCRIPT_CH1_BRANCH_EXT
+    + SCRIPT_CH2_BRANCH_EXT
+    + SCRIPT_CH3B
+    + SCRIPT_CH3C
+)
+
+# Horloge — ancrer l'heure d'une scène
+{"bg": "scene_de_crime", "time": "02:37", "text": "…"}
+
+# Journal — ajouter une note automatiquement
+{"note": "La Synarchie n'est pas morte à Genève. Elle a mué.", "text": "…"}
+
+# Réputation — modifier la confiance envers un PNJ
+{"rep_change": {"natasha": 10}, "text": "…"}
+{"rep_change": {"ferriere": -20}, "text": "…"}
