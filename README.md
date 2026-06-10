@@ -290,143 +290,225 @@ Projet personnel / éducatif. Assets visuels et musicaux propriétaires — non 
 
 ---
 
-## Guide 100% — NUIT SANS TÉMOIN
-Le 100% couvre : toutes les preuves (collectées automatiquement en avançant), toutes les déductions (combinées manuellement avec [D]), toutes les 23 CG, et les 2 fins du Chapitre VII. Certaines choses sont exclusives à une branche — il faudra au moins deux parties pour tout débloquer.
+# 🏆 GUIDE DE COMPLÉTION 100%
 
-### CHAPITRE I — La Nuit sans Témoin
-Preuves (4)
-Preuve Comment Dossier Vane Automatique — scène de crime Clé USB Automatique — fouille de Vane → CG 02 Trace de pneus Choix 1 → "Examiner la scène" (branche scene) Témoignage rue Choix 1 → "Interroger les témoins" (branche interrogation) Fichiers Synarchie Automatique — décryptage bureau nuit → CG 03 Enregistrement Taro Mini-jeu d'interrogatoire Taro (succès)
-Note : Trace de pneus et Témoignage rue sont mutuellement exclusifs selon le Choix 1. Prévoir deux runs.
-CG du Chapitre I
+Ce guide officiel vous permettra de débloquer **l'intégralité du contenu** : toutes les preuves, les 17 combinaisons de déductions, les 23 CG (illustrations), et les 2 fins alternatives du jeu[cite: 1]. 
 
-CG 01 — scène de crime, automatique
-CG 02 — la clé USB, automatique
-CG 03 — bureau 3h du matin, automatique
-CG 04 — sur les toits, fin du chapitre, automatique
+> ⚠️ **Note sur la rejouabilité** : Certains choix scénaristiques mènent à des branches mutuellement exclusives[cite: 1]. **Au moins deux parties complètes (runs) sont indispensables** pour obtenir le 100%[cite: 1].
 
-Choix 2 (solo vs team) — impact sur les branches mais pas sur les CG de ce chapitre. Choisir les deux en deux runs pour compléter la carte narrative.
-Déductions à combiner ([D])
+---
 
-Dossier Vane + Clé USB → Double comptabilité
-Clé USB + Fichiers Synarchie → La clé de tout
-Trace de pneus + Dossier Vane → La voiture de l'exécuteur
-Trace de pneus + Fichiers Synarchie → Logistique intégrée
+## 📅 CHAPITRE I — La Nuit sans Témoin
 
+### Preuves du Chapitre I (4)
+* **Dossier Vane** : Automatique — scène de crime[cite: 1].
+* **Clé USB** : Automatique — fouille de Vane $\rightarrow$ **Débloque la CG 02**[cite: 1].
+* **Trace de pneus** : Choix 1 $\rightarrow$ "Examiner la scène" (branche scene)[cite: 1]. *Exclusif Run 1*[cite: 1].
+* **Témoignage rue** : Choix 1 $\rightarrow$ "Interroger les témoins" (branche interrogation)[cite: 1]. *Exclusif Run 2*[cite: 1].
+* **Fichiers Synarchie** : Automatique — décryptage bureau nuit $\rightarrow$ **Débloque la CG 03**[cite: 1].
+* **Enregistrement Taro** : Mini-jeu d'interrogatoire Taro (succès)[cite: 1].
 
-### CHAPITRE II — Le Prix de la Vérité
-Preuves (5)
-Preuve Comment Registre Off shore Automatique — rencontre Natasha Photo du Fantôme Automatique (variante selon branche trust/resist) Enregistrement Taro Reporté depuis Ch1 si mini-jeu raté — ou re-obtenu Clé du Loft 7 Branche "S'infiltrer" (ch2_infiltrate) Rapport interne Branche "S'infiltrer" ou "Faire pression" (ch2_press)
-Choix du Chapitre II
-Choix Branches Impact CG Choix A Trust Natasha / Résister seul Aucun sur les CG Choix B S'infiltrer / Faire pressionRapport interne + Clé Loft 7Choix CTrahir / ProtégerAucun CG exclusif
-CG du Chapitre II
+> **Note** : Trace de pneus et Témoignage rue sont mutuellement exclusifs selon le Choix 1[cite: 1]. Prévoir deux runs[cite: 1].
 
-CG 05 — Ferrière dans l'ombre, automatique en début de chapitre
-CG 06 — Le Loft 7 → branche ch2_infiltrate uniquement
-CG 07 — Natasha Contact, automatique
-CG 08 — Fuite à l'aéroport, automatique vers la fin
+### Déductions à combiner `[D]` (Chapitre I)
+* `Dossier Vane` + `Clé USB` $\rightarrow$ **Double comptabilité**[cite: 1]
+* `Clé USB` + `Fichiers Synarchie` $\rightarrow$ **La clé de tout**[cite: 1]
+* `Trace de pneus` + `Dossier Vane` $\rightarrow$ **La voiture de l'exécuteur**[cite: 1]
+* `Trace de pneus` + `Fichiers Synarchie` $\rightarrow$ **Logistique intégrée**[cite: 1]
 
-Déductions
+### Illustrations (CG) du Chapitre I
+* **CG 01** : Scène de crime, automatique[cite: 1]
+* **CG 02** : La clé USB, automatique[cite: 1]
+* **CG 03** : Bureau 3h du matin, automatique[cite: 1]
+* **CG 04** : Sur les toits, fin du chapitre, automatique[cite: 1]
 
-Registre Offshore + Fichiers Synarchie → Le circuit de blanchiment
-Photo du Fantôme + Enregistrement Taro → Identification Ferrière
-Photo du Fantôme + Clé du Loft 7 → Le QG du fantôme
-Enregistrement Taro + Registre Offshore → La commission de Ferrière
-Clé du Loft 7 + Rapport interne → Nœud opérationnel
+> **Choix 2 (solo vs team)** : Impact sur les branches mais pas sur les CG de ce chapitre[cite: 1]. Choisir les deux en deux runs pour compléter la carte narrative[cite: 1].
 
+---
 
-### CHAPITRE III — L'Architecte
-Preuves (5)
-PreuveCommentAccord SecretBranche ch3_confront (confronter Voss)Enregistrement finalBranche ch3_expose (transmettre à Interpol)Schéma du RéseauAutomatique — rencontre VossIdentité de l'ArchitecteAutomatiquePasseport FantômeAutomatique — arrestation Selg
-Choix du Chapitre III
-ChoixBranchesCG exclusifsChoix DConfronter / Observer dans l'ombre—Choix EExposer à Interpol / Négocier—Choix FSe sacrifier / FuirCG 11 (sacrifice) ou CG 12 (fuite)
+## 📅 CHAPITRE II — Le Prix de la Vérité
 
-CG 09 — Genève sous la pluie, automatique
-CG 10 — Face à l'Architecte, automatique
-CG 11 ⚠️ Exclusif → Choix F : "Se sacrifier pour Sato"
-CG 12 ⚠️ Exclusif → Choix F : "Fuir avec les preuves"
-CG 13 — Épilogue sur les toits, automatique (fin du chapitre)
+### Preuves du Chapitre II (5)
+* **Registre Offshore** : Automatique — rencontre Natasha[cite: 1].
+* **Photo du Fantôme** : Automatique (variante selon branche trust/resist)[cite: 1].
+* **Enregistrement Taro** : Reporté depuis Ch1 si mini-jeu réussi — ou ré-obtenu ici si raté[cite: 1].
+* **Clé du Loft 7** : Branche "S'infiltrer" (ch2_infiltrate)[cite: 1].
+* **Rapport interne** : Branche "S'infiltrer" ou "Faire pression" (ch2_press)[cite: 1].
 
-Déductions
+### Choix du Chapitre II
 
-Passeport Fantôme + Schéma du Réseau → L'Architecte multinational
-Schéma du Réseau + Registre Offshore → L'épine dorsale financière
-Accord Secret + Enregistrement final → L'aveu contractuel
-Identité de l'Architecte + Passeport Fantôme → Le masque final
-Identité de l'Architecte + Schéma du Réseau → L'organigramme complet
-Enregistrement final + Rapport interne → Opérations confirmées
-Clé USB + Accord Secret → Le fil directeur (transversale)
-Dossier Vane + Identité de l'Architecte → De la ruelle au sommet (transversale)
+| Choix | Branches disponibles | Impact CG |
+| :---: | :--- | :--- |
+| **Choix A** | Trust Natasha / Résister seul | Aucun sur les CG[cite: 1] |
+| **Choix B** | S'infiltrer / Faire pression | Rapport interne + Clé Loft 7[cite: 1] |
+| **Choix C** | Trahir / Protéger | Aucun CG exclusif[cite: 1] |
 
+### Illustrations (CG) du Chapitre II
+* **CG 05** : Ferrière dans l'ombre, automatique en début de chapitre[cite: 1]
+* **CG 06** : Le Loft 7 ⚠️ *(Branche ch2_infiltrate uniquement)*[cite: 1]
+* **CG 07** : Natasha Contact, automatique[cite: 1]
+* **CG 08** : Fuite à l'aéroport, automatique vers la fin[cite: 1]
 
-### CHAPITRE IV — L'Héritage
-CG 14 — La Photo, automatique en ouverture
-Preuves (5)
-PreuveCommentPhoto de surveillanceAutomatiqueClé USB #2AutomatiqueBadge magnétiqueAutomatiqueListe de contactsAutomatiqueDossier MiraAutomatique — rencontre Mira → CG 15
-Choix du Chapitre IV
-ChoixBranchesChoix GContacter Sato / Agir seulChoix HProtéger Mira / Enregistrer secrètementChoix IContacter la presse / S'infiltrer au Parlement
+### Déductions à combiner `[D]` (Chapitre II)
+* `Registre Offshore` + `Fichiers Synarchie` $\rightarrow$ **Le circuit de blanchiment**[cite: 1]
+* `Photo du Fantôme` + `Enregistrement Taro` $\rightarrow$ **Identification Ferrière**[cite: 1]
+* `Photo du Fantôme` + `Clé du Loft 7` $\rightarrow$ **Le QG du fantôme**[cite: 1]
+* `Enregistrement Taro` + `Registre Offshore` $\rightarrow$ **La commission de Ferrière**[cite: 1]
+* `Clé du Loft 7` + `Rapport interne` $\rightarrow$ **Nœud opérationnel**[cite: 1]
 
-CG 15 — Le Parking, automatique (rencontre Mira)
-CG 16 — Les Archives, branche ch4_infiltrate (Choix I → "S'infiltrer")
+---
 
-Déductions
+## 📅 CHAPITRE III — L'Architecte
 
-Photo de surveillance + Badge magnétique → Surveillance institutionnelle
-Clé USB #2 + Fichiers Synarchie → Le successeur prévu
-Liste de contacts + Identité de l'Architecte → Réseau survivant
-Dossier Mira + Photo de surveillance → Mira — actif ou double jeu ?
+### Preuves du Chapitre III (5)
+* **Accord Secret** : Branche ch3_confront (confronter Voss)[cite: 1].
+* **Enregistrement final** : Branche ch3_expose (transmettre à Interpol)[cite: 1].
+* **Schéma du Réseau** : Automatique — rencontre Voss[cite: 1].
+* **Identité de l'Architecte** : Automatique[cite: 1].
+* **Passeport Fantôme** : Automatique — arrestation Selg[cite: 1].
 
+### Choix du Chapitre III
 
-### CHAPITRE V — Le Fantôme
-Preuves (4)
-PreuveCommentIdentité du FantômeAutomatiqueAccord de BerlinAutomatiqueServeur miroirBranche ch5_follow_ghost (suivre discrètement)Témoin protégéBranche ch5_confront_ghost ou ch5_follow_ghost
-Choix du Chapitre V
-ChoixBranchesCG exclusifsChoix JFaire entièrement confiance à Mira / Jouer double jeuCG 17 si double jeuChoix KAffronter le Fantôme / Le suivreCG 19 si affrontement directChoix LBrûler le serveur / Garder intact—
+| Choix | Branches disponibles | CG exclusifs |
+| :---: | :--- | :--- |
+| **Choix D** | Confronter / Observer dans l'ombre | —[cite: 1] |
+| **Choix E** | Exposer à Interpol / Négocier | —[cite: 1] |
+| **Choix F** | Se sacrifier / Fuir | CG 11 (sacrifice) ou CG 12 (fuite)[cite: 1] |
 
-CG 17 ⚠️ Exclusif → Choix J : "Jouer double jeu" (ch5_doubt_mira)
-CG 18 — Berlin avant la tempête, automatique
-CG 19 ⚠️ Exclusif → Choix K : "L'affronter directement" (ch5_confront_ghost)
+### Illustrations (CG) du Chapitre III
+* **CG 09** : Genève sous la pluie, automatique[cite: 1]
+* **CG 10** : Face à l'Architecte, automatique[cite: 1]
+* **CG 11** : ⚠️ **Exclusif** $\rightarrow$ Choix F : "Se sacrifier pour Sato"[cite: 1]
+* **CG 12** : ⚠️ **Exclusif** $\rightarrow$ Choix F : "Fuir avec les preuves"[cite: 1]
+* **CG 13** : Épilogue sur les toits, automatique (fin du chapitre)[cite: 1]
 
-Déductions
+### Déductions à combiner `[D]` (Chapitre III)
+* `Passeport Fantôme` + `Schéma du Réseau` $\rightarrow$ **L'Architecte multinational**[cite: 1]
+* `Schéma du Réseau` + `Registre Offshore` $\rightarrow$ **L'épine dorsale financière**[cite: 1]
+* `Accord Secret` + `Enregistrement final` $\rightarrow$ **L'aveu contractuel**[cite: 1]
+* `Identité de l'Architecte` + `Passeport Fantôme` $\rightarrow$ **Le masque final**[cite: 1]
+* `Identité de l'Architecte` + `Schéma du Réseau` $\rightarrow$ **L'organigramme complet**[cite: 1]
+* `Enregistrement final` + `Rapport interne` $\rightarrow$ **Opérations confirmées**[cite: 1]
+* `Clé USB` + `Accord Secret` $\rightarrow$ **Le fil directeur** *(Transversale)*[cite: 1]
+* `Dossier Vane` + `Identité de l'Architecte` $\rightarrow$ **De la ruelle au sommet** *(Transversale)*[cite: 1]
 
-Identité du Fantôme + Accord de Berlin → L'architecte adjoint
-Serveur miroir + Clé USB #2 → Les données ne meurent pas
-Témoin protégé + Enregistrement Taro → Chaîne de commandement
+---
 
+## 📅 CHAPITRE IV — L'Héritage
 
-### CHAPITRE VI — Parlement
-Preuves (4)
-PreuveCommentEnregistrement parlementAutomatiqueCompte numérotéAutomatiqueIdentité du SénateurBranche ch6_senate (attaquer par le Sénat)Dossier fantôme vol 219Automatique
-Choix du Chapitre VI
-ChoixBranchesChoix MPar le Sénat / Par l'undergroundChoix NEn équipe / SeulChoix OExposer en live / Laisser fuir vers le bunker
+* **CG 14** : La Photo, automatique en ouverture[cite: 1].
 
-CG 20 — Le Parlement, automatique
+### Preuves du Chapitre IV (5)
+* **Photo de surveillance** : Automatique[cite: 1].
+* **Clé USB #2** : Automatique[cite: 1].
+* **Badge magnétique** : Automatique[cite: 1].
+* **Liste de contacts** : Automatique[cite: 1].
+* **Dossier Mira** : Automatique — rencontre Mira $\rightarrow$ **Débloque la CG 15**[cite: 1].
 
-Déductions
+### Choix du Chapitre IV
+* **Choix G** : Contacter Sato / Agir seul[cite: 1]
+* **Choix H** : Protéger Mira / Enregistrer secrètement[cite: 1]
+* **Choix I** : Contacter la presse / S'infiltrer au Parlement[cite: 1]
 
-Enregistrement parlement + Accord Secret → Corruption au sommet de l'UE
-Compte numéroté + Registre Offshore → Même banque, vingt ans
-Identité du Sénateur + Liste de contacts → Le législateur est la Synarchie
+### Illustrations (CG) du Chapitre IV
+* **CG 15** : Le Parking, automatique (rencontre Mira)[cite: 1]
+* **CG 16** : Les Archives, branche ch4_infiltrate (Choix I $\rightarrow$ "S'infiltrer")[cite: 1]
 
+### Déductions à combiner `[D]` (Chapitre IV)
+* `Photo de surveillance` + `Badge magnétique` $\rightarrow$ **Surveillance institutionnelle**[cite: 1]
+* `Clé USB #2` + `Fichiers Synarchie` $\rightarrow$ **Le successeur prévu**[cite: 1]
+* `Liste de contacts` + `Identité de l'Architecte` $\rightarrow$ **Réseau survivant**[cite: 1]
+* `Dossier Mira` + `Photo de surveillance` $\rightarrow$ **Mira — actif ou double jeu ?**[cite: 1]
 
-### CHAPITRE VII — La Décision
-Preuves (4)
-PreuveCommentTestament de VaneAutomatique — ouverture bunkerPreuve ultimeAutomatiqueCoordonnées bunkerAutomatiqueDécision finaleSelon branche finale
-Choix du Chapitre VII
-ChoixBranchesChoix PIntégrer Sato / La tenir à l'écartChoix QAccord partiel avec l'Architecte / Refus totalChoix R"Reprendre" / "Disparaître" ← fins exclusives
+---
 
-CG 21 — Le Bunker, automatique
-CG 22 ⚠️ Exclusif → Choix R : "Reprendre — la lumière a besoin de quelqu'un" → Fin Lumière
-CG 23 ⚠️ Exclusif → Choix R : "Disparaître — et vivre enfin" → Fin Ombre
+## 📅 CHAPITRE V — Le Fantôme
 
-Déductions
+### Preuves du Chapitre V (4)
+* **Identité du Fantôme** : Automatique[cite: 1].
+* **Accord de Berlin** : Automatique[cite: 1].
+* **Serveur miroir** : Branche ch5_follow_ghost (suivre discrètement)[cite: 1].
+* **Témoin protégé** : Branche ch5_confront_ghost ou ch5_follow_ghost[cite: 1].
 
-Testament de Vane + Dossier Vane → Vane savait depuis le début
-Preuve ultime + Schéma du Réseau → L'organigramme complet (Ch1–Ch7)
-Coordonnées bunker + Passeport Fantôme → L'Architecte n'a jamais fui
+### Choix du Chapitre V
 
+| Choix | Branches disponibles | CG exclusifs |
+| :---: | :--- | :--- |
+| **Choix J** | Faire entièrement confiance à Mira / Jouer double jeu | CG 17 si double jeu[cite: 1] |
+| **Choix K** | Affronter le Fantôme / Le suivre | CG 19 si affrontement direct[cite: 1] |
+| **Choix L** | Brûler le serveur / Garder intact | —[cite: 1] |
 
-Récap — Ce qui nécessite au moins 2 parties
-ÉlémentRun 1Run 2CG 11 vs CG 12Se sacrifierFuirCG 22 vs CG 23Fin LumièreFin OmbreCG 17Double-jeu Mira—CG 19Confronter le Fantôme—CG 06S'infiltrer (Ch2)—CG 16S'infiltrer Parlement (Ch4)—Trace de pneus vs Témoignage rueScèneTémoins
-Tout le reste (preuves, déductions, CG 01 à 05, 07 à 10, 13 à 15, 18, 20, 21) s'obtient en avançant naturellement, quelle que soit la branche.
+### Illustrations (CG) du Chapitre V
+* **CG 17** : ⚠️ **Exclusif** $\rightarrow$ Choix J : "Jouer double jeu" (ch5_doubt_mira)[cite: 1]
+* **CG 18** : Berlin avant la tempête, automatique[cite: 1]
+* **CG 19** : ⚠️ **Exclusif** $\rightarrow$ Choix K : "L'affronter directement" (ch5_confront_ghost)[cite: 1]
 
+### Déductions à combiner `[D]` (Chapitre V)
+* `Identité du Fantôme` + `Accord de Berlin` $\rightarrow$ **L'architecte adjoint**[cite: 1]
+* `Serveur miroir` + `Clé USB #2` $\rightarrow$ **Les données ne meurent pas**[cite: 1]
+* `Témoin protégé` + `Enregistrement Taro` $\rightarrow$ **Chaîne de commandement**[cite: 1]
+
+---
+
+## 📅 CHAPITRE VI — Parlement
+
+### Preuves du Chapitre VI (4)
+* **Enregistrement parlement** : Automatique[cite: 1].
+* **Compte numéroté** : Automatique[cite: 1].
+* **Identité du Sénateur** : Branche ch6_senate (attaquer par le Sénat)[cite: 1].
+* **Dossier fantôme vol 219** : Automatique[cite: 1].
+
+### Choix du Chapitre VI
+* **Choix M** : Par le Sénat / Par l'underground[cite: 1]
+* **Choix N** : En équipe / Seul[cite: 1]
+* **Choix O** : Exposer en live / Laisser fuir vers le bunker[cite: 1]
+
+### Illustrations (CG) du Chapitre VI
+* **CG 20** : Le Parlement, automatique[cite: 1]
+
+### Déductions à combiner `[D]` (Chapitre VI)
+* `Enregistrement parlement` + `Accord Secret` $\rightarrow$ **Corruption au sommet de l'UE**[cite: 1]
+* `Compte numéroté` + `Registre Offshore` $\rightarrow$ **Même banque, vingt ans**[cite: 1]
+* `Identité du Sénateur` + `Liste de contacts` $\rightarrow$ **Le législateur est la Synarchie**[cite: 1]
+
+---
+
+## 📅 CHAPITRE VII — La Décision
+
+### Preuves du Chapitre VII (4)
+* **Testament de Vane** : Automatique — ouverture bunker[cite: 1].
+* **Preuve ultime** : Automatique[cite: 1].
+* **Coordonnées bunker** : Automatique[cite: 1].
+* **Décision finale** : Selon branche finale[cite: 1].
+
+### Choix du Chapitre VII
+* **Choix P** : Intégrer Sato / La tenir à l'écart[cite: 1]
+* **Choix Q** : Accord partiel avec l'Architecte / Refus total[cite: 1]
+* **Choix R** : "Reprendre" / "Disparaître" $\rightarrow$ *Fins exclusives*[cite: 1]
+
+### Illustrations (CG) du Chapitre VII
+* **CG 21** : Le Bunker, automatique[cite: 1]
+* **CG 22** : ⚠️ **Exclusif** $\rightarrow$ Choix R : "Reprendre — la lumière a besoin de quelqu'un" $\rightarrow$ **Fin Lumière**[cite: 1]
+* **CG 23** : ⚠️ **Exclusif** $\rightarrow$ Choix R : "Disparaître — et vivre enfin" $\rightarrow$ **Fin Ombre**[cite: 1]
+
+### Déductions à combiner `[D]` (Chapitre VII)
+* `Testament de Vane` + `Dossier Vane` $\rightarrow$ **Vane savait depuis le début**[cite: 1]
+* `Preuve ultime` + `Schéma du Réseau` $\rightarrow$ **L'organigramme complet (Ch1–Ch7)**[cite: 1]
+* `Coordonnées bunker` + `Passeport Fantôme` $\rightarrow$ **L'Architecte n'a jamais fui**[cite: 1]
+
+---
+
+## 🔁 Récap — Ce qui nécessite au moins 2 parties
+
+Tout le reste (preuves, déductions, CG 01 à 05, 07 à 10, 13 à 15, 18, 20, 21) s'obtient en avançant naturellement, quelle que soit la branche[cite: 1].
+
+| Élément | Run 1 | Run 2 |
+| :--- | :--- | :--- |
+| **CG 11 vs CG 12** | Se sacrifier[cite: 1] | Fuir[cite: 1] |
+| **CG 22 vs CG 23** | Fin Lumière[cite: 1] | Fin Ombre[cite: 1] |
+| **CG 17** | Double-jeu Mira[cite: 1] | —[cite: 1] |
+| **CG 19** | Confronter le Fantôme[cite: 1] | —[cite: 1] |
+| **CG 06** | S'infiltrer (Ch2)[cite: 1] | —[cite: 1] |
+| **CG 16** | S'infiltrer Parlement (Ch4)[cite: 1] | —[cite: 1] |
+| **Exclusivité Ch1** | Trace de pneus[cite: 1] | Témoignage rue[cite: 1] |
 ---
